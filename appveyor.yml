@@ -61,6 +61,5 @@ test: off
     # - ps: Invoke-Build .
 
 notifications:
-# Slack
     - provider: Slack
-        incoming_webhook: https://hooks.slack.com/services/REDACTED
+    incoming_webhook: https://hooks.slack.com/services/REDACTED
