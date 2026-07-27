@@ -72,6 +72,15 @@ Invoke-Build -Task TestIntegrationServer
 Integration tests require `.env` for Cloud.
 Server tests use Dockerized Jira Data Center and can be slow.
 
+## Branch, Commit, and Merge Workflow
+
+- Start each new coherent piece of work from a clean `master` branch and create a dedicated, descriptively named task branch before editing tracked files.
+- Keep directly related implementation, tests, documentation, and changelog changes together on that branch; do not mix unrelated work or reuse a merged branch.
+- Commit the completed work only after the repository's required focused and full validation passes.
+- When a requested series has further directly related work, keep the task branch open and continue there.
+- When no further related work remains and validation is green, merge the completed task branch into `master` using the repository's normal protected-branch or pull-request workflow, then verify `master` is clean.
+- Do not push branches, tags, or merges to a remote unless the user explicitly requests it.
+
 ## Coding Rules
 
 - Follow existing cmdlet patterns: public cmdlet -> `Invoke-JiraMethod` -> private converter or resolver.
