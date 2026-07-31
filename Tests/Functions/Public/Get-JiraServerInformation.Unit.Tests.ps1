@@ -60,6 +60,11 @@ InModuleScope JiraPS {
         }
 
         Describe "Behavior" {
+            BeforeEach {
+                $script:JiraServerInfo = $null
+                $script:JiraServerMetadata = @{}
+            }
+
             It "returns the server information" {
                 $allResults = Get-JiraServerInformation
                 $allResults | Should -Not -BeNullOrEmpty
@@ -72,18 +77,48 @@ InModuleScope JiraPS {
                 $thisAlias.ModuleName | Should -Be "JiraPS"
             }
 
-            It "returns a real [AtlassianPS.JiraPS.ServerInfo] fallback when Invoke-JiraMethod throws" {
-                # Override the success-case mock so the request fails and the
-                # catch{} branch builds the fallback object.
+            It "throws an actionable error when auto-detection fails without explicit metadata" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
+                    throw 'response-body-that-must-not-leak'
+                }
+
+                $errorMessage = $null
+                try {
+                    Get-JiraServerInformation
+                }
+                catch {
+                    $errorMessage = $_.Exception.Message
+                }
+
+                $errorMessage | Should -BeLike '*Configure explicit DeploymentType metadata*'
+                $errorMessage | Should -Not -BeLike '*response-body-that-must-not-leak*'
+            }
+
+            It "returns explicit deployment metadata when server information cannot be retrieved" {
+                $script:JiraServerUrl = [Uri]'https://example.atlassian.net/'
+                $script:JiraServerMetadata = @{ DeploymentType = 'Cloud' }
                 Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
                     throw 'simulated network failure'
                 }
 
-                $fallback = Get-JiraServerInformation -WarningAction SilentlyContinue
+                $serverInfo = Get-JiraServerInformation
 
-                $fallback | Should -BeOfType [AtlassianPS.JiraPS.ServerInfo] -Because 'the catch branch must construct a real .NET instance, not a PSCustomObject with a PSTypeName tag'
-                $fallback.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.ServerInfo'
-                $fallback.DeploymentType | Should -Be 'Server'
+                $serverInfo | Should -BeOfType [AtlassianPS.JiraPS.ServerInfo]
+                $serverInfo.DeploymentType | Should -Be 'Cloud'
+                $serverInfo.BaseURL | Should -Be 'https://example.atlassian.net/'
+            }
+
+            It "uses cached server information before auto-detection" {
+                $script:JiraServerInfo = [AtlassianPS.JiraPS.ServerInfo]@{ DeploymentType = 'DataCenter'; Version = '9.12.0' }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
+                    throw 'auto-detection should not run'
+                }
+
+                $serverInfo = Get-JiraServerInformation
+
+                $serverInfo.DeploymentType | Should -Be 'DataCenter'
+                $serverInfo.Version | Should -Be '9.12.0'
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -Scope It
             }
         }
 

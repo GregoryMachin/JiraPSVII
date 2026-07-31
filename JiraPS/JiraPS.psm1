@@ -70,6 +70,7 @@ $script:DefaultHeaders = @{
     "Accept"         = "application/json"
 }
 $script:JiraResponseHeaderLogConfiguration = $null
+$script:JiraLastResponseTelemetry = $null
 $script:PagingContainers = @(
     "comments"
     "dashboards"
@@ -80,6 +81,7 @@ $script:PagingContainers = @(
 )
 $script:SessionTransformationMethod = "ConvertTo-JiraSession"
 $script:JiraServerInfo = $null
+$script:JiraServerMetadata = @{}
 #endregion Configuration
 
 #region LoadFunctions

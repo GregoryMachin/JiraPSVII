@@ -10,6 +10,9 @@
 - Pinned JiraPS `setup-powershell` GitHub Action references to the `AtlassianPS.Standards` `v0.1.11` commit SHA, with a consistency test guarding workflow pin drift against `Tools/build.requirements.psd1`.
 - Switched release-note generation to the shared `build-release-notes` GitHub Action and the shared changelog parser so `CHANGELOG.md`, GitHub release bodies, and PSGallery manifest `ReleaseNotes` use the same source text.
 - Set `JiraPS/JiraPS.psd1` `RequiredModules` to explicit `@()` to keep shared dependency updater behavior deterministic.
+- `Set-JiraConfigServer` now accepts AtlassianPS.Configuration server entries with explicit Jira `DeploymentType`, `AuthenticationType`, and `CloudId` metadata, preserving legacy URI configuration while preventing failed Cloud/Data Center auto-detection from silently downgrading to Server behavior.
+- Generalized JiraPS pagination to support configurable item/token/completion fields such as `issues`, `values`, `nextPageToken`, and `isLast` while preserving offset pagination.
+- JiraPS transport now captures sanitized response telemetry for request IDs, retry/rate-limit headers, deprecation metadata, sunset metadata, and uses bounded jittered retry delays for HTTP 429/503 responses.
 
 ## v3.0.0 - 2026-05-10
 

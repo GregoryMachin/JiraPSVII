@@ -7,7 +7,16 @@
         $Session,
 
         [String]
-        $Username
+        $Username,
+
+        [String]
+        $DeploymentType,
+
+        [String]
+        $AuthenticationType,
+
+        [String]
+        $CloudId
     )
 
     process {
@@ -19,6 +28,15 @@
 
         if ($Username) {
             $hash.Username = $Username
+        }
+        if ($DeploymentType) {
+            $hash.DeploymentType = $DeploymentType
+        }
+        if ($AuthenticationType) {
+            $hash.AuthenticationType = $AuthenticationType
+        }
+        if ($CloudId) {
+            $hash.CloudId = $CloudId
         }
 
         [AtlassianPS.JiraPS.Session]$hash

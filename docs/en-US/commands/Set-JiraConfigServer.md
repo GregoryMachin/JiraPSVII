@@ -15,12 +15,15 @@ Defines the configured URL for the JIRA server
 ## SYNTAX
 
 ```powershell
-Set-JiraConfigServer [-Server] <uri> [<CommonParameters>]
+Set-JiraConfigServer [-Server] <Object> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 This function defines the configured URL for the JIRA server that JiraPS should manipulate.
+The `-Server` parameter still accepts the legacy URI or string value.
+It also accepts an AtlassianPS.Configuration server entry from the pipeline or by property name.
+When the server entry includes `Product`, `DeploymentType`, `AuthenticationType`, or `CloudId`, JiraPS keeps that metadata in the current module session and uses it before probing `/serverInfo`.
 
 ## EXAMPLES
 
@@ -32,14 +35,26 @@ Set-JiraConfigServer 'https://jira.example.com:8080'
 
 This example defines the server URL of the JIRA server configured for the JiraPS module.
 
+### EXAMPLE 2
+
+```powershell
+Get-AtlassianServerConfiguration -Name "Jira Cloud" | Set-JiraConfigServer
+```
+
+This example configures JiraPS from an AtlassianPS.Configuration server entry.
+If the entry contains `DeploymentType = "Cloud"` and OAuth metadata, JiraPS uses that explicit metadata instead of falling back to deployment auto-detection.
+
 ## PARAMETERS
 
 ### -Server
 
-The base URL of the Jira instance.
+The base URL of the Jira instance, or a configuration object with a `Uri` property.
+Configuration objects can also include `Product`, `DeploymentType`, `AuthenticationType`, and `CloudId` metadata.
+Only Jira entries are accepted.
+Cloud and OAuth entries must use HTTPS.
 
 ```yaml
-Type: Uri
+Type: Object
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -48,8 +63,8 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -66,6 +81,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### String
+
+### System.Object
 
 ## OUTPUTS
 

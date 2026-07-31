@@ -21,6 +21,11 @@
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
 
+        if ($script:JiraServerInfo -and -not $Force) {
+            Write-Output $script:JiraServerInfo
+            return
+        }
+
         $parameter = @{
             URI         = $resourceURi
             Method      = "GET"
@@ -33,11 +38,28 @@
 
         try {
             $result = Invoke-JiraMethod @parameter
-            Write-Output (ConvertTo-JiraServerInfo -InputObject $result)
+            $script:JiraServerInfo = ConvertTo-JiraServerInfo -InputObject $result
+            Write-Output $script:JiraServerInfo
         }
         catch {
-            Write-Warning "[$($MyInvocation.MyCommand.Name)] Could not retrieve server information: $_"
-            [AtlassianPS.JiraPS.ServerInfo]@{ DeploymentType = 'Server' }
+            if ($script:JiraServerMetadata -and -not [string]::IsNullOrWhiteSpace([string]$script:JiraServerMetadata.DeploymentType)) {
+                $script:JiraServerInfo = [AtlassianPS.JiraPS.ServerInfo]@{
+                    BaseURL        = $script:JiraServerUrl
+                    DeploymentType = $script:JiraServerMetadata.DeploymentType
+                }
+                Write-Output $script:JiraServerInfo
+                return
+            }
+
+            $exceptionType = if ($_.Exception) { $_.Exception.GetType().FullName } else { 'Unknown' }
+            $exception = [System.InvalidOperationException]"Unable to determine Jira deployment type from /rest/api/2/serverInfo. Configure explicit DeploymentType metadata with AtlassianPS.Configuration and pass that server entry to Set-JiraConfigServer, or fix the Jira URL, network connectivity, or authentication before retrying. Underlying error type: $exceptionType."
+            $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                $exception,
+                'JiraPS.ServerInfo.AutoDetectionFailed',
+                [System.Management.Automation.ErrorCategory]::ConnectionError,
+                $script:JiraServerUrl
+            )
+            throw $errorItem
         }
     }
 

@@ -217,6 +217,8 @@ InModuleScope JiraPS {
                 }
 
                 It "accepts a user object for the -Owner parameter" {
+                    $script:JiraServerMetadata = @{ DeploymentType = 'DataCenter' }
+
                     { Find-JiraFilter -Owner $mockowner.Name } | Should -Not -Throw
 
                     Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
@@ -225,11 +227,10 @@ InModuleScope JiraPS {
                     } -Exactly 1
 
                     # Resolve-JiraUser routes a Name-only stub through
-                    # Get-JiraUser -UserName (DC) or -AccountId (Cloud).
-                    # The Find-JiraFilter mock setup leaves Test-JiraCloudServer
-                    # at its default behaviour, so we accept either dispatch.
+                    # Get-JiraUser -UserName when explicit Data Center metadata
+                    # is configured.
                     Should -Invoke Get-JiraUser -ModuleName JiraPS -ParameterFilter {
-                        $UserName -contains $mockOwner.Name -or $AccountId -contains $mockOwner.Name
+                        $UserName -contains $mockOwner.Name
                     } -Exactly 1
                 }
             }

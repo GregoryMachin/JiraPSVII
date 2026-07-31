@@ -13,10 +13,25 @@ Describe "General project validation" -Tag Unit {
         $script:manifest = Test-ModuleManifest -Path $moduleToTest -ErrorAction Stop -WarningAction SilentlyContinue
 
         $configFile = ("{0}/AtlassianPS/JiraPS/server_config" -f [Environment]::GetFolderPath('ApplicationData'))
-        $script:oldConfig = Get-Content $configFile
+        $configParent = Split-Path -Path $configFile -Parent
+        if (-not (Test-Path -LiteralPath $configParent -PathType Container)) {
+            $null = New-Item -Path $configParent -ItemType Directory -Force
+        }
+        $script:configFileAvailable = Test-Path -LiteralPath $configParent -PathType Container
+        $script:oldConfig = if (Test-Path -LiteralPath $configFile -PathType Leaf) {
+            Get-Content $configFile
+        }
+        else {
+            $null
+        }
     }
     AfterEach {
-        Set-Content -Value $script:oldConfig -Path $configFile -Force
+        if ($null -ne $script:oldConfig) {
+            Set-Content -Value $script:oldConfig -Path $configFile -Force
+        }
+        elseif (Test-Path -LiteralPath $configFile -PathType Leaf) {
+            Remove-Item -LiteralPath $configFile -Force
+        }
 
         Remove-Module JiraPS -ErrorAction SilentlyContinue
     }
@@ -48,7 +63,7 @@ Describe "General project validation" -Tag Unit {
         [Version]($manifest.Version) | Should -BeOfType [Version]
     }
 
-    It "module uses the previous server config when loaded" {
+    It "module uses the previous server config when loaded" -Skip:(-not $script:configFileAvailable) {
         Set-Content -Value "https://example.com" -Path $configFile -Force
 
         Import-Module $moduleToTest -Force

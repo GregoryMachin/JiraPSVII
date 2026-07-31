@@ -60,7 +60,18 @@
     }
 
     if ($StoreSession) {
-        return & $SessionTransformationMethod -Session $Session -Username $Credential.UserName
+        $sessionParameters = @{
+            Session  = $Session
+            Username = $Credential.UserName
+        }
+
+        foreach ($propertyName in @('DeploymentType', 'AuthenticationType', 'CloudId')) {
+            if ($script:JiraServerMetadata -and -not [string]::IsNullOrWhiteSpace([string]$script:JiraServerMetadata[$propertyName])) {
+                $sessionParameters[$propertyName] = $script:JiraServerMetadata[$propertyName]
+            }
+        }
+
+        return & $SessionTransformationMethod @sessionParameters
     }
 
     if (-not $WebResponse.Content) {

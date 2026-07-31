@@ -127,6 +127,7 @@
         }
 
         Write-Debug "[$($MyInvocation.MyCommand.Name)] Executed WebRequest. Access `$webResponse to see details"
+        $null = Resolve-JiraResponseTelemetry -InputObject $webResponse
         $shouldRetry = Test-ServerResponse -InputObject $webResponse -Cmdlet $Cmdlet -RetryCount $_RetryCount
         if ($shouldRetry) {
             $PSBoundParameters['_RetryCount'] = $_RetryCount + 1

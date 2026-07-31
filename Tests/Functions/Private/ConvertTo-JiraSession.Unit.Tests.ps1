@@ -43,6 +43,19 @@ InModuleScope JiraPS {
                 It "defines 'Username' property with correct value" {
                     $result.Username | Should -Be $sampleUsername
                 }
+
+                It "maps explicit configuration metadata when provided" {
+                    $result = ConvertTo-JiraSession `
+                        -Session $sampleSession `
+                        -Username $sampleUsername `
+                        -DeploymentType Cloud `
+                        -AuthenticationType OAuth `
+                        -CloudId '00000000-0000-0000-0000-000000000000'
+
+                    $result.DeploymentType | Should -Be 'Cloud'
+                    $result.AuthenticationType | Should -Be 'OAuth'
+                    $result.CloudId | Should -Be '00000000-0000-0000-0000-000000000000'
+                }
             }
 
             Context "Type Conversion" {

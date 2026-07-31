@@ -35,6 +35,9 @@ Absolute URIs are also accepted for compatibility with object properties like `R
 Use `Set-JiraResponseHeaderLogConfiguration` to opt into response-header logging on the debug stream.
 This is useful when troubleshooting Jira Data Center diagnostic headers such as `X-AREQUESTID`, `X-ANODEID`, `X-ASESSIONID`, and `X-AUSERNAME`.
 Debug output can include diagnostic metadata such as Jira usernames, so review logs before sharing them.
+JiraPS also captures sanitized response telemetry internally for request ID, retry-after, rate-limit, deprecation, sunset, and deprecation-link headers.
+Deprecation and sunset metadata is surfaced as warnings; deprecation links are not followed automatically.
+HTTP 429 and 503 responses are retried with bounded jittered delays.
 
 JiraPS does not support any third-party plugins on Jira.
 This cmdlet can be used to interact with REST Api enpoints which are not already coverted in JiraPS.

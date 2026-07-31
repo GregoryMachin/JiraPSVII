@@ -1,4 +1,4 @@
-﻿// Core Jira domain objects: Issue, Project, User, Version, Filter, Group, etc.
+// Core Jira domain objects: Issue, Project, User, Version, Filter, Group, etc.
 // These are the primary types exchanged between PowerShell cmdlets and the REST API.
 
 using System;
@@ -272,6 +272,9 @@ namespace AtlassianPS.JiraPS
         public object WebSession { get; set; }
         public string Username { get; set; }
         public string JSessionID { get; set; }
+        public string DeploymentType { get; set; }
+        public string AuthenticationType { get; set; }
+        public string CloudId { get; set; }
 
         public Session() { }
 

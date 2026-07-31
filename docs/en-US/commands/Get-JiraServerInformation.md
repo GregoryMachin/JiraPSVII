@@ -26,9 +26,11 @@ The result is cached for 5 minutes to improve performance.
 Use the `-Force` parameter to bypass the cache and re-fetch from the server.
 You can also use `Clear-JiraCache -Type ServerInfo` to manually clear the cache.
 
-The returned object includes a `DeploymentType` property (`Cloud` or `Server`) that JiraPS uses internally to adapt API calls for Jira Cloud vs.
+The returned object includes a `DeploymentType` property (`Cloud`, `DataCenter`, or `Server`) that JiraPS uses internally to adapt API calls for Jira Cloud vs.
 Data Center/Server.
-If the API call fails or the response lacks a `deploymentType` field (older Jira Server versions), `DeploymentType` defaults to `Server`.
+If explicit deployment metadata was supplied through `Set-JiraConfigServer`, JiraPS can use that metadata when `/serverInfo` is unavailable.
+If no explicit metadata exists and the API call fails, JiraPS raises an actionable error instead of assuming Server.
+If the response lacks a `deploymentType` field, `DeploymentType` still defaults to `Server` for older Jira Server versions.
 
 ## EXAMPLES
 
@@ -56,7 +58,7 @@ Use this after a Jira upgrade or configuration change.
 (Get-JiraServerInformation).DeploymentType
 ```
 
-Returns `Cloud` or `Server`, indicating which Jira platform is in use.
+Returns `Cloud`, `DataCenter`, or `Server`, indicating which Jira platform is in use.
 
 ## PARAMETERS
 
@@ -125,8 +127,9 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 The result is cached for 5 minutes after the first successful call.
 Subsequent calls return the cached value without making an API request.
 Use `-Force` to manually refresh the cache, or `Clear-JiraCache -Type ServerInfo` to clear it.
-If the API call fails (e.g., network error, server not configured),
-a stub object with `DeploymentType = 'Server'` is returned to allow operations to continue.
+If the API call fails and no explicit deployment metadata was supplied,
+JiraPS raises an error that asks you to configure `DeploymentType` metadata or fix the Jira URL, network, or authentication failure.
+The error does not include server response bodies or credentials.
 
 JiraPS uses `DeploymentType` to determine whether to use Cloud-specific
 API behavior (e.g., `accountId` instead of `username`, API v3 endpoints).

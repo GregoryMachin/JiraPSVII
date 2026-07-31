@@ -105,5 +105,169 @@ InModuleScope JiraPS {
                 $result | Should -Not -BeNullOrEmpty
             }
         }
+
+        Describe "Generalized pagination" {
+            BeforeEach {
+                $script:capturedGetParameters = @()
+                $script:pageIndex = 0
+            }
+
+            It "paginates token responses using configurable item and token property names" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    $script:capturedGetParameters += $GetParameter.Clone()
+                    [PSCustomObject]@{
+                        values        = @([PSCustomObject]@{ id = 2 })
+                        nextPageToken = $null
+                        isLast        = $true
+                    }
+                }
+
+                $response = [PSCustomObject]@{
+                    values        = @([PSCustomObject]@{ id = 1 })
+                    nextPageToken = 'opaque-token-1'
+                    isLast        = $false
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/example" -Response $response -ItemPropertyName values
+
+                $result.id | Should -Be @(1, 2)
+                $script:capturedGetParameters[0]['nextPageToken'] | Should -Be 'opaque-token-1'
+            }
+
+            It "continues past empty token pages when a continuation token is present" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    $script:pageIndex++
+                    if ($script:pageIndex -eq 1) {
+                        return [PSCustomObject]@{
+                            values        = @([PSCustomObject]@{ id = 2 })
+                            nextPageToken = $null
+                            isLast        = $true
+                        }
+                    }
+                }
+
+                $response = [PSCustomObject]@{
+                    values        = @()
+                    nextPageToken = 'next-after-empty'
+                    isLast        = $false
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/example" -Response $response -ItemPropertyName values
+
+                $result.id | Should -Be 2
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It
+            }
+
+            It "stops on repeated token values" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    [PSCustomObject]@{
+                        values        = @([PSCustomObject]@{ id = 2 })
+                        nextPageToken = 'same-token'
+                        isLast        = $false
+                    }
+                }
+
+                $response = [PSCustomObject]@{
+                    values        = @([PSCustomObject]@{ id = 1 })
+                    nextPageToken = 'same-token'
+                    isLast        = $false
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/example" -Response $response -ItemPropertyName values -WarningVariable warnings
+
+                $result.id | Should -Be @(1, 2)
+                $warnings | Should -Match 'Repeated pagination token'
+            }
+
+            It "stops immediately when completion property is true even if a token exists" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    throw 'should not request another page'
+                }
+
+                $response = [PSCustomObject]@{
+                    issues        = @([PSCustomObject]@{ key = 'TEST-1' })
+                    nextPageToken = 'ignored-token'
+                    isLast        = $true
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/search" -Response $response
+
+                $result.key | Should -Be 'TEST-1'
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -Scope It
+            }
+
+            It "honors -First across token pages" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    [PSCustomObject]@{
+                        values        = @([PSCustomObject]@{ id = 3 }, [PSCustomObject]@{ id = 4 })
+                        nextPageToken = 'unused'
+                        isLast        = $false
+                    }
+                }
+
+                $response = [PSCustomObject]@{
+                    values        = @([PSCustomObject]@{ id = 1 }, [PSCustomObject]@{ id = 2 })
+                    nextPageToken = 'page-2'
+                    isLast        = $false
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/example" -Response $response -ItemPropertyName values -First 3
+
+                $result.id | Should -Be @(1, 2, 3)
+            }
+
+            It "honors -Skip across token pages" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    [PSCustomObject]@{
+                        values        = @([PSCustomObject]@{ id = 3 }, [PSCustomObject]@{ id = 4 })
+                        nextPageToken = $null
+                        isLast        = $true
+                    }
+                }
+
+                $response = [PSCustomObject]@{
+                    values        = @([PSCustomObject]@{ id = 1 }, [PSCustomObject]@{ id = 2 })
+                    nextPageToken = 'page-2'
+                    isLast        = $false
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/example" -Response $response -ItemPropertyName values -Skip 2
+
+                $result.id | Should -Be @(3, 4)
+            }
+
+            It "preserves offset pagination for total-less responses" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    $script:capturedGetParameters += $GetParameter.Clone()
+                    [PSCustomObject]@{
+                        issues     = @([PSCustomObject]@{ key = 'TEST-3' })
+                        startAt    = 2
+                        maxResults = 2
+                    }
+                }
+
+                $response = [PSCustomObject]@{
+                    issues     = @([PSCustomObject]@{ key = 'TEST-1' }, [PSCustomObject]@{ key = 'TEST-2' })
+                    startAt    = 0
+                    maxResults = 2
+                }
+
+                $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/2/search" -Response $response
+
+                $result.key | Should -Be @('TEST-1', 'TEST-2', 'TEST-3')
+                $script:capturedGetParameters[0]['startAt'] | Should -Be 2
+            }
+
+            It "rejects absolute token links that leave the original host" {
+                $response = [PSCustomObject]@{
+                    values        = @([PSCustomObject]@{ id = 1 })
+                    nextPageToken = 'https://evil.example.com/rest/api/3/search?nextPageToken=x'
+                    isLast        = $false
+                }
+
+                { Invoke-PaginatedRequest -Uri "https://jira.example.com/rest/api/3/search" -Response $response -ItemPropertyName values } |
+                    Should -Throw '*untrusted host*'
+            }
+        }
     }
 }

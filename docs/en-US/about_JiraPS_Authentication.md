@@ -136,6 +136,8 @@ or CI/CD secret storage (GitHub Secrets, GitLab CI Variables).
 JiraPS automatically detects whether your Jira instance is Cloud or
 Data Center/Server by calling the `/serverInfo` endpoint (see
 `Get-JiraServerInformation`). This detection is cached for the session.
+If you configure JiraPS from an AtlassianPS.Configuration server entry with explicit `DeploymentType` metadata, JiraPS uses that metadata before auto-detection.
+If auto-detection fails and no explicit metadata is available, JiraPS raises an actionable error instead of assuming Server.
 
 On **Jira Cloud**, JiraPS adapts its behavior:
 
@@ -148,7 +150,7 @@ On **Jira Cloud**, JiraPS adapts its behavior:
 * Handles HTTP 429 (rate limiting) with automatic retry and exponential backoff
 
 No changes are required in your scripts. JiraPS selects the correct
-API behavior based on the detected deployment type.
+API behavior based on the explicit or detected deployment type.
 
 ## Sessions
 

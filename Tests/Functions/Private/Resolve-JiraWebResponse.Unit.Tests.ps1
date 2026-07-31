@@ -75,6 +75,7 @@ InModuleScope JiraPS {
         }
 
         It "returns transformed session when -StoreSession is set" {
+            $script:JiraServerMetadata = @{}
             Mock ConvertTo-JiraSession -ModuleName 'JiraPS' {
                 [PSCustomObject]@{
                     Username = $Username
@@ -96,6 +97,35 @@ InModuleScope JiraPS {
             }
 
             $result.Username | Should -Be 'user@example.com'
+        }
+
+        It "passes explicit configuration metadata into stored sessions" {
+            $script:JiraServerMetadata = @{
+                DeploymentType     = 'Cloud'
+                AuthenticationType = 'OAuth'
+                CloudId            = '00000000-0000-0000-0000-000000000000'
+            }
+            Mock ConvertTo-JiraSession -ModuleName 'JiraPS' {
+                [PSCustomObject]@{
+                    Username           = $Username
+                    DeploymentType     = $DeploymentType
+                    AuthenticationType = $AuthenticationType
+                    CloudId            = $CloudId
+                }
+            }
+
+            $response = New-FakeWebResponse -StatusCode 200
+            $session = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
+            $result = Invoke-ResolveJiraWebResponse -Remaining @{
+                WebResponse                 = $response
+                StoreSession                = $true
+                SessionTransformationMethod = 'ConvertTo-JiraSession'
+                Session                     = $session
+            }
+
+            $result.DeploymentType | Should -Be 'Cloud'
+            $result.AuthenticationType | Should -Be 'OAuth'
+            $result.CloudId | Should -Be '00000000-0000-0000-0000-000000000000'
         }
 
         It "stores cache entries for GET responses when CacheKey is provided" {

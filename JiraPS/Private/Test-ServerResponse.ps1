@@ -17,7 +17,13 @@
 
         [int]$RetryCount = 0,
 
-        [int]$MaxRetries = 3
+        [int]$MaxRetries = 3,
+
+        [ValidateRange(1, 600)]
+        [int]$MaxRetryDelaySeconds = 60,
+
+        [ValidateRange(0.0, 1.0)]
+        [double]$JitterFactor = -1
     )
 
     begin {
@@ -82,25 +88,25 @@
             Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] #Retry: $RetryCount / $MaxRetries"
 
             if ($RetryCount -lt $MaxRetries) {
+                $telemetry = Resolve-JiraResponseTelemetry -InputObject $InputObject
                 $_retryAfter = 0
-                if ($InputObject.Headers -and $InputObject.Headers['Retry-After']) {
-                    $_retryAfter = [int]$InputObject.Headers['Retry-After']
+                if ($telemetry.RetryAfterSeconds -is [int]) {
+                    $_retryAfter = $telemetry.RetryAfterSeconds
                 }
                 if ($_retryAfter -lt 1) {
                     $_retryAfter = [math]::Pow(2, $RetryCount + 1) * 10
                 }
 
-                $maxRetryDelay = 60
-                $jitter = Get-Random -Minimum 0.5 -Maximum 1.0
-                $_retryAfter = [math]::Min($maxRetryDelay, $_retryAfter) * $jitter
+                $jitter = if ($JitterFactor -ge 0) { $JitterFactor } else { Get-Random -Minimum 0.5 -Maximum 1.0 }
+                $_retryAfter = [math]::Min($MaxRetryDelaySeconds, $_retryAfter) * $jitter
 
                 if ($statusCode -eq 429 -and $InputObject.Headers) {
                     $rateLimitInfo = @()
-                    if ($InputObject.Headers['X-RateLimit-Limit']) {
-                        $rateLimitInfo += "Max tokens: $($InputObject.Headers['X-RateLimit-Limit'])"
+                    if ($telemetry.RateLimit.Limit) {
+                        $rateLimitInfo += "Max tokens: $($telemetry.RateLimit.Limit)"
                     }
-                    if ($InputObject.Headers['X-RateLimit-FillRate'] -and $InputObject.Headers['X-RateLimit-Interval-Seconds']) {
-                        $rateLimitInfo += "$($InputObject.Headers['X-RateLimit-FillRate']) tokens per $($InputObject.Headers['X-RateLimit-Interval-Seconds'])s"
+                    if ($telemetry.RateLimit.FillRate -and $telemetry.RateLimit.IntervalSeconds) {
+                        $rateLimitInfo += "$($telemetry.RateLimit.FillRate) tokens per $($telemetry.RateLimit.IntervalSeconds)s"
                     }
                     if ($rateLimitInfo.Count -gt 0) {
                         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Rate limit details: $($rateLimitInfo -join ', ')"

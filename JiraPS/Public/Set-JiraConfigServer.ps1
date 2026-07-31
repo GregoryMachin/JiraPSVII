@@ -3,26 +3,30 @@
     [CmdletBinding()]
     [System.Diagnostics.CodeAnalysis.SuppressMessage('PSUseShouldProcessForStateChangingFunctions', '')]
     param(
-        [Parameter( Mandatory )]
+        [Parameter( Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName )]
         [ValidateNotNullOrEmpty()]
         [Alias('Uri')]
-        [Uri]
+        [Object]
         $Server
     )
 
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        if (-not($Server.IsAbsoluteUri)) {
-            throw "Server must be an absolute URI (e.g., https://jira.domain.com/)"
-        }
     }
 
     process {
-        $script:JiraServerUrl = $Server
-        $script:JiraServerInfo = $null
+        $configuredServer = Resolve-JiraConfiguredServer -Server $Server
 
-        Set-Content -Value $Server -Path "$script:serverConfig"
+        $script:JiraServerUrl = $configuredServer.Uri
+        $script:JiraServerInfo = $null
+        $script:JiraServerMetadata = $configuredServer.Metadata
+
+        $serverConfigParent = Split-Path -Path $script:serverConfig -Parent
+        if (-not [string]::IsNullOrWhiteSpace($serverConfigParent)) {
+            $null = New-Item -Path $serverConfigParent -ItemType Directory -Force
+        }
+        Set-Content -Value $configuredServer.Uri -Path "$script:serverConfig"
     }
 
     end {

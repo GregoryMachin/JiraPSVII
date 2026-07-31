@@ -51,6 +51,18 @@
         [PSCustomObject]
         $Response,
 
+        [String[]]
+        $ItemPropertyName = $script:PagingContainers,
+
+        [String]
+        $TokenPropertyName = 'nextPageToken',
+
+        [String]
+        $TokenParameterName = 'nextPageToken',
+
+        [String]
+        $CompletionPropertyName = 'isLast',
+
         [ValidateNotNullOrEmpty()]
         [System.Management.Automation.PSCmdlet]
         $Cmdlet = $PSCmdlet
@@ -60,60 +72,98 @@
         $null = $PSBoundParameters.Remove("Paging")
         $null = $PSBoundParameters.Remove("Skip")
         $null = $PSBoundParameters.Remove("Response")
+        $null = $PSBoundParameters.Remove("ItemPropertyName")
+        $null = $PSBoundParameters.Remove("TokenPropertyName")
+        $null = $PSBoundParameters.Remove("TokenParameterName")
+        $null = $PSBoundParameters.Remove("CompletionPropertyName")
 
         if (-not $PSBoundParameters["GetParameter"]) {
             $PSBoundParameters["GetParameter"] = $GetParameter
         }
 
+        $first = $PSCmdlet.PagingParameters.First
+        $skipRemaining = [int]$PSCmdlet.PagingParameters.Skip
         $total = 0
+        $outputCount = 0
         $offset = 0
         if ($PSCmdlet.PagingParameters.Skip) {
             $offset = $PSCmdlet.PagingParameters.Skip
         }
 
-        $isTokenPaged = "$URI" -match '/rest/api/3'
+        $seenTokens = @{}
+        $usingTokenPagination = $false
 
         do {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Invoking pagination [currentTotal: $total]"
-            $result = Expand-Result -InputObject $Response
+            $result = Expand-Result -InputObject $Response -Container $ItemPropertyName
+            $rawResultCount = @($result).Count
+            $responsePropertyNames = $Response.PSObject.Properties.Name
+            if ($responsePropertyNames -contains $TokenPropertyName) {
+                $usingTokenPagination = $true
+            }
+            $isTokenPagedResponse = $usingTokenPagination
 
-            $total += @($result).Count
+            $total += $rawResultCount
             $pageSize = $script:DefaultPageSize
             if (-not [string]::IsNullOrEmpty($Response.maxResults)) {
                 $pageSize = $Response.maxResults
             }
 
-            if ($total -gt $PSCmdlet.PagingParameters.First) {
-                Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Only output the first $($PSCmdlet.PagingParameters.First % $pageSize) of page"
-                $result = $result | Select-Object -First ($PSCmdlet.PagingParameters.First % $pageSize)
+            if ($isTokenPagedResponse -and $skipRemaining -gt 0) {
+                if ($rawResultCount -le $skipRemaining) {
+                    $skipRemaining -= $rawResultCount
+                    $result = @()
+                }
+                else {
+                    $result = $result | Select-Object -Skip $skipRemaining
+                    $skipRemaining = 0
+                }
+            }
+
+            if (($outputCount + @($result).Count) -gt $first) {
+                $remaining = [Math]::Max(0, $first - $outputCount)
+                Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Only output the first $remaining item(s) of page"
+                $result = $result | Select-Object -First $remaining
             }
 
             Convert-Result -InputObject $result -OutputType $OutputType
+            $outputCount += @($result).Count
 
-            if ($Response.isLast -eq $true) {
-                Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Stopping paging, as isLast is true"
+            if ($responsePropertyNames -contains $CompletionPropertyName -and $Response.$CompletionPropertyName -eq $true) {
+                Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Stopping paging, as completion property is true"
                 break
             }
 
-            if ($total -ge $PSCmdlet.PagingParameters.First) {
-                Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Stopping paging, as $total reached $($PSCmdlet.PagingParameters.First)"
+            if ($outputCount -ge $first) {
+                Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Stopping paging, as $outputCount reached $first"
                 break
             }
 
-            if ($isTokenPaged) {
-                # v3 API: token-based pagination driven by nextPageToken/isLast.
-                # The response omits maxResults, so the page-count heuristic is unreliable.
-                if ($Response.PSObject.Properties.Name -contains "nextPageToken" -and $Response.nextPageToken) {
-                    $PSBoundParameters["GetParameter"]["nextPageToken"] = $Response.nextPageToken
-                }
-                else {
-                    Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] No nextPageToken found; stopping pagination"
+            if ($responsePropertyNames -contains $TokenPropertyName -and $Response.$TokenPropertyName) {
+                $nextToken = [string]$Response.$TokenPropertyName
+                if ($seenTokens.ContainsKey($nextToken)) {
+                    Write-Warning "[$($MyInvocation.MyCommand.Name)] Repeated pagination token received; stopping pagination with $total results collected"
                     break
                 }
+
+                [Uri]$nextTokenUri = $null
+                if ([Uri]::TryCreate($nextToken, [UriKind]::Absolute, [ref]$nextTokenUri)) {
+                    [Uri]$currentUri = $URI
+                    if ($nextTokenUri.Scheme -ne $currentUri.Scheme -or $nextTokenUri.Host -ne $currentUri.Host) {
+                        throw "Refusing to follow Jira pagination token or link to an untrusted host."
+                    }
+                }
+
+                $seenTokens[$nextToken] = $true
+                $PSBoundParameters["GetParameter"][$TokenParameterName] = $nextToken
             }
             else {
-                # v2 API: offset-based pagination using startAt/maxResults
-                if (@($result).Count -lt $pageSize) {
+                if ($isTokenPagedResponse) {
+                    Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] No pagination token found; stopping pagination"
+                    break
+                }
+
+                if ($rawResultCount -lt $pageSize) {
                     Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Stopping paging, as page had less entries than $pageSize"
                     break
                 }
@@ -133,8 +183,14 @@
                 break
             }
 
-            $result = Expand-Result -InputObject $Response
-        } while (@($result).Count -gt 0)
+            if (-not $isTokenPagedResponse) {
+                $result = Expand-Result -InputObject $Response -Container $ItemPropertyName
+                if (@($result).Count -eq 0) {
+                    break
+                }
+            }
+
+        } while ($null -ne $Response)
 
         if ($PSCmdlet.PagingParameters.IncludeTotalCount) {
             [double]$Accuracy = 1.0

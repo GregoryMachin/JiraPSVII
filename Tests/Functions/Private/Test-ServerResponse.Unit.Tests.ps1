@@ -38,7 +38,7 @@ InModuleScope JiraPS {
                     Headers    = @{}
                 }
 
-                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3
+                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
 
                 Should -Invoke -CommandName Start-Sleep -ModuleName JiraPS -Exactly -Times 1
             }
@@ -49,11 +49,10 @@ InModuleScope JiraPS {
                     Headers    = @{ 'Retry-After' = '10' }
                 }
 
-                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3
+                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
 
                 Should -Invoke -CommandName Start-Sleep -ModuleName JiraPS -Exactly -Times 1
-                $script:sleepSeconds | Should -BeGreaterOrEqual 5
-                $script:sleepSeconds | Should -BeLessOrEqual 10
+                $script:sleepSeconds | Should -Be 10
             }
 
             It "uses exponential backoff with jitter when Retry-After is absent" {
@@ -62,18 +61,14 @@ InModuleScope JiraPS {
                     Headers    = @{}
                 }
 
-                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3
-                $script:sleepSeconds | Should -BeGreaterOrEqual 10
-                $script:sleepSeconds | Should -BeLessOrEqual 20
+                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
+                $script:sleepSeconds | Should -Be 20
 
-                $null = Test-ServerResponse -InputObject $response -RetryCount 1 -MaxRetries 3
-                $script:sleepSeconds | Should -BeGreaterOrEqual 20
-                $script:sleepSeconds | Should -BeLessOrEqual 40
+                $null = Test-ServerResponse -InputObject $response -RetryCount 1 -MaxRetries 3 -JitterFactor 1
+                $script:sleepSeconds | Should -Be 40
 
-                $null = Test-ServerResponse -InputObject $response -RetryCount 2 -MaxRetries 3
-                # 2^3 * 10 = 80, capped at 60, then jitter (0.5-1.0) → 30-60
-                $script:sleepSeconds | Should -BeGreaterOrEqual 30
-                $script:sleepSeconds | Should -BeLessOrEqual 60
+                $null = Test-ServerResponse -InputObject $response -RetryCount 2 -MaxRetries 3 -JitterFactor 1
+                $script:sleepSeconds | Should -Be 60
             }
 
             It "caps delay at 60 seconds maximum" {
@@ -82,9 +77,20 @@ InModuleScope JiraPS {
                     Headers    = @{ 'Retry-After' = '120' }
                 }
 
-                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3
+                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
 
-                $script:sleepSeconds | Should -BeLessOrEqual 60
+                $script:sleepSeconds | Should -Be 60
+            }
+
+            It "handles malformed Retry-After values by falling back to exponential backoff" {
+                $response = [PSCustomObject]@{
+                    StatusCode = 429
+                    Headers    = @{ 'Retry-After' = 'not-a-date' }
+                }
+
+                $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
+
+                $script:sleepSeconds | Should -Be 20
             }
 
             It "does not signal retry when max retries are exhausted" {
