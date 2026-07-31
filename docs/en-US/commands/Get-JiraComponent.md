@@ -23,12 +23,15 @@ Get-JiraComponent [-ComponentId] <int[]> [-Credential <pscredential>] [<CommonPa
 ### ByProject
 
 ```powershell
-Get-JiraComponent [-Project] <Project[]> [-Credential <pscredential>] [<CommonParameters>]
+Get-JiraComponent [-Project] <Project[]> [-PageSize <uint>] [-Credential <pscredential>] [-First <ulong>]
+ [-Skip <ulong>] [-IncludeTotalCount] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 This function returns information regarding a specified component from Jira.
+
+Jira Cloud uses REST API v3 and pages project component collections; Jira Data Center retains REST API v2 behavior.
 
 Components are specific to a Project.
 Therefore, it is not possible to query for Components without a project.
@@ -113,6 +116,70 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -First
+
+Controls how many objects are returned.
+The default is to return every result.
+
+```yaml
+Type: UInt64
+DefaultValue: 18446744073709551615
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -IncludeTotalCount
+
+Reports a best-effort total count through PowerShell's paging contract.
+
+```yaml
+Type: SwitchParameter
+DefaultValue: False
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -PageSize
+
+Maximum number of Jira Cloud project components to request per API call.
+
+```yaml
+Type: UInt32
+DefaultValue: 25
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: ByProject
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### -Project
 
 The ID or Key of the Project to search.
@@ -127,6 +194,27 @@ ParameterSets:
   Position: 0
   IsRequired: true
   ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Skip
+
+Controls how many objects are skipped before output starts.
+
+```yaml
+Type: UInt64
+DefaultValue: 0
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
@@ -160,6 +248,9 @@ Retrieve specific Components by theirs id.
 ### JiraPS.Component
 
 ## NOTES
+
+Use `-First`, `-Skip`, and `-PageSize` to bound Jira Cloud project component collection reads.
+Results remain limited by the caller's project browse permissions.
 
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.

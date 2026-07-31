@@ -21,6 +21,7 @@
 - Jira Cloud user and group commands now use REST API v3 with `accountId` identity, while Jira Data Center retains REST API v2 username/name behavior. Cloud searches tolerate privacy-hidden fields, group reads remain paged, and administrative mutations reject ambiguous user identities.
 - `New-JiraUser` now sends Jira Cloud's email-and-products provisioning contract through `-Product`; `Set-JiraUser` explicitly reports that Cloud REST API v3 has no profile-update operation instead of attempting a legacy v2 mutation.
 - User/group diagnostics now log bound parameter names rather than parameter values so credentials, email addresses, and account IDs are not written unnecessarily.
+- `Get-JiraComponent` now uses REST API v3 for Jira Cloud direct lookups and the paged `/project/{key}/component` collection, including `-First`, `-Skip`, and `-PageSize`; Jira Data Center retains its REST API v2 component routes.
 
 ## v3.0.0 - 2026-05-10
 

@@ -1,6 +1,6 @@
 ﻿function Get-JiraComponent {
     # .ExternalHelp ..\JiraPS-help.xml
-    [CmdletBinding(DefaultParameterSetName = 'ByID')]
+    [CmdletBinding(SupportsPaging, DefaultParameterSetName = 'ByID')]
     param(
         [Parameter( Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'ByProject' )]
         [ValidateNotNull()]
@@ -13,6 +13,11 @@
         [Int[]]
         $ComponentId,
 
+        [Parameter( ParameterSetName = 'ByProject' )]
+        [ValidateRange(1, [UInt32]::MaxValue)]
+        [UInt32]
+        $PageSize = $script:DefaultPageSize,
+
         [Parameter()]
         [System.Management.Automation.PSCredential]
         [System.Management.Automation.Credential()]
@@ -22,12 +27,19 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2{0}"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $componentResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/component/{0}' -IsCloud $isCloud
+        $projectComponentResourceUri = if ($isCloud) {
+            '/rest/api/3/project/{0}/component'
+        }
+        else {
+            '/rest/api/2/project/{0}/components'
+        }
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         switch ($PSCmdlet.ParameterSetName) {
             "ByProject" {
@@ -39,11 +51,19 @@
                     # either a project key or a numeric ID, so we forward whichever
                     # the typed parameter has populated.
                     $projectIdent = if ($_project.Key) { $_project.Key } else { $_project.ID }
+                    $projectPathSegment = [Uri]::EscapeDataString($projectIdent)
 
                     $parameter = @{
-                        URI        = $resourceURi -f "/project/$projectIdent/components"
+                        URI        = $projectComponentResourceUri -f $projectPathSegment
                         Method     = "GET"
+                        Paging     = $isCloud
                         Credential = $Credential
+                    }
+                    if ($isCloud) {
+                        $parameter.GetParameter = @{ maxResults = $PageSize }
+                        ($PSCmdlet.PagingParameters | Get-Member -MemberType Property).Name | ForEach-Object {
+                            $parameter[$_] = $PSCmdlet.PagingParameters.$_
+                        }
                     }
                     Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
                     $result = Invoke-JiraMethod @parameter
@@ -57,7 +77,7 @@
                     Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$_id [$_id]"
 
                     $parameter = @{
-                        URI        = $resourceURi -f "/component/$_id"
+                        URI        = $componentResourceUri -f $_id
                         Method     = "GET"
                         Credential = $Credential
                     }
