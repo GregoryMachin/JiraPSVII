@@ -38,6 +38,8 @@ InModuleScope JiraPS {
                 $jiraServer
             }
 
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq "/rest/api/2/group" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJson
@@ -86,6 +88,19 @@ InModuleScope JiraPS {
                 $newResult = New-JiraGroup -GroupName $testGroupName
                 $newResult | Should -Not -BeNullOrEmpty
                 Should -Invoke 'ConvertTo-JiraGroup' -ModuleName JiraPS -Exactly 1
+            }
+
+            It "uses REST API v3 when creating a group on Cloud" {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq '/rest/api/3/group' } {
+                    ConvertFrom-Json $testJson
+                }
+
+                New-JiraGroup -GroupName $testGroupName | Should -Not -BeNullOrEmpty
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'POST' -and $URI -eq '/rest/api/3/group'
+                }
             }
 
             # It "Outputs a JiraPS.Group object" {

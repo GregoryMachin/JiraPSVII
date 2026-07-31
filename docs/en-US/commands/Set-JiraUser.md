@@ -30,7 +30,8 @@ Set-JiraUser [-User] <User> [-Property] <hashtable> [-Credential <pscredential>]
 
 ## DESCRIPTION
 
-This function modifies user properties in JIRA, allowing you to change a user's e-mail address, display name, and any other properties supported by JIRA's API.
+This function modifies user properties in Jira Data Center, allowing you to change a user's e-mail address, display name, and other properties supported by the Data Center API.
+Jira Cloud REST API v3 does not expose this profile-update operation, so the command returns a `CloudUserUpdate.NotSupported` error on Cloud without sending a mutation request.
 
 ## EXAMPLES
 
@@ -274,6 +275,7 @@ to the JIRA user modified.
 ## NOTES
 
 The `-Active` parameter is supported only in Jira Server version 8.3.0 and above.
+User modification requires the administrative or self-service permissions configured by Jira Data Center.
 
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.

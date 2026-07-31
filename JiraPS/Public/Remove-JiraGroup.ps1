@@ -23,7 +23,7 @@
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
-        $resourceUri = "/rest/api/2/group"
+        $resourceUri = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/group" -IsCloud $isCloud
 
         if ($Force) {
             Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] -Force was passed. Backing up current ConfirmPreference [$ConfirmPreference] and setting to None"
@@ -34,7 +34,7 @@
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_group in $Group) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_group]"

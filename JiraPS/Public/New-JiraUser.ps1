@@ -18,6 +18,11 @@
         $Notify = $true,
 
         [Parameter()]
+        [ValidateSet('jira-core', 'jira-servicedesk', 'jira-product-discovery', 'jira-software')]
+        [String[]]
+        $Product = @(),
+
+        [Parameter()]
         [System.Management.Automation.PSCredential]
         [System.Management.Automation.Credential()]
         $Credential = [System.Management.Automation.PSCredential]::Empty
@@ -26,25 +31,27 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2/user"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/user" -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
-        $requestBody = @{
-            "name"         = $UserName
-            "emailAddress" = $EmailAddress
-            "notification" = $Notify
-        }
-
-        if ($DisplayName) {
-            $requestBody.displayName = $DisplayName
+        if ($isCloud) {
+            $requestBody = @{
+                emailAddress = $EmailAddress
+                products     = [string[]]@($Product)
+            }
         }
         else {
-            Write-DebugMessage "[New-JiraUser] DisplayName was not specified; defaulting to UserName parameter [$UserName]"
-            $requestBody.displayName = $UserName
+            $requestBody = @{
+                name         = $UserName
+                emailAddress = $EmailAddress
+                notification = $Notify
+                displayName  = if ($DisplayName) { $DisplayName } else { $UserName }
+            }
         }
 
         $parameter = @{

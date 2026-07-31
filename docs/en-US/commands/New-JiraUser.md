@@ -16,14 +16,19 @@ Creates a new user in JIRA
 
 ```powershell
 New-JiraUser [-UserName] <string> [-EmailAddress] <string> [[-DisplayName] <string>]
- [[-Notify] <bool>] [[-Credential] <pscredential>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-Notify] <bool>] [-Product <string[]>] [[-Credential] <pscredential>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 
 This function creates a new user in JIRA.
 
-By default, the new user will be notified via e-mail.
+On Jira Cloud, the command uses REST API v3 and sends the email address plus the product access selected with `-Product`.
+`-UserName`, `-DisplayName`, and `-Notify` are retained for Data Center compatibility and are not sent to Cloud.
+An empty Cloud `-Product` list requests no product access, following least privilege.
+
+On Jira Data Center, the new user is notified via e-mail by default.
 
 The new user's password is also randomly generated.
 
@@ -157,6 +162,32 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -Product
+
+Jira product access to grant while creating a Cloud user.
+Omit this parameter to create the account without requesting product access.
+
+```yaml
+Type: String[]
+DefaultValue: '@()'
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues:
+- jira-core
+- jira-servicedesk
+- jira-product-discovery
+- jira-software
+HelpMessage: ''
+```
+
 ### -UserName
 
 Name of user.
@@ -219,6 +250,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.
 If neither are supplied, this function will run with anonymous access to JIRA.
+Creating users requires Jira site-administrator permissions.
 
 ## RELATED LINKS
 

@@ -50,38 +50,36 @@
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
-        $selfResourceUri = "/rest/api/2/myself"
-
-        if ($isCloud) {
-            $searchResourceUri = "/rest/api/2/user/search?query={0}"
-            $exactResourceUri = "/rest/api/2/user?accountId={0}"
-        }
-        else {
-            $searchResourceUri = "/rest/api/2/user/search?username={0}"
-            $exactResourceUri = "/rest/api/2/user?username={0}"
-        }
-
-        if ($IncludeInactive) {
-            $searchResourceUri += "&includeInactive=true"
-        }
-        if ($MaxResults) {
-            $searchResourceUri += "&maxResults=$MaxResults"
-        }
-        if ($Skip) {
-            $searchResourceUri += "&startAt=$Skip"
-        }
+        $selfResourceUri = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/myself" -IsCloud $isCloud
+        $searchResourceUri = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/user/search" -IsCloud $isCloud
+        $exactResourceUri = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/user" -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         $ParameterSetName = ''
         switch ($PsCmdlet.ParameterSetName) {
             'ByInputObject' {
                 if ($isCloud) {
                     $lookupValue = foreach ($inputUser in $InputObject) {
-                        if ($inputUser.AccountId) { $inputUser.AccountId } else { $inputUser.Name }
+                        if ($inputUser.AccountId) {
+                            $inputUser.AccountId
+                        }
+                        elseif ($inputUser.Name -match '^[A-Za-z0-9]{24}$' -or
+                            $inputUser.Name -match '^[A-Za-z0-9]+:[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$') {
+                            $inputUser.Name
+                        }
+                        else {
+                            $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                                ([System.ArgumentException]"Jira Cloud exact user lookup requires accountId."),
+                                'CloudUserAccountId.Required',
+                                [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                                $inputUser
+                            )
+                            $PSCmdlet.ThrowTerminatingError($errorItem)
+                        }
                     }
                 }
                 else {
@@ -98,6 +96,16 @@
             'ByUserName' {
                 $lookupValue = $UserName
                 $ParameterSetName = 'ByLookupValue'
+
+                if ($isCloud -and $Exact) {
+                    $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                        ([System.ArgumentException]"Jira Cloud exact user lookup requires accountId."),
+                        'CloudUserAccountId.Required',
+                        [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                        $UserName
+                    )
+                    $PSCmdlet.ThrowTerminatingError($errorItem)
+                }
             }
             'Self' { $ParameterSetName = 'Self' }
         }
@@ -125,27 +133,59 @@
                 }
             }
             "ByLookupValue" {
-                $resourceURi = if ($Exact) { $exactResourceUri } else { $searchResourceUri }
-
                 foreach ($user in $lookupValue) {
-                    Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$user]"
-                    Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$user [$user]"
+                    Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing user lookup"
+
+                    $resourceURi = if ($Exact) { $exactResourceUri } else { $searchResourceUri }
+                    $getParameter = @{}
+                    if ($Exact) {
+                        $identifierParameterName = if ($isCloud) { 'accountId' } else { 'username' }
+                        $getParameter[$identifierParameterName] = $user
+                        $getParameter['expand'] = 'groups'
+                    }
+                    else {
+                        $searchParameterName = if ($isCloud) { 'query' } else { 'username' }
+                        $getParameter[$searchParameterName] = $user
+                        if (-not $isCloud) {
+                            $getParameter['includeInactive'] = [bool]$IncludeInactive
+                        }
+                        $getParameter['maxResults'] = $MaxResults
+                        $getParameter['startAt'] = $Skip
+                    }
 
                     $parameter = @{
-                        URI        = $resourceURi -f $user
-                        Method     = "GET"
-                        Credential = $Credential
+                        URI          = $resourceURi
+                        Method       = "GET"
+                        GetParameter = $getParameter
+                        Credential   = $Credential
                     }
                     Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
                     if ($users = Invoke-JiraMethod @parameter) {
                         foreach ($item in $users) {
-                            $parameter = @{
-                                URI        = "{0}&expand=groups" -f $item.self
-                                Method     = "GET"
-                                Credential = $Credential
+                            if ($Exact) {
+                                $result = $item
                             }
-                            Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
-                            $result = Invoke-JiraMethod @parameter
+                            elseif ($isCloud -and $item.accountId) {
+                                $parameter = @{
+                                    URI          = $exactResourceUri
+                                    Method       = 'GET'
+                                    GetParameter = @{ accountId = $item.accountId; expand = 'groups' }
+                                    Credential   = $Credential
+                                }
+                                $result = Invoke-JiraMethod @parameter
+                            }
+                            elseif (-not $isCloud -and $item.name) {
+                                $parameter = @{
+                                    URI          = $exactResourceUri
+                                    Method       = 'GET'
+                                    GetParameter = @{ username = $item.name; expand = 'groups' }
+                                    Credential   = $Credential
+                                }
+                                $result = Invoke-JiraMethod @parameter
+                            }
+                            else {
+                                $result = $item
+                            }
 
                             Write-Output (ConvertTo-JiraUser -InputObject $result)
                         }

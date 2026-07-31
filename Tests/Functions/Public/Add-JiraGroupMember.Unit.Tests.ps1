@@ -219,7 +219,7 @@ InModuleScope JiraPS {
 
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and
-                    $URI -eq '/rest/api/2/group/user' -and
+                    $URI -eq '/rest/api/3/group/user' -and
                     $GetParameter['groupname'] -eq $testGroupName -and
                     $Body -match 'accountId'
                 }
@@ -234,11 +234,20 @@ InModuleScope JiraPS {
 
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and
-                    $URI -eq '/rest/api/2/group/user' -and
+                    $URI -eq '/rest/api/3/group/user' -and
                     $GetParameter['groupId'] -eq 'cloud-group-id' -and
                     -not $GetParameter.ContainsKey('groupname') -and
                     $Body -match 'accountId'
                 }
+            }
+
+            It "rejects a Cloud membership mutation when accountId is unavailable" {
+                Mock Resolve-JiraUser -ModuleName JiraPS {
+                    [AtlassianPS.JiraPS.User]@{ Name = 'ambiguous-user' }
+                }
+
+                { Add-JiraGroupMember -Group $testGroupName -User 'ambiguous-user' -ErrorAction Stop } |
+                    Should -Throw -ErrorId 'CloudUserAccountId.Required,Add-JiraGroupMember'
             }
         }
     }

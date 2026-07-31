@@ -59,16 +59,21 @@
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
         if ($isCloud) {
-            $resourceURi = "/rest/api/2/user?accountId={0}"
+            $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                ([System.PlatformNotSupportedException]"Jira Cloud does not expose a REST API v3 user profile update operation."),
+                'CloudUserUpdate.NotSupported',
+                [System.Management.Automation.ErrorCategory]::NotImplemented,
+                $null
+            )
+            $PSCmdlet.ThrowTerminatingError($errorItem)
         }
-        else {
-            $resourceURi = "/rest/api/2/user?username={0}"
-        }
+
+        $resourceURi = '/rest/api/2/user'
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         $userObj = Resolve-JiraUser -InputObject $User -Exact -Credential $Credential -ErrorAction Stop
 
@@ -103,12 +108,12 @@
             }
         }
 
-        $userIdentifier = if ($userObj.AccountId) { $userObj.AccountId } else { $userObj.Name }
         $parameter = @{
-            URI        = $resourceURi -f $userIdentifier
-            Method     = "PUT"
-            Body       = ConvertTo-Json -InputObject $requestBody -Depth 4
-            Credential = $Credential
+            URI          = $resourceURi
+            Method       = "PUT"
+            GetParameter = @{ username = $userObj.Name }
+            Body         = ConvertTo-Json -InputObject $requestBody -Depth 4
+            Credential   = $Credential
         }
         Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
         if ($PSCmdlet.ShouldProcess($UserObj.DisplayName, "Updating user")) {

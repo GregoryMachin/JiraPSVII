@@ -199,6 +199,9 @@ Otherwise, this function does not provide output.
 
 ## NOTES
 
+Jira Cloud uses REST API v3 and requires an unambiguous user `accountId`; Jira Data Center uses the username/name contract.
+Adding group members requires Jira site-administrator permissions.
+
 This REST method is still marked Experimental in JIRA's REST API.
 That means that there is a high probability this will break in future versions of JIRA.
 The function will need to be re-written at that time.

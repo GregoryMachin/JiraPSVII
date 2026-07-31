@@ -49,7 +49,8 @@ InModuleScope JiraPS {
 
             Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                 $Method -eq 'DELETE' -and
-                $URI -like "/rest/api/*/user?username=$testUsername"
+                $URI -eq '/rest/api/2/user' -and
+                $GetParameter.username -eq $testUsername
             } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 # This REST method should produce no output
@@ -135,18 +136,20 @@ InModuleScope JiraPS {
 
                 Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                     $Method -eq 'DELETE' -and
-                    $URI -like "/rest/api/*/user?accountId=*"
+                    $URI -eq '/rest/api/3/user' -and
+                    $GetParameter.accountId -eq $testAccountId
                 } {
                     Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 }
             }
 
-            It "Uses accountId in the URI instead of username" {
-                { Remove-JiraUser -User $testUsername -Force } | Should -Not -Throw
+            It "uses accountId in the URI" {
+                { Remove-JiraUser -User $testAccountId -Force } | Should -Not -Throw
 
                 Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1 -ParameterFilter {
                     $Method -eq 'DELETE' -and
-                    $URI -like "*accountId=$testAccountId*"
+                    $URI -eq '/rest/api/3/user' -and
+                    $GetParameter.accountId -eq $testAccountId
                 }
             }
         }

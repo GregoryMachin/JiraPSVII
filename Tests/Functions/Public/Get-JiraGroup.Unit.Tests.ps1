@@ -224,7 +224,7 @@ InModuleScope JiraPS {
 
                     Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                         $Method -eq 'Get' -and
-                        $URI -eq '/rest/api/2/group/bulk' -and
+                        $URI -eq '/rest/api/3/group/bulk' -and
                         $GetParameter['groupName'] -eq $testGroupName -and
                         $Paging
                     } {
@@ -242,7 +242,7 @@ InModuleScope JiraPS {
 
                     Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'Get' -and
-                        $URI -eq '/rest/api/2/group/bulk' -and
+                        $URI -eq '/rest/api/3/group/bulk' -and
                         $GetParameter['groupName'] -eq $testGroupName -and
                         $Paging
                     }
@@ -251,7 +251,7 @@ InModuleScope JiraPS {
                 It "writes an error when the bulk endpoint returns no exact match" {
                     Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                         $Method -eq 'Get' -and
-                        $URI -eq '/rest/api/2/group/bulk' -and
+                        $URI -eq '/rest/api/3/group/bulk' -and
                         $GetParameter['groupName'] -eq 'missing-group' -and
                         $Paging
                     } {
@@ -260,6 +260,20 @@ InModuleScope JiraPS {
                     }
 
                     { Get-JiraGroup -GroupName 'missing-group' -ErrorAction Stop } | Should -Throw -ExpectedMessage "*did not return exactly one canonical group*"
+                }
+
+                It "propagates Cloud group permission failures" {
+                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        $Method -eq 'Get' -and
+                        $URI -eq '/rest/api/3/group/bulk' -and
+                        $GetParameter['groupName'] -eq 'forbidden-group' -and
+                        $Paging
+                    } {
+                        throw [System.UnauthorizedAccessException]::new('Browse users and groups permission is required.')
+                    }
+
+                    { Get-JiraGroup -GroupName 'forbidden-group' -ErrorAction Stop } |
+                        Should -Throw -ExceptionType ([System.UnauthorizedAccessException])
                 }
             }
 
@@ -308,7 +322,7 @@ InModuleScope JiraPS {
 
                     Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                         $Method -eq 'Get' -and
-                        $URI -eq '/rest/api/2/group/bulk' -and
+                        $URI -eq '/rest/api/3/group/bulk' -and
                         $GetParameter['groupName'] -eq $testGroupName -and
                         $Paging
                     } {
@@ -319,7 +333,7 @@ InModuleScope JiraPS {
 
                     Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'Get' -and
-                        $URI -eq '/rest/api/2/group/bulk' -and
+                        $URI -eq '/rest/api/3/group/bulk' -and
                         $GetParameter['groupName'] -eq $testGroupName -and
                         $Paging
                     }

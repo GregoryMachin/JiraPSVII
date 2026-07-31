@@ -164,6 +164,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 
+Jira Cloud uses REST API v3 and requires an exact `accountId`; display-name or username fallback is rejected.
+Jira Data Center retains REST API v2 username behavior. Removing users requires Jira site-administrator permissions.
+
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.
 If neither are supplied, this function will run with anonymous access to JIRA.

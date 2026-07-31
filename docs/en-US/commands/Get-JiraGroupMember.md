@@ -229,6 +229,9 @@ The group to query for members
 
 ## NOTES
 
+Jira Cloud member pages use REST API v3 and return account-ID identities with privacy-restricted fields possibly empty.
+Jira Data Center retains REST API v2 username behavior.
+
 By default, this will return all active users who are members of the given group.
 For large groups, this can take quite some time.
 

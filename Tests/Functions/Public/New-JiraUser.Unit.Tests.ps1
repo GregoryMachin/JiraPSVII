@@ -37,6 +37,8 @@ InModuleScope JiraPS {
                 $jiraServer
             }
 
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq "/rest/api/2/user" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJson
@@ -61,6 +63,7 @@ InModuleScope JiraPS {
                     @{ parameter = 'EmailAddress'; type = 'String' }
                     @{ parameter = 'DisplayName'; type = 'String' }
                     @{ parameter = 'Notify'; type = 'Boolean' }
+                    @{ parameter = 'Product'; type = 'String[]' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                 ) {
                     param($parameter, $type)
@@ -84,6 +87,24 @@ InModuleScope JiraPS {
                 Mock ConvertTo-JiraUser {}
                 New-JiraUser -UserName $testUsername -EmailAddress $testEmail -DisplayName $testDisplayName
                 Should -Invoke 'ConvertTo-JiraUser' -ModuleName JiraPS -Exactly 1
+            }
+
+            It "uses REST API v3 and the Cloud products contract" {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq '/rest/api/3/user' } {
+                    ConvertFrom-Json $testJson
+                }
+
+                New-JiraUser -UserName $testUsername -EmailAddress $testEmail -Product jira-software | Should -Not -BeNullOrEmpty
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $bodyObject = $Body | ConvertFrom-Json
+                    $Method -eq 'POST' -and
+                    $URI -eq '/rest/api/3/user' -and
+                    $bodyObject.emailAddress -eq $testEmail -and
+                    $bodyObject.products -contains 'jira-software' -and
+                    -not $bodyObject.PSObject.Properties['name']
+                }
             }
         }
 

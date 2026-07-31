@@ -19,13 +19,13 @@
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
-        $cloudResourceUri = "/rest/api/2/group/bulk"
+        $cloudResourceUri = "/rest/api/3/group/bulk"
         $serverResourceUri = "/rest/api/2/group/member"
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($group in $GroupName) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$group]"

@@ -16,12 +16,13 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2/group"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/group" -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_group in $GroupName) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_group]"

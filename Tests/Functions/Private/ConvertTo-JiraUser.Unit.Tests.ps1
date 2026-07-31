@@ -162,6 +162,16 @@ InModuleScope JiraPS {
                     $result = ConvertTo-JiraUser -InputObject $sampleObject
                     $result.AccountType | Should -BeNullOrEmpty
                 }
+
+                It "accepts privacy-hidden email, display name, and username fields" {
+                    $cloudPayload = ConvertFrom-Json '{"accountId":"5b10ac8d82e05b22cc7d4ef5","emailAddress":null,"displayName":null,"name":null,"active":true}'
+
+                    { $script:privateResult = ConvertTo-JiraUser -InputObject $cloudPayload } | Should -Not -Throw
+                    $privateResult.EmailAddress | Should -BeNullOrEmpty
+                    $privateResult.DisplayName | Should -BeNullOrEmpty
+                    $privateResult.Name | Should -BeNullOrEmpty
+                    $privateResult.ToString() | Should -Be '5b10ac8d82e05b22cc7d4ef5'
+                }
             }
 
             Context "Data Center-only fields" {

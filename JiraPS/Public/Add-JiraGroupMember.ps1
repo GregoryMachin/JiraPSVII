@@ -29,12 +29,12 @@
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
-        $resourceURi = "/rest/api/2/group/user"
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/group/user" -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_group in $Group) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_group]"
@@ -45,7 +45,16 @@
 
             foreach ($user in $users) {
 
-                $userDisplayIdentifier = if ($user.AccountId) { $user.AccountId } else { $user.Name }
+                if ($isCloud -and -not $user.AccountId) {
+                    $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                        ([System.ArgumentException]"Jira Cloud group membership requires accountId."),
+                        'CloudUserAccountId.Required',
+                        [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                        $user
+                    )
+                    $PSCmdlet.ThrowTerminatingError($errorItem)
+                }
+
                 $memberExists = $false
                 if ($isCloud -and $user.AccountId) {
                     $memberExists = @($existingMembers.AccountId) -contains $user.AccountId
@@ -54,7 +63,7 @@
                     $memberExists = @($existingMembers.Name) -contains $user.Name
                 }
                 if (-not $memberExists) {
-                    Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] User [$userDisplayIdentifier] is not already in group [$_group]. Adding user."
+                    Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Resolved user is not already in group [$_group]. Adding user."
 
                     if ($isCloud -and $user.AccountId) {
                         $memberBody = @{ 'accountId' = $user.AccountId }
@@ -77,7 +86,7 @@
                         Credential   = $Credential
                     }
                     Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
-                    if ($PSCmdlet.ShouldProcess($target, "Adding user '$userDisplayIdentifier'.")) {
+                    if ($PSCmdlet.ShouldProcess($target, "Adding resolved user.")) {
                         $result = Invoke-JiraMethod @parameter
                     }
                 }

@@ -140,7 +140,7 @@ InModuleScope JiraPS {
 
                 Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                     $Method -eq 'Get' -and
-                    $URI -like '*/rest/api/*/group/member' -and
+                    $URI -eq '/rest/api/3/group/member' -and
                     $GetParameter['groupId'] -eq $testGroupId
                 } {
                     Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'GetParameter'
@@ -169,7 +169,7 @@ InModuleScope JiraPS {
 
                 Should -Invoke Invoke-JiraMethod -ModuleName 'JiraPS' -ParameterFilter {
                     $Method -eq 'Get' -and
-                    $URI -like '*/rest/api/*/group/member' -and
+                    $URI -eq '/rest/api/3/group/member' -and
                     $GetParameter['groupId'] -eq $testGroupId
                 } -Exactly 1
             }
@@ -181,7 +181,7 @@ InModuleScope JiraPS {
 
                 Should -Invoke Invoke-JiraMethod -ModuleName 'JiraPS' -ParameterFilter {
                     $Method -eq 'Get' -and
-                    $URI -like '*/rest/api/*/group/member' -and
+                    $URI -eq '/rest/api/3/group/member' -and
                     $GetParameter['groupname'] -eq 'testgroup'
                 } -Exactly 1
             }

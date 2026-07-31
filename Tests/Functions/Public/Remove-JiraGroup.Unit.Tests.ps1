@@ -120,7 +120,7 @@ InModuleScope JiraPS {
 
                     Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                         $Method -eq 'DELETE' -and
-                        $URI -eq '/rest/api/2/group' -and
+                        $URI -eq '/rest/api/3/group' -and
                         $GetParameter['groupId'] -eq $testGroupId
                     } {
                         Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'GetParameter'
@@ -132,7 +132,7 @@ InModuleScope JiraPS {
 
                     Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'DELETE' -and
-                        $URI -eq '/rest/api/2/group' -and
+                        $URI -eq '/rest/api/3/group' -and
                         $GetParameter['groupId'] -eq $testGroupId
                     }
                 }

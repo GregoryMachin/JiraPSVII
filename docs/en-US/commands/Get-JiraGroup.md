@@ -122,6 +122,9 @@ Missing groups are reported as non-terminating `GroupNotFound` errors rather tha
 
 ## NOTES
 
+Jira Cloud uses the paged REST API v3 group collection; Jira Data Center retains its REST API v2 group lookup.
+Results remain limited by the caller's browse-users-and-groups permissions.
+
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.
 If neither are supplied, this function will run with anonymous access to JIRA.

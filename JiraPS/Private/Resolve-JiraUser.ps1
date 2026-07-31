@@ -22,7 +22,7 @@
     }
 
     process {
-        if ($InputObject.RestUrl) {
+        if ($InputObject.RestUrl -and (-not $isCloud -or $InputObject.AccountId)) {
             Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Using `$InputObject as object"
             return $InputObject
         }
@@ -38,13 +38,23 @@
         # `<namespace>:<uuid>` shape), route through /accountId so the GET
         # works without first pre-classifying the input string.
         if ($isCloud -and $InputObject.Name -and (
-                $InputObject.Name -match '^[0-9a-f]{24}$' -or
+                $InputObject.Name -match '^[A-Za-z0-9]{24}$' -or
                 $InputObject.Name -match '^[A-Za-z0-9]+:[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$'
             )) {
             return (Get-JiraUser -AccountId $InputObject.Name -Exact:$Exact -Credential $Credential -ErrorAction Stop)
         }
 
         if ($InputObject.Name) {
+            if ($isCloud -and $Exact) {
+                $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                    ([System.ArgumentException]"Jira Cloud exact user resolution requires accountId."),
+                    'CloudUserAccountId.Required',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    $InputObject
+                )
+                $PSCmdlet.ThrowTerminatingError($errorItem)
+            }
+
             return (Get-JiraUser -UserName $InputObject.Name -Exact:$Exact -Credential $Credential -ErrorAction Stop)
         }
 

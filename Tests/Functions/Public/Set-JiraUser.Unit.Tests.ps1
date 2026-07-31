@@ -46,7 +46,7 @@ InModuleScope JiraPS {
                 return $object
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -eq "/rest/api/2/user?username=$testUsername" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -eq '/rest/api/2/user' -and $GetParameter.username -eq $testUsername } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultGet
             }
@@ -130,34 +130,14 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeAll {
-                $script:testAccountId = '5b10a2844c20165700ede21a'
-
                 Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-
-                Mock Get-JiraUser -ModuleName JiraPS {
-                    Write-MockDebugInfo 'Get-JiraUser' 'UserName'
-                    $object = ConvertFrom-Json $restResultGet
-                    $object | Add-Member -MemberType NoteProperty -Name 'AccountId' -Value $testAccountId
-                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
-                    return $object
-                }
-
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
-                    $Method -eq 'Put' -and
-                    $URI -like "/rest/api/2/user?accountId=*"
-                } {
-                    Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
-                    ConvertFrom-Json $restResultGet
-                }
             }
 
-            It "Uses accountId in the URI instead of username" {
-                { Set-JiraUser -User $testUsername -DisplayName $testDisplayNameChanged } | Should -Not -Throw
+            It "reports that Jira Cloud does not expose a user profile update operation" {
+                { Set-JiraUser -User $testUsername -DisplayName $testDisplayNameChanged -ErrorAction Stop } |
+                    Should -Throw -ErrorId 'CloudUserUpdate.NotSupported,Set-JiraUser'
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
-                    $Method -eq 'Put' -and
-                    $URI -like "*accountId=$testAccountId*"
-                }
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0
             }
         }
     }

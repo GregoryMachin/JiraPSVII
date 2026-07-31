@@ -25,7 +25,7 @@
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
-        $resourceURi = "/rest/api/2/group/member"
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/group/member" -IsCloud $isCloud
 
         if ($PageSize -gt 50) {
             Write-Warning "JIRA's API may not properly support MaxResults values higher than 50 for this method. If you receive inconsistent results, do not pass the MaxResults parameter to this function to return all results."
@@ -34,7 +34,7 @@
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_group in $Group) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_group]"

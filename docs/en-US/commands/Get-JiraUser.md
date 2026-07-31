@@ -45,6 +45,10 @@ Get-JiraUser [-InputObject] <User[]> [-Exact] [-IncludeInactive] [-Credential <p
 
 This function returns information regarding a specified user from Jira.
 
+Jira Cloud requests use REST API v3 and identify exact users by `accountId`.
+Jira Data Center requests retain REST API v2 username behavior.
+Cloud privacy settings can cause fields such as `EmailAddress`, `DisplayName`, and `Name` to be empty.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
@@ -168,6 +172,7 @@ HelpMessage: ''
 ### -Exact
 
 Limits the search to users where the username or account ID is exactly the term searched for.
+On Jira Cloud, exact lookup requires `-AccountId`; username/display-name searches can return multiple users.
 
 ```yaml
 Type: SwitchParameter

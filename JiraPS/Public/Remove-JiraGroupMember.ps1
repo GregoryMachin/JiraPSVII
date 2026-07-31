@@ -33,7 +33,7 @@
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
 
-        $resourceURi = "/rest/api/2/group/user"
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/group/user" -IsCloud $isCloud
 
         if ($Force) {
             Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] -Force was passed. Backing up current ConfirmPreference [$ConfirmPreference] and setting to None"
@@ -44,17 +44,26 @@
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_group in $Group) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_group]"
             Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$_group [$_group]"
 
             foreach ($_user in $User) {
-                Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_user]"
-                Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$_user [$_user]"
+                Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing user"
+                Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing user input"
 
                 $userObj = Resolve-JiraUser -InputObject $_user -Exact -Credential $Credential -ErrorAction Stop
+                if ($isCloud -and -not $userObj.AccountId) {
+                    $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                        ([System.ArgumentException]"Jira Cloud group membership requires accountId."),
+                        'CloudUserAccountId.Required',
+                        [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                        $userObj
+                    )
+                    $PSCmdlet.ThrowTerminatingError($errorItem)
+                }
                 $userIdentifier = if ($isCloud -and $userObj.AccountId) { $userObj.AccountId } else { $userObj.Name }
 
                 if ($isCloud -and $_group.Id) {
