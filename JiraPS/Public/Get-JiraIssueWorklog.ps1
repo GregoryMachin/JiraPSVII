@@ -17,6 +17,8 @@
 
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
     }
 
     process {
@@ -25,12 +27,14 @@
 
         # Find the proper object for the Issue
         $issueObj = Resolve-JiraIssueObject -InputObject $Issue -Credential $Credential
+        $issueRestUrl = ConvertTo-JiraRestApiV3Url -Url $issueObj.RestUrl -IsCloud $isCloud
 
         $parameter = @{
-            URI          = "{0}/worklog" -f $issueObj.RestURL
+            URI          = "{0}/worklog" -f $issueRestUrl
             Method       = "GET"
             GetParameter = @{
-                maxResults = $PageSize
+                maxResults = $script:DefaultPageSize
+                expand     = 'properties'
             }
             OutputType   = "JiraWorklogItem"
             Paging       = $true

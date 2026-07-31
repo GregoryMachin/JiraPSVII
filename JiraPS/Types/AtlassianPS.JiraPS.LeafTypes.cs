@@ -297,6 +297,7 @@ namespace AtlassianPS.JiraPS
         public string MimeType { get; set; }
         public Uri Content { get; set; }
         public Uri Thumbnail { get; set; }
+        public object Properties { get; set; }
 
         public Attachment() { }
 
@@ -328,6 +329,7 @@ namespace AtlassianPS.JiraPS
         public DateTimeOffset? Started { get; set; }
         public string TimeSpent { get; set; }
         public long? TimeSpentSeconds { get; set; }
+        public object[] Properties { get; set; }
 
         public Worklogitem() { }
 

@@ -21,6 +21,8 @@ Get-JiraIssueComment [-Issue] <Issue> [[-Credential] <pscredential>] [<CommonPar
 ## DESCRIPTION
 
 This function obtains comments from existing issues in JIRA.
+Jira Cloud uses REST API v3 and converts Atlassian Document Format bodies to plain strings.
+The `RenderedBody` property contains server-rendered HTML when Jira supplies it and must be treated as untrusted content.
 
 ## EXAMPLES
 

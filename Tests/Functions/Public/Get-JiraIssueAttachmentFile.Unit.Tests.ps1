@@ -57,6 +57,8 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
+            Mock Get-JiraConfigServer -ModuleName JiraPS { $jiraServer }
+
             Mock Get-JiraIssueAttachment -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraIssueAttachment'
                 $script:attachmentFixtures
@@ -136,6 +138,61 @@ InModuleScope JiraPS {
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                     -not $PSBoundParameters.ContainsKey('Headers')
                 } -Exactly 2
+            }
+
+            It "rejects attachment filenames containing path components" -TestCases @(
+                @{ FileName = '../outside.txt' }
+                @{ FileName = '..\outside.txt' }
+                @{ FileName = 'folder/file.txt' }
+                @{ FileName = 'folder\file.txt' }
+                @{ FileName = '..' }
+            ) {
+                param($FileName)
+
+                $attachment = [AtlassianPS.JiraPS.Attachment]@{
+                    ID       = '99999'
+                    FileName = $FileName
+                    Content  = [uri]"$jiraServer/secure/attachment/99999/file.txt"
+                }
+
+                { Get-JiraIssueAttachmentFile -Attachment $attachment } |
+                    Should -Throw -ErrorId 'AttachmentFileName.InvalidPath,Get-JiraIssueAttachmentFile'
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $URI -eq $attachment.Content
+                }
+            }
+
+            It "rejects an output path that is a file" {
+                $filePath = $PSCommandPath
+
+                { Get-JiraIssueAttachmentFile -Attachment $script:attachmentFixtures[0] -Path $filePath } |
+                    Should -Throw -ErrorId 'ParameterValue.FileNotFound,Get-JiraIssueAttachmentFile'
+            }
+
+            It "rejects cross-origin attachment content URLs before credentials or session state can be sent" {
+                $attachment = [AtlassianPS.JiraPS.Attachment]@{
+                    ID       = '99999'
+                    FileName = 'safe.txt'
+                    Content  = [uri]'https://malicious.example.net/attachment.txt'
+                }
+
+                { Get-JiraIssueAttachmentFile -Attachment $attachment } |
+                    Should -Throw -ErrorId 'AttachmentContentUri.UntrustedHost,Get-JiraIssueAttachmentFile'
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $URI -eq $attachment.Content
+                }
+            }
+
+            It "rejects a scheme downgrade on the configured Jira host" {
+                Mock Get-JiraConfigServer -ModuleName JiraPS { 'https://jiraserver.example.com' }
+                $attachment = [AtlassianPS.JiraPS.Attachment]@{
+                    ID       = '99999'
+                    FileName = 'safe.txt'
+                    Content  = [uri]'http://jiraserver.example.com/attachment.txt'
+                }
+
+                { Get-JiraIssueAttachmentFile -Attachment $attachment } |
+                    Should -Throw -ErrorId 'AttachmentContentUri.UntrustedHost,Get-JiraIssueAttachmentFile'
             }
         }
 

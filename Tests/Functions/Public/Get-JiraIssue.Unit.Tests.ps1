@@ -351,6 +351,33 @@ InModuleScope JiraPS {
 
                 Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                     $Method -eq 'Get' -and
+                    $URI -eq "/rest/api/3/issue/TEST-001"
+                } {
+                    ConvertFrom-Json @'
+{
+    "id": "10001",
+    "key": "TEST-001",
+    "self": "https://jira.example.com/rest/api/3/issue/10001",
+    "fields": {
+        "description": {
+            "type": "doc",
+            "version": 1,
+            "content": [
+                {
+                    "type": "paragraph",
+                    "content": [
+                        { "type": "text", "text": "Cloud description" }
+                    ]
+                }
+            ]
+        }
+    }
+}
+'@
+                }
+
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and
                     $URI -like "/rest/api/3/search/jql*"
                 } {
                     Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
@@ -369,6 +396,33 @@ InModuleScope JiraPS {
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "/rest/api/3/search/jql*"
+                }
+            }
+
+            It "uses the v3 issue endpoint for direct reads and tolerates restricted fields and missing expansions" {
+                $issue = Get-JiraIssue -Key TEST-001
+
+                $issue.Key | Should -Be 'TEST-001'
+                $issue.Description | Should -Be 'Cloud description'
+                $issue.Summary | Should -BeNullOrEmpty
+                @($issue.Transition) | Should -HaveCount 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Get' -and
+                    $URI -eq '/rest/api/3/issue/TEST-001' -and
+                    $GetParameter['expand'] -eq 'transitions'
+                }
+            }
+
+            It "uses the v3 enhanced search endpoint for Cloud filters without following the v2 filter search URL" {
+                { Get-JiraIssue -Filter '12345' } | Should -Not -Throw
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Get' -and
+                    $URI -eq '/rest/api/3/search/jql' -and
+                    $GetParameter['jql'] -eq 'filter = 12345'
+                }
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $URI -like '*/rest/api/2/search*'
                 }
             }
         }

@@ -202,6 +202,17 @@ InModuleScope JiraPS {
                     (ConvertTo-JiraWorklogitem -InputObject $object).Comment | Should -BeNullOrEmpty
                 }
             }
+
+            Context "Cloud properties expansion" {
+                It "exposes worklog properties returned by expand=properties" {
+                    $payload = ConvertFrom-Json '{"id":"73040","comment":null,"properties":[{"key":"integration.source","value":{"name":"test"}}]}'
+
+                    $result = ConvertTo-JiraWorklogItem -InputObject $payload
+
+                    @($result.Properties) | Should -HaveCount 1
+                    $result.Properties[0].key | Should -Be 'integration.source'
+                }
+            }
         }
     }
 }

@@ -24,6 +24,8 @@ This function returns metadata required to update an issue in JIRA - the fields 
 This can be used to identify custom fields in order to pass them to `Set-JiraIssue`.
 
 This function is particularly useful when your JIRA instance includes custom fields that are marked as mandatory.
+Jira Cloud requests use REST API v3, while Jira Data Center requests use REST API v2.
+The returned field set remains limited by the caller's permissions and the issue's edit screen.
 
 ## EXAMPLES
 

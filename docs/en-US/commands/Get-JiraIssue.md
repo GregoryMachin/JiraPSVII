@@ -49,6 +49,9 @@ This function retrieves the data of a issue in JIRA.
 This function can be used to directly query JIRA for a specific issue key or internal issue ID.
 It can also be used to query JIRA for issues matching a specific criteria using JQL (Jira Query Language).
 Use `-IncludeHistory` to request changelog expansion and include issue history entries in the returned issue object.
+Jira Cloud requests use REST API v3 and convert supported Atlassian Document Format fields to plain strings.
+Jira Data Center requests continue to use REST API v2 and preserve its text representation.
+Fields hidden by issue security or field permissions remain absent or null in the returned object.
 
 > For more details on JQL syntax, see this article from Atlassian: [https://confluence.atlassian.com/display/JIRA/Advanced+Searching](https://confluence.atlassian.com/display/JIRA/Advanced+Searching)
 

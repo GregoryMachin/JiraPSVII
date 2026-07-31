@@ -21,6 +21,7 @@ Get-JiraIssueLink [-Id] <int[]> [[-Credential] <pscredential>] [<CommonParameter
 ## DESCRIPTION
 
 This function returns information regarding a specified issueLink from Jira.
+Jira Cloud requests use REST API v3, while Jira Data Center requests use REST API v2.
 
 ## EXAMPLES
 

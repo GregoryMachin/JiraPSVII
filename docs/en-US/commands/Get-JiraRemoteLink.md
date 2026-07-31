@@ -22,6 +22,8 @@ Get-JiraRemoteLink [-Issue] <Issue> [[-LinkId] <int>] [[-Credential] <pscredenti
 ## DESCRIPTION
 
 This function returns information on remote links from a  JIRA issue.
+Jira Cloud requests use REST API v3, while Jira Data Center requests use REST API v2.
+Returned remote URLs are data only and should be validated before opening or rendering them.
 
 ## EXAMPLES
 

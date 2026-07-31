@@ -18,6 +18,8 @@ InModuleScope JiraPS {
 
 
             #region Mocks
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             $filterAll = { $Method -eq 'Get' -and $Uri -ceq "/rest/api/2/issueLinkType" }
             $filterOne = { $Method -eq 'Get' -and $Uri -ceq "/rest/api/2/issueLinkType/10000" }
 
@@ -122,6 +124,23 @@ InModuleScope JiraPS {
                     $output | Should -Not -BeNullOrEmpty
                     @($output) | Should -HaveCount 1
                     $output.ID | Should -Be 5
+                }
+            }
+
+            Context "Cloud routing" {
+                BeforeAll {
+                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Invoke-JiraMethod -ParameterFilter { $Uri -ceq '/rest/api/3/issueLinkType' } {
+                        [PSCustomObject]@{ issueLinkTypes = @('foo') }
+                    }
+                }
+
+                It "uses v3 for the Cloud collection" {
+                    $null = Get-JiraIssueLinkType
+
+                    Should -Invoke Invoke-JiraMethod -Exactly 1 -ParameterFilter {
+                        $Uri -ceq '/rest/api/3/issueLinkType'
+                    }
                 }
             }
         }

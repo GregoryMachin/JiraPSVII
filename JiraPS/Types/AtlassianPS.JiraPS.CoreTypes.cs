@@ -116,7 +116,7 @@ namespace AtlassianPS.JiraPS
         public string Id { get; set; }
         public string Body { get; set; }
         // Server-side rendered HTML body; only populated when the request
-        // included expand=renderedBody (DC v2; not available on Cloud v3).
+        // included expand=renderedBody. Treat this returned HTML as untrusted.
         public string RenderedBody { get; set; }
         public object Visibility { get; set; }
         // Cloud-only entity-properties array (each item is { key, value }).

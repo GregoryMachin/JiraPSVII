@@ -41,6 +41,8 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraConfigServer -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
@@ -120,6 +122,31 @@ InModuleScope JiraPS {
                     $worklogs.ID | Should -Be 90730
 
                     Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                }
+            }
+        }
+
+        Describe "Deployment routing" {
+            It "uses v2 for Data Center and the shared default page size" {
+                $null = Get-JiraIssueWorklog -Issue $issueKey
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog" -and
+                    $GetParameter['maxResults'] -eq $script:DefaultPageSize -and
+                    $GetParameter['expand'] -eq 'properties'
+                }
+            }
+
+            It "uses v3 for Cloud even when the issue object contains a v2 self link" {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog"
+                } { (ConvertFrom-Json -InputObject $restResult).worklogs }
+
+                $null = Get-JiraIssueWorklog -Issue $issueKey
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog"
                 }
             }
         }

@@ -39,6 +39,8 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraConfigServer -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
@@ -108,6 +110,16 @@ InModuleScope JiraPS {
                     $Method -eq "Get" -and
                     $Uri -like "$jiraServer/rest/api/*/issue/12345/remotelink/10000"
                 } -Exactly 1
+            }
+
+            It "uses v3 for Cloud even when the issue object contains a v2 self link" {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+
+                $null = Get-JiraRemoteLink -Issue $issueKey
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "$jiraServer/rest/api/3/issue/12345/remotelink"
+                }
             }
         }
 

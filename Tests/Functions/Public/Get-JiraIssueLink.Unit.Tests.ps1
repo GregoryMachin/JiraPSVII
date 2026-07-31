@@ -29,6 +29,8 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraConfigServer -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
@@ -101,6 +103,19 @@ InModuleScope JiraPS {
 
             It 'Fails if input from the pipeline is of the wrong type' {
                 { [PSCustomObject]@{id = $issueLinkId } | Get-JiraIssueLink } | Should -Throw -ExpectedMessage "*Invalid Parameter*"
+            }
+
+            It "uses v3 for Cloud" {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $URI -eq '/rest/api/3/issueLink/1234'
+                } { ConvertFrom-Json $resultsJson }
+
+                $null = Get-JiraIssueLink -Id $issueLinkId
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq '/rest/api/3/issueLink/1234'
+                }
             }
         }
 

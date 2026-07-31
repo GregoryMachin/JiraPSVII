@@ -14,6 +14,10 @@
 - Generalized JiraPS pagination to support configurable item/token/completion fields such as `issues`, `values`, `nextPageToken`, and `isLast` while preserving offset pagination.
 - JiraPS transport now captures sanitized response telemetry for request IDs, retry/rate-limit headers, deprecation metadata, sunset metadata, and uses bounded jittered retry delays for HTTP 429/503 responses.
 - `Get-JiraProject` now uses `/rest/api/3/project/search` for Jira Cloud collection retrieval, walks paginated project results, and supports `-First`, `-Skip`, `-IncludeTotalCount`, and `-PageSize` while preserving direct lookup and Jira Data Center routes.
+- Jira Cloud issue reads now use REST API v3 for direct issues, saved-filter searches, edit metadata, comments, worklogs, issue links, issue-link types, and remote links while Jira Data Center retains REST API v2 routing.
+  Comment reads request rendered bodies, worklog reads request entity properties, and Cloud ADF text remains converted to safe plain strings in JiraPS objects.
+  Attachment and worklog objects now preserve returned entity properties.
+- `Get-JiraIssueAttachmentFile` now rejects server-supplied filenames with path components, requires an existing destination directory, and refuses attachment content URLs outside the configured Jira origin before credentials or session state can be sent.
 
 ## v3.0.0 - 2026-05-10
 

@@ -28,6 +28,10 @@
                 'Thumbnail' = [uri]$i.thumbnail
             }
 
+            if ($i.properties) {
+                $props.Properties = $i.properties
+            }
+
             [AtlassianPS.JiraPS.Attachment]$props
         }
     }

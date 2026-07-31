@@ -22,6 +22,8 @@ Get-JiraIssueAttachmentFile [-Attachment] <Attachment[]> [[-Path] <string>]
 ## DESCRIPTION
 
 This function downloads an attachment of an issue to the local disk.
+The destination must be an existing directory.
+For safety, the command rejects attachment filenames containing path components and content URLs outside the configured Jira server origin.
 
 ## EXAMPLES
 

@@ -94,6 +94,16 @@ InModuleScope JiraPS {
                     else { $result.$($property) | Should -BeOfType $type }
                 }
             }
+
+            Context "Cloud attachment properties" {
+                It "preserves attachment properties without evaluating their values" {
+                    $payload = ConvertFrom-Json '{"id":"270710","filename":"safe.txt","properties":{"source":"integration"}}'
+
+                    $result = ConvertTo-JiraAttachment -InputObject $payload
+
+                    $result.Properties.source | Should -Be 'integration'
+                }
+            }
         }
     }
 }

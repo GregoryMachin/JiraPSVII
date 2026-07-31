@@ -30,6 +30,7 @@ Get-JiraIssueLinkType [-LinkType] <IssueLinkType> [-Credential <pscredential>] [
 
 This function gets available issueLink types from a JIRA server.
 It can also return specific information about a single issueLink type.
+Jira Cloud requests use REST API v3, while Jira Data Center requests use REST API v2.
 
 This is a useful function for discovering data about issueLink types in order to create and modify issueLinks on issues.
 
@@ -116,8 +117,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.
 If neither are supplied, this function will run with anonymous access to JIRA.
-
-Remaining operations for `issuetype` have not yet been implemented in the module.
 
 ## RELATED LINKS
 

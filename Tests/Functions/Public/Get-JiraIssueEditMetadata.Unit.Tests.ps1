@@ -176,6 +176,8 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraConfigServer -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
@@ -238,6 +240,29 @@ InModuleScope JiraPS {
                     $errorsBefore = $global:Error.Count
                     $null = Get-JiraIssueEditMetadata -Issue $issueID
                     ($global:Error.Count - $errorsBefore) | Should -Be 0
+                }
+            }
+        }
+
+        Describe "Deployment routing" {
+            It "uses v2 for Data Center" {
+                $null = Get-JiraIssueEditMetadata -Issue $issueID
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "/rest/api/2/issue/$issueID/editmeta"
+                }
+            }
+
+            It "uses v3 for Cloud" {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $URI -eq "/rest/api/3/issue/$issueID/editmeta"
+                } { ConvertFrom-Json $restResult }
+
+                $null = Get-JiraIssueEditMetadata -Issue $issueID
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "/rest/api/3/issue/$issueID/editmeta"
                 }
             }
         }

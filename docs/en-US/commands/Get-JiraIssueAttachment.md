@@ -22,6 +22,8 @@ Get-JiraIssueAttachment [-Issue] <Issue> [[-FileName] <string>] [[-Credential] <
 ## DESCRIPTION
 
 This function obtains attachments from existing issues in JIRA.
+Returned attachment entity properties are exposed through the `Properties` property without evaluation.
+Attachment filenames and content URLs are untrusted metadata until validated by `Get-JiraIssueAttachmentFile`.
 
 ## EXAMPLES
 

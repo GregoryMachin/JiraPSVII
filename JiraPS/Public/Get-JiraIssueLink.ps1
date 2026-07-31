@@ -15,7 +15,8 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2/issueLink/{0}"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/issueLink/{0}" -IsCloud $isCloud
     }
 
     process {

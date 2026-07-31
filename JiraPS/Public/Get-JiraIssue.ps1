@@ -57,7 +57,7 @@
 
         $searchURi = "/rest/api/2/search"
         $searchURi_v3 = "/rest/api/3/search/jql"
-        $resourceURi = "/rest/api/2/issue/{0}"
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url "/rest/api/2/issue/{0}" -IsCloud $isCloud
 
         [String]$Fields = $Fields -join ","
     }
@@ -131,7 +131,7 @@
                 $expandValue = "transitions"
                 if ($IncludeHistory) { $expandValue = "transitions,changelog" }
                 $parameter = @{
-                    URI          = $filterObj
+                    URI          = if ($isCloud) { $searchURi_v3 } else { $filterObj }
                     Method       = "GET"
                     GetParameter = @{
                         validateQuery = $true
@@ -145,6 +145,9 @@
                 }
                 if ($Fields) {
                     $parameter["GetParameter"]["fields"] = $Fields
+                }
+                if ($isCloud) {
+                    $parameter["GetParameter"]["jql"] = "filter = $($Filter.ID)"
                 }
                 # Paging
                 ($PSCmdlet.PagingParameters | Get-Member -MemberType Property).Name | ForEach-Object {

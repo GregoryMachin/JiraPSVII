@@ -22,6 +22,8 @@ Get-JiraIssueWorklog [-Issue] <Issue> [[-Credential] <pscredential>] [<CommonPar
 ## DESCRIPTION
 
 This function obtains worklogs from existing issues in JIRA.
+Jira Cloud uses REST API v3 and converts Atlassian Document Format comments to plain strings.
+Returned worklog entity properties are exposed through the `Properties` property without evaluation.
 
 ## EXAMPLES
 

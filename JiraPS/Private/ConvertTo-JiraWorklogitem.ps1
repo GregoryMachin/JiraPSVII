@@ -46,6 +46,10 @@
                 $props.TimeSpentSeconds = $i.timeSpentSeconds
             }
 
+            if ($i.properties) {
+                $props.Properties = [object[]]@($i.properties)
+            }
+
             [AtlassianPS.JiraPS.Worklogitem]$props
         }
     }
