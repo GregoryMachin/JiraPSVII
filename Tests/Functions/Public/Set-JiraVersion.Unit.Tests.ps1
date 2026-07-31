@@ -34,7 +34,7 @@ InModuleScope JiraPS {
 "@
             $script:testJsonOne = @"
 {
-    "self" : "$jiraServer/rest/api/2/version/$versionID",
+    "self" : "/rest/api/2/version/$versionID",
     "id" : $versionID,
     "description" : "$versionName",
     "name" : "$versionName",
@@ -50,6 +50,8 @@ InModuleScope JiraPS {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
+
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
 
             Mock Get-JiraProject -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraProject' 'Project'
@@ -75,7 +77,7 @@ InModuleScope JiraPS {
                 $result
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -like "$jiraServer/rest/api/*/version/$versionID" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -like "/rest/api/*/version/$versionID" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJsonOne
             }
@@ -125,7 +127,7 @@ InModuleScope JiraPS {
                     Should -Invoke 'Get-JiraVersion' -Times 2 -ModuleName JiraPS -Exactly
                     Should -Invoke 'Get-JiraProject' -Times 0 -ModuleName JiraPS -Exactly
                     Should -Invoke 'ConvertTo-JiraVersion' -Times 3 -ModuleName JiraPS -Exactly
-                    Should -Invoke 'Invoke-JiraMethod' -Times 1 -ModuleName JiraPS -Exactly -ParameterFilter { $Method -eq 'Put' -and $URI -like "$jiraServer/rest/api/*/version/$versionID" }
+                    Should -Invoke 'Invoke-JiraMethod' -Times 1 -ModuleName JiraPS -Exactly -ParameterFilter { $Method -eq 'Put' -and $URI -like "/rest/api/*/version/$versionID" }
                 }
 
                 It "sets an Issue's Version Name using the pipeline" {
@@ -135,7 +137,7 @@ InModuleScope JiraPS {
                     Should -Invoke 'Get-JiraVersion' -Times 2 -ModuleName JiraPS -Exactly
                     Should -Invoke 'Get-JiraProject' -Times 0 -ModuleName JiraPS -Exactly
                     Should -Invoke 'ConvertTo-JiraVersion' -Times 3 -ModuleName JiraPS -Exactly
-                    Should -Invoke 'Invoke-JiraMethod' -Times 1 -ModuleName JiraPS -Exactly -ParameterFilter { $Method -eq 'Put' -and $URI -like "$jiraServer/rest/api/*/version/$versionID" }
+                    Should -Invoke 'Invoke-JiraMethod' -Times 1 -ModuleName JiraPS -Exactly -ParameterFilter { $Method -eq 'Put' -and $URI -like "/rest/api/*/version/$versionID" }
                 }
 
                 It "rejects a name-only Version stub where an ID is required" {
@@ -143,6 +145,33 @@ InModuleScope JiraPS {
                         Should -Throw '*version ID*'
 
                     Should -Invoke 'Invoke-JiraMethod' -Times 0 -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' }
+                }
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Put' -and $URI -eq "/rest/api/3/version/$versionID"
+                } {
+                    ConvertFrom-Json $testJsonOne
+                }
+            }
+
+            It "uses REST API v3 instead of a returned legacy self link" {
+                Set-JiraVersion -Version $versionID -Name 'Cloud name' | Should -Not -BeNullOrEmpty
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "/rest/api/3/version/$versionID"
+                }
+            }
+
+            It "does not send an update request with WhatIf" {
+                Set-JiraVersion -Version $versionID -Name 'Cloud name' -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $URI -eq "/rest/api/3/version/$versionID"
                 }
             }
         }

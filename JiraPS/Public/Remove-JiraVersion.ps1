@@ -20,6 +20,9 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $versionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version/{0}' -IsCloud $isCloud
+
         if ($Force) {
             Write-DebugMessage "[Remove-JiraVersion] -Force was passed. Backing up current ConfirmPreference [$ConfirmPreference] and setting to None"
             $oldConfirmPreference = $ConfirmPreference
@@ -29,7 +32,7 @@
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_version in $Version) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_version]"
@@ -49,7 +52,7 @@
             $versionObj = Get-JiraVersion -Id $_version.Id -Credential $Credential -ErrorAction Stop
 
             $parameter = @{
-                URI        = $versionObj.RestUrl
+                URI        = $versionResourceUri -f $_version.Id
                 Method     = "DELETE"
                 Credential = $Credential
             }

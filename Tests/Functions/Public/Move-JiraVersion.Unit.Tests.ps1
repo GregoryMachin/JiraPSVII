@@ -39,6 +39,8 @@ InModuleScope JiraPS {
                 $jiraServer
             }
 
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraProject -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraProject' 'Project'
                 $Projects = ConvertFrom-Json $JiraProjectData
@@ -93,6 +95,11 @@ InModuleScope JiraPS {
                 ) {
                     param($parameter, $type)
                     $command | Should -HaveParameter $parameter -Type $type
+                }
+
+                It "supports ShouldProcess" {
+                    $command.Parameters.Keys | Should -Contain 'WhatIf'
+                    $command.Parameters.Keys | Should -Contain 'Confirm'
                 }
             }
 
@@ -250,6 +257,31 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName 'Invoke-JiraMethod' -Times 0 -ModuleName JiraPS -ParameterFilter {
                         $Method -eq 'POST'
                     }
+                }
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Post' -and $URI -eq "/rest/api/3/version/$versionID1/move"
+                } { }
+            }
+
+            It "uses REST API v3 for version movement" {
+                Move-JiraVersion -Version $versionID1 -Position Last
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "/rest/api/3/version/$versionID1/move"
+                }
+            }
+
+            It "does not send a move request with WhatIf" {
+                Move-JiraVersion -Version $versionID1 -Position Last -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $URI -eq "/rest/api/3/version/$versionID1/move"
                 }
             }
         }

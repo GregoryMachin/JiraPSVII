@@ -39,11 +39,14 @@
 
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $versionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version/{0}' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         foreach ($_version in $Version) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_version]"
@@ -96,13 +99,13 @@
             }
 
             $parameter = @{
-                URI        = $versionObj.RestUrl
+                URI        = $versionResourceUri -f $_version.Id
                 Method     = "PUT"
                 Body       = ConvertTo-Json -InputObject $requestBody
                 Credential = $Credential
             }
             Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
-            if ($PSCmdlet.ShouldProcess($Name, "Updating Version on JIRA")) {
+            if ($PSCmdlet.ShouldProcess($versionObj.Name, "Updating Version on JIRA")) {
                 $result = Invoke-JiraMethod @parameter
 
                 Write-Output (ConvertTo-JiraVersion -InputObject $result)

@@ -47,12 +47,13 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2/version"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         $requestBody = @{}
         switch ($PSCmdlet.ParameterSetName) {

@@ -168,6 +168,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 
+Jira Cloud uses a validated ID with REST API v3 instead of following a returned self-link; Jira Data Center uses REST API v2.
+Removing versions requires project-administrator permissions and honors `-WhatIf` and confirmation.
+
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.
 If neither are supplied, this function will run with anonymous access to JIRA.

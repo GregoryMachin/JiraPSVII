@@ -52,6 +52,8 @@ InModuleScope JiraPS {
                 $jiraServer
             }
 
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraProject -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraProject'
                 $Projects = ConvertFrom-Json $JiraProjectData
@@ -160,6 +162,33 @@ InModuleScope JiraPS {
                 $results.PSObject.TypeNames[0] | Should -Be "AtlassianPS.JiraPS.Version"
                 Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
                 Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPS
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Post' -and $URI -eq '/rest/api/3/version'
+                } {
+                    ConvertFrom-Json $testJsonOne
+                }
+            }
+
+            It "uses REST API v3 for version creation" {
+                New-JiraVersion -Name $versionName -Project $projectKey | Should -Not -BeNullOrEmpty
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq '/rest/api/3/version'
+                }
+            }
+
+            It "does not send a create request with WhatIf" {
+                New-JiraVersion -Name $versionName -Project $projectKey -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $URI -eq '/rest/api/3/version'
+                }
             }
         }
 

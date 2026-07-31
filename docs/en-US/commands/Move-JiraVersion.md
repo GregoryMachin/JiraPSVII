@@ -17,13 +17,14 @@ Moves an existing Version in JIRA
 ### ByAfter (Default)
 
 ```powershell
-Move-JiraVersion -Version <Version> -After <Version> [-Credential <pscredential>] [<CommonParameters>]
+Move-JiraVersion -Version <Version> -After <Version> [-Credential <pscredential>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ### ByPosition
 
 ```powershell
-Move-JiraVersion -Version <Version> -Position <string> [-Credential <pscredential>]
+Move-JiraVersion -Version <Version> -Position <string> [-Credential <pscredential>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
@@ -59,6 +60,28 @@ Move-JiraVersion -Version $myVersionObject -Position Earliest
 This example moves the Version object to the earliest position.
 
 ## PARAMETERS
+
+### -Confirm
+
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- cf
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -After
 
@@ -149,6 +172,29 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -WhatIf
+
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases:
+- wi
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### CommonParameters
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
@@ -163,6 +209,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
+
+Jira Cloud uses REST API v3 while Jira Data Center retains REST API v2.
+Moving versions requires project-administrator permissions and honors `-WhatIf` and confirmation.
 
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.

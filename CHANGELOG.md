@@ -22,6 +22,7 @@
 - `New-JiraUser` now sends Jira Cloud's email-and-products provisioning contract through `-Product`; `Set-JiraUser` explicitly reports that Cloud REST API v3 has no profile-update operation instead of attempting a legacy v2 mutation.
 - User/group diagnostics now log bound parameter names rather than parameter values so credentials, email addresses, and account IDs are not written unnecessarily.
 - `Get-JiraComponent` now uses REST API v3 for Jira Cloud direct lookups and the paged `/project/{key}/component` collection, including `-First`, `-Skip`, and `-PageSize`; Jira Data Center retains its REST API v2 component routes.
+- Jira Cloud version reads, creation, updates, deletion, and movement now use REST API v3 while Jira Data Center retains REST API v2. Version mutations build deployment-aware routes from validated IDs instead of trusting returned self-links, and `Move-JiraVersion` now supports `-WhatIf` and confirmation.
 
 ## v3.0.0 - 2026-05-10
 

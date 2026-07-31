@@ -97,6 +97,8 @@ InModuleScope JiraPS {
                 Write-Output $jiraServer
             }
 
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraProject -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraProject'
                 $json = ConvertFrom-Json $JiraProjectData
@@ -319,6 +321,53 @@ InModuleScope JiraPS {
 
             It "assert VerifiableMock" {
                 # Assert-VerifiableMock removed in Pester v5
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq "/rest/api/3/version/$versionId1"
+                } {
+                    ConvertFrom-Json $testJson1
+                }
+
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/version"
+                } {
+                    ConvertFrom-Json $testJsonAll
+                }
+            }
+
+            It "uses REST API v3 for direct version lookup" {
+                Get-JiraVersion -Id $versionId1 | Should -Not -BeNullOrEmpty
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "/rest/api/3/version/$versionId1" -and -not $Paging
+                }
+            }
+
+            It "uses the paged REST API v3 project version route" {
+                Get-JiraVersion -Project $projectKey -PageSize 10 | Should -Not -BeNullOrEmpty
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $URI -eq "/rest/api/3/project/$projectKey/version" -and
+                    $Paging -and
+                    $GetParameter.maxResults -eq 10
+                }
+            }
+
+            It "propagates project version permission failures" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/version"
+                } {
+                    throw [System.UnauthorizedAccessException]::new('Browse projects permission is required.')
+                }
+
+                { Get-JiraVersion -Project $projectKey -ErrorAction Stop } |
+                    Should -Throw -ExceptionType ([System.UnauthorizedAccessException])
             }
         }
 

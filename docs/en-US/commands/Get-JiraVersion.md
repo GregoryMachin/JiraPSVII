@@ -370,6 +370,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 
+Jira Cloud uses REST API v3 for direct and paged project-version reads; Jira Data Center retains REST API v2.
+Results remain limited by the caller's project browse permissions.
+
 This function requires either the `-Credential` parameter to be passed or a persistent JIRA session.
 See `New-JiraSession` for more details.
 If neither are supplied, this function will run with anonymous access to JIRA.

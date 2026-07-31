@@ -1,6 +1,6 @@
 ﻿function Move-JiraVersion {
     # .ExternalHelp ..\JiraPS-help.xml
-    [CmdletBinding( DefaultParameterSetName = 'ByAfter' )]
+    [CmdletBinding( SupportsShouldProcess, DefaultParameterSetName = 'ByAfter' )]
     param(
         [Parameter( Mandatory, ValueFromPipeline )]
         [ValidateNotNull()]
@@ -27,12 +27,13 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $versionResourceUri = "/rest/api/2/version/{0}/move"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $versionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version/{0}/move' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         if (-not $Version.Id) {
             $errorItem = [System.Management.Automation.ErrorRecord]::new(
@@ -81,7 +82,9 @@
         }
 
         Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
-        Invoke-JiraMethod @parameter
+        if ($PSCmdlet.ShouldProcess($Version.Id, 'Move Jira version')) {
+            Invoke-JiraMethod @parameter
+        }
     }
 
     end {

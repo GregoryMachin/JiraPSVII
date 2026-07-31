@@ -49,12 +49,14 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2/{0}"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $versionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version/{0}' -IsCloud $isCloud
+        $projectVersionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/project/{0}/version' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         $ParameterSetName = ''
         switch ($PsCmdlet.ParameterSetName) {
@@ -84,7 +86,7 @@
                     Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$_id [$_id]"
 
                     $parameter = @{
-                        URI        = $resourceURi -f "version/$_id"
+                        URI        = $versionResourceUri -f $_id
                         Method     = "GET"
                         Credential = $Credential
                     }
@@ -101,8 +103,9 @@
 
                     $projectData = Get-JiraProject -Project $_project -Credential $Credential
 
+                    $projectPathSegment = [Uri]::EscapeDataString($projectData.Key)
                     $parameter = @{
-                        URI          = $resourceURi -f "project/$($projectData.key)/version"
+                        URI          = $projectVersionResourceUri -f $projectPathSegment
                         Method       = "GET"
                         GetParameter = @{
                             orderBy    = $Sort
