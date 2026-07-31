@@ -19,6 +19,7 @@ InModuleScope JiraPS {
             $script:projectKey2 = 'TEST'
             $script:projectId2 = '10004'
             $script:projectName2 = 'Test Project'
+            $script:inaccessibleProjectKey = 'HIDDEN'
 
             $script:restResultAll = @"
 [
@@ -73,12 +74,17 @@ InModuleScope JiraPS {
                 Write-Output $jiraServer
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/project*" } {
+            Mock Test-JiraCloudServer -ModuleName JiraPS {
+                Write-MockDebugInfo 'Test-JiraCloudServer'
+                $false
+            }
+
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/2/project" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultAll
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/project/$projectKey?*" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -in @("/rest/api/2/project/$projectKey", "/rest/api/2/project/$projectId") } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultOne
             }
@@ -92,8 +98,16 @@ InModuleScope JiraPS {
         }
 
         Describe "Signature" {
+            BeforeAll {
+                $script:command = Get-Command -Name Get-JiraProject
+            }
+
             Context "Parameter Types" {
-                # TODO: Add parameter type validation tests
+                It "opts into SupportsPaging" {
+                    $command.Parameters.Keys | Should -Contain 'First'
+                    $command.Parameters.Keys | Should -Contain 'Skip'
+                    $command.Parameters.Keys | Should -Contain 'IncludeTotalCount'
+                }
             }
 
             Context "Mandatory Parameters" {}
@@ -106,6 +120,14 @@ InModuleScope JiraPS {
                 $allResults = Get-JiraProject
                 $allResults | Should -Not -BeNullOrEmpty
                 @($allResults).Count | Should -Be (ConvertFrom-Json -InputObject $restResultAll).Count
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and
+                    "$URI" -eq "/rest/api/2/project" -and
+                    $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys' -and
+                    $GetParameter['maxResults'] -eq $script:DefaultPageSize -and
+                    -not $Paging
+                } -Exactly -Times 1
             }
 
             It "Returns details about specific projects if the project key is supplied" {
@@ -128,6 +150,122 @@ InModuleScope JiraPS {
             It "Provides the ID of the project" {
                 $oneResult = Get-JiraProject -Project $projectKey
                 $oneResult.Id | Should -Be $projectId
+            }
+
+            It "Uses the direct lookup route for project keys and IDs" {
+                $null = Get-JiraProject -Project $projectKey, $projectId
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and
+                    "$URI" -eq "/rest/api/2/project/$projectKey" -and
+                    $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys' -and
+                    -not $Paging
+                } -Exactly -Times 1
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and
+                    "$URI" -eq "/rest/api/2/project/$projectId" -and
+                    $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys' -and
+                    -not $Paging
+                } -Exactly -Times 1
+
+                Should -Invoke Test-JiraCloudServer -ModuleName JiraPS -Exactly -Times 0
+            }
+
+            It "Emits stable Jira project typed output" {
+                $allResults = Get-JiraProject
+
+                foreach ($projectResult in $allResults) {
+                    $projectResult.PSObject.TypeNames | Should -Contain 'AtlassianPS.JiraPS.Project'
+                }
+            }
+
+            Context "Jira Cloud collection search" {
+                BeforeEach {
+                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+
+                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
+                        Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
+                        ConvertFrom-Json $restResultAll
+                    }
+                }
+
+                It "Uses the v3 project search endpoint with shared pagination" {
+                    $allResults = Get-JiraProject -PageSize 2
+
+                    $allResults | Should -HaveCount 2
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        $Method -eq 'Get' -and
+                        "$URI" -eq "/rest/api/3/project/search" -and
+                        $Paging -eq $true -and
+                        $GetParameter['maxResults'] -eq 2 -and
+                        $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys'
+                    } -Exactly -Times 1
+
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        "$URI" -eq "/rest/api/2/project"
+                    } -Exactly -Times 0
+                }
+
+                It "Forwards -First and -Skip to the shared paginator" {
+                    $null = Get-JiraProject -First 1 -Skip 1
+
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        "$URI" -eq "/rest/api/3/project/search" -and
+                        $Paging -eq $true -and
+                        $First -eq 1 -and
+                        $Skip -eq 1
+                    } -Exactly -Times 1
+                }
+
+                It "Preserves direct lookup behavior on Jira Cloud" {
+                    $null = Get-JiraProject -Project $projectKey
+
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        "$URI" -eq "/rest/api/2/project/$projectKey" -and
+                        -not $Paging
+                    } -Exactly -Times 1
+
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        "$URI" -eq "/rest/api/3/project/search"
+                    } -Exactly -Times 0
+
+                    Should -Invoke Test-JiraCloudServer -ModuleName JiraPS -Exactly -Times 0
+                }
+
+                It "Returns only projects present in permission-filtered search results" {
+                    $visibleResult = @"
+[
+    {
+        "self": "$jiraServer/rest/api/3/project/10003",
+        "id": "$projectId",
+        "key": "$projectKey",
+        "name": "$projectName"
+    }
+]
+"@
+                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
+                        ConvertFrom-Json $visibleResult
+                    }
+
+                    $result = Get-JiraProject
+
+                    $result | Should -HaveCount 1
+                    $result.Key | Should -Be $projectKey
+                    $result.Key | Should -Not -Contain $inaccessibleProjectKey
+                }
+
+                It "Returns projects from every page yielded by Invoke-JiraMethod" {
+                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
+                        ConvertFrom-Json $restResultAll
+                    }
+
+                    $result = Get-JiraProject -PageSize 1
+
+                    $result | Should -HaveCount 2
+                    $result.Key | Should -Contain $projectKey
+                    $result.Key | Should -Contain $projectKey2
+                }
             }
         }
 

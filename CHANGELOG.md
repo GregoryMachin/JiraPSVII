@@ -13,6 +13,7 @@
 - `Set-JiraConfigServer` now accepts AtlassianPS.Configuration server entries with explicit Jira `DeploymentType`, `AuthenticationType`, and `CloudId` metadata, preserving legacy URI configuration while preventing failed Cloud/Data Center auto-detection from silently downgrading to Server behavior.
 - Generalized JiraPS pagination to support configurable item/token/completion fields such as `issues`, `values`, `nextPageToken`, and `isLast` while preserving offset pagination.
 - JiraPS transport now captures sanitized response telemetry for request IDs, retry/rate-limit headers, deprecation metadata, sunset metadata, and uses bounded jittered retry delays for HTTP 429/503 responses.
+- `Get-JiraProject` now uses `/rest/api/3/project/search` for Jira Cloud collection retrieval, walks paginated project results, and supports `-First`, `-Skip`, `-IncludeTotalCount`, and `-PageSize` while preserving direct lookup and Jira Data Center routes.
 
 ## v3.0.0 - 2026-05-10
 

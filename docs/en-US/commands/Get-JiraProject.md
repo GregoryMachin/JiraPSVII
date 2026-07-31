@@ -17,13 +17,15 @@ Returns a project from Jira
 ### _All (Default)
 
 ```powershell
-Get-JiraProject [-Credential <pscredential>] [<CommonParameters>]
+Get-JiraProject [-PageSize <uint>] [-Credential <pscredential>] [-IncludeTotalCount] [-Skip <ulong>]
+ [-First <ulong>] [<CommonParameters>]
 ```
 
 ### _Search
 
 ```powershell
-Get-JiraProject [-Project] <string[]> [-Credential <pscredential>] [<CommonParameters>]
+Get-JiraProject [-Project] <string[]> [-Credential <pscredential>] [-IncludeTotalCount] [-Skip <ulong>]
+ [-First <ulong>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,8 +33,11 @@ Get-JiraProject [-Project] <string[]> [-Credential <pscredential>] [<CommonParam
 This function returns information regarding a specified project from Jira.
 
 If the Project parameter is not supplied, it will return information about all projects the given user is authorized to view.
+On Jira Cloud, the cmdlet uses the paginated `/rest/api/3/project/search` endpoint and walks every page by default.
+Use `-First`, `-Skip`, and `-IncludeTotalCount` to limit, offset, or count the returned projects.
 
 The `-Project` parameter will accept either a project ID or a project key.
+Direct project lookup and Jira Data Center collection behavior continue to use the existing v2 project routes.
 
 ## EXAMPLES
 
@@ -60,6 +65,14 @@ Get-JiraProject
 
 Returns information about all projects the user is authorized to view
 
+### EXAMPLE 4
+
+```powershell
+Get-JiraProject -First 25 -Skip 50
+```
+
+Returns the next 25 projects after skipping the first 50 visible projects.
+
 ## PARAMETERS
 
 ### -Credential
@@ -84,6 +97,75 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -First
+
+Indicates how many items to return.
+
+```yaml
+Type: UInt64
+DefaultValue: 18446744073709551615
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -IncludeTotalCount
+
+Causes an extra output of the total count at the beginning.
+
+Note this is actually a uInt64, but with a custom string representation.
+
+```yaml
+Type: SwitchParameter
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -PageSize
+
+Maximum number of results to fetch per call.
+
+This setting can be tuned to get better performance according to the load on the server.
+
+> Warning: too high of a PageSize can cause a timeout on the request.
+
+```yaml
+Type: UInt32
+DefaultValue: 25
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: _All
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### -Project
 
 The Project ID or project key of a project to search.
@@ -98,6 +180,29 @@ ParameterSets:
   Position: 0
   IsRequired: true
   ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Skip
+
+Controls how many things will be skipped before starting output.
+
+Defaults to 0.
+
+```yaml
+Type: UInt64
+DefaultValue: 0
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
