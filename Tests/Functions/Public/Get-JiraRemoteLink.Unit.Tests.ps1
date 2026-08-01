@@ -96,7 +96,7 @@ InModuleScope JiraPS {
 
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                     $Method -eq "Get" -and
-                    $Uri -like "$jiraServer/rest/api/*/issue/12345/remotelink"
+                    $Uri -eq "/rest/api/2/issue/$issueKey/remotelink"
                 } -Exactly 1
 
                 Should -Invoke ConvertTo-JiraLink -ModuleName JiraPS -Exactly 1
@@ -108,7 +108,7 @@ InModuleScope JiraPS {
 
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
                     $Method -eq "Get" -and
-                    $Uri -like "$jiraServer/rest/api/*/issue/12345/remotelink/10000"
+                    $Uri -eq "/rest/api/2/issue/$issueKey/remotelink/10000"
                 } -Exactly 1
             }
 
@@ -118,7 +118,7 @@ InModuleScope JiraPS {
                 $null = Get-JiraRemoteLink -Issue $issueKey
 
                 Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
-                    $URI -eq "$jiraServer/rest/api/3/issue/12345/remotelink"
+                    $URI -eq "/rest/api/3/issue/$issueKey/remotelink"
                 }
             }
         }
@@ -126,7 +126,11 @@ InModuleScope JiraPS {
         Describe "Input Validation" {
             Context "Type Validation - Positive Cases" {}
 
-            Context "Type Validation - Negative Cases" {}
+            Context "Type Validation - Negative Cases" {
+                It "rejects non-positive remote link IDs" {
+                    { Get-JiraRemoteLink -Issue $issueKey -LinkId -1 } | Should -Throw -ExpectedMessage "*'LinkId'*"
+                }
+            }
         }
     }
 }

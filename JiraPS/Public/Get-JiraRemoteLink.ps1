@@ -9,6 +9,7 @@
         [AtlassianPS.JiraPS.Issue]
         $Issue,
 
+        [ValidateRange(1, [Int]::MaxValue)]
         [Int]
         $LinkId,
 
@@ -22,18 +23,22 @@
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
         $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/issue/{0}/remotelink' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$Issue]"
         Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$Issue [$Issue]"
 
         # Find the proper object for the Issue
         $issueObj = Resolve-JiraIssueObject -InputObject $Issue -Credential $Credential
-        $issueRestUrl = ConvertTo-JiraRestApiV3Url -Url $issueObj.RestUrl -IsCloud $isCloud
+        if (-not $issueObj.Key) {
+            throw [System.ArgumentException]::new('Issue key is required to retrieve remote links.')
+        }
+        $issuePathSegment = [Uri]::EscapeDataString([string]$issueObj.Key)
 
         $urlAppendix = ""
         if ($LinkId) {
@@ -41,7 +46,7 @@
         }
 
         $parameter = @{
-            URI        = "{0}/remotelink{1}" -f $issueRestUrl, $urlAppendix
+            URI        = "{0}{1}" -f ($resourceUri -f $issuePathSegment), $urlAppendix
             Method     = "GET"
             Credential = $Credential
         }

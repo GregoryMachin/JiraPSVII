@@ -23,6 +23,7 @@ Get-JiraRemoteLink [-Issue] <Issue> [[-LinkId] <int>] [[-Credential] <pscredenti
 
 This function returns information on remote links from a  JIRA issue.
 Jira Cloud requests use REST API v3, while Jira Data Center requests use REST API v2.
+Requests are built from the escaped issue key and a validated positive link ID rather than a returned issue self-link.
 Returned remote URLs are data only and should be validated before opening or rendering them.
 
 ## EXAMPLES
@@ -93,7 +94,7 @@ HelpMessage: ''
 
 ### -LinkId
 
-Get a single link by it's id.
+Get a single link by its positive numeric ID.
 
 ```yaml
 Type: Int32

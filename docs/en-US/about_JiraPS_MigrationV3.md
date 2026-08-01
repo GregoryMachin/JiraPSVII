@@ -366,6 +366,8 @@ No command or parameter rename is required. `Find-JiraFilter -Owner` sends the r
 
 `Get-JiraProjectRole` is now available for retrieving typed role details and actors for a project. It uses Cloud v3 or Data Center v2 automatically. Use `-RoleId` (alias `-Id`) for a direct lookup, or omit it to enumerate the roles discovered for each project.
 
+Remote-link reads and deletion also select Cloud v3 or Data Center v2 automatically. Returned remote URLs remain inert data; JiraPS does not open or render them. `Get-JiraRemoteLink` and `Remove-JiraRemoteLink` now require positive link IDs when an ID is supplied, and deletion continues to honor `-WhatIf`, confirmation, and `-Force`.
+
 ### PSTypeName Rename — `AtlassianPS.JiraPS.*`
 
 The eight most-used JiraPS domain types are now real .NET classes under the

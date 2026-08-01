@@ -21,7 +21,9 @@ Remove-JiraRemoteLink [-Issue] <Issue> [-LinkId] <int[]> [[-Credential] <pscrede
 
 ## DESCRIPTION
 
-This function removes a remote link from a JIRA issue.
+This function removes a remote link from a JIRA issue. Jira Cloud uses REST API v3 and Jira Data Center uses REST API v2. Requests are built from the escaped issue key and a validated positive link ID rather than following a returned self-link.
+
+The command supports `-WhatIf` and confirmation. Use `-Force` only when suppression of the confirmation prompt is intentional.
 
 ## EXAMPLES
 
@@ -134,7 +136,7 @@ HelpMessage: ''
 
 ### -LinkId
 
-Id of the remote link to delete.
+Positive numeric ID of the remote link to delete.
 
 ```yaml
 Type: Int32[]

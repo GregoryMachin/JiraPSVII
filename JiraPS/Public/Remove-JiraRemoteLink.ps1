@@ -10,6 +10,7 @@
         $Issue,
 
         [Parameter( Mandatory )]
+        [ValidateRange(1, [Int]::MaxValue)]
         [Int[]]
         $LinkId,
 
@@ -25,7 +26,8 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $resourceURi = "/rest/api/2/issue/{0}/remotelink/{1}"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceURi = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/issue/{0}/remotelink/{1}' -IsCloud $isCloud
 
         if ($Force) {
             Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] -Force was passed. Backing up current ConfirmPreference [$ConfirmPreference] and setting to None"
@@ -36,25 +38,29 @@
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$Issue]"
         Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$Issue [$Issue]"
 
         # Find the proper object for the Issue
         $issueObj = Resolve-JiraIssueObject -InputObject $Issue -Credential $Credential
+        if (-not $issueObj.Key) {
+            throw [System.ArgumentException]::new('Issue key is required to remove a remote link.')
+        }
+        $issuePathSegment = [Uri]::EscapeDataString([string]$issueObj.Key)
 
         foreach ($_link in $LinkId) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_link]"
             Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$_link [$_link]"
 
             $parameter = @{
-                URI        = $resourceURi -f $issueObj.Key, $_link
+                URI        = $resourceURi -f $issuePathSegment, $_link
                 Method     = "DELETE"
                 Credential = $Credential
             }
             Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
-            if ($PSCmdlet.ShouldProcess($issueObj.Key, "Remove RemoteLink '$_link'")) {
+            if ($PSCmdlet.ShouldProcess("$($issueObj.Key) remote link $_link", 'Remove Remote Link')) {
                 Invoke-JiraMethod @parameter
             }
         }
@@ -62,7 +68,7 @@
 
     end {
         if ($Force) {
-            Write-DebugMessage "[Remove-JiraGroupMember] Restoring ConfirmPreference to [$oldConfirmPreference]"
+            Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Restoring ConfirmPreference to [$oldConfirmPreference]"
             $ConfirmPreference = $oldConfirmPreference
         }
 

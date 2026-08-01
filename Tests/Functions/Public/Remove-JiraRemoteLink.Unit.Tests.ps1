@@ -41,6 +41,8 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+
             Mock Get-JiraConfigServer -ModuleName JiraPS {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
@@ -141,7 +143,49 @@ InModuleScope JiraPS {
         Describe "Input Validation" {
             Context "Type Validation - Positive Cases" {}
 
-            Context "Type Validation - Negative Cases" {}
+            Context "Type Validation - Negative Cases" {
+                It "rejects non-positive remote link IDs" {
+                    { Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 0 -Force } | Should -Throw -ExpectedMessage "*'LinkId'*"
+                }
+            }
+        }
+
+        Describe "Deployment routing and safety" {
+            It "retains the Data Center REST API v2 route" {
+                Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -Force
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Delete' -and $URI -eq "/rest/api/2/issue/$testIssueKey/remotelink/10000"
+                }
+            }
+
+            Context "Jira Cloud" {
+                BeforeEach {
+                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                }
+
+                It "uses the REST API v3 route" {
+                    Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -Force
+
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                        $Method -eq 'Delete' -and $URI -eq "/rest/api/3/issue/$testIssueKey/remotelink/10000"
+                    }
+                }
+
+                It "does not send a delete request with WhatIf" {
+                    Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -WhatIf
+
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+                }
+
+                It "propagates permission failures" {
+                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                        $Method -eq 'Delete' -and $URI -eq "/rest/api/3/issue/$testIssueKey/remotelink/10000"
+                    } { throw 'Forbidden' }
+
+                    { Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -Force } | Should -Throw -ExpectedMessage '*Forbidden*'
+                }
+            }
         }
     }
 }
