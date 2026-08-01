@@ -23,6 +23,7 @@
 - User/group diagnostics now log bound parameter names rather than parameter values so credentials, email addresses, and account IDs are not written unnecessarily.
 - `Get-JiraComponent` now uses REST API v3 for Jira Cloud direct lookups and the paged `/project/{key}/component` collection, including `-First`, `-Skip`, and `-PageSize`; Jira Data Center retains its REST API v2 component routes.
 - Jira Cloud version reads, creation, updates, deletion, and movement now use REST API v3 while Jira Data Center retains REST API v2. Version mutations build deployment-aware routes from validated IDs instead of trusting returned self-links, and `Move-JiraVersion` now supports `-WhatIf` and confirmation.
+- Jira Cloud filter search, reads, creation, updates, deletion, and share-permission operations now use REST API v3 while Jira Data Center retains REST API v2. Owner searches use Cloud `accountId` or Data Center username as appropriate; filter mutations build routes from validated IDs instead of returned self-links and continue to honor `-WhatIf` and confirmation.
 
 ## v3.0.0 - 2026-05-10
 

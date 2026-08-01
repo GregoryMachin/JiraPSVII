@@ -39,13 +39,14 @@
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
-        $searchURi = "/rest/api/2/filter/search"
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $searchURi = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/filter/search' -IsCloud $isCloud
 
         [String]$Fields = $Fields -join ','
     }
 
     process {
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
         $parameter = @{
             URI          = $searchURi
             Method       = 'GET'
@@ -60,7 +61,12 @@
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'ByOwner') {
             $userObj = Resolve-JiraUser -InputObject $Owner -Exact -Credential $Credential -ErrorAction Stop
-            $parameter['GetParameter']['accountId'] = $userObj.AccountId
+            if ($isCloud) {
+                $parameter['GetParameter']['accountId'] = $userObj.AccountId
+            }
+            else {
+                $parameter['GetParameter']['owner'] = $userObj.Name
+            }
         }
         if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey('GroupName')) {
             $parameter['GetParameter']['groupName'] = $GroupName

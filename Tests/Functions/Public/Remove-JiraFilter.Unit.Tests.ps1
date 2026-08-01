@@ -11,6 +11,7 @@ InModuleScope JiraPS {
 
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'
 
             #region Definitions
@@ -84,7 +85,7 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "$jiraServer/rest/api/*/filter/*" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/*/filter/*" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $responseFilter
             }
@@ -187,6 +188,28 @@ InModuleScope JiraPS {
                 It "fails if something other than [AtlassianPS.JiraPS.Filter] is provided" {
                     { Get-Date | Remove-JiraFilter -ErrorAction Stop } | Should -Throw -ExpectedMessage "*input object*"
                     { Remove-JiraFilter "12345" -ErrorAction Stop } | Should -Throw -ExpectedMessage "*'InputObject'*"
+                }
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses an ID-derived REST API v3 route instead of the returned self link" {
+                Remove-JiraFilter -InputObject (Get-JiraFilter -Id 12345)
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Delete' -and $URI -eq '/rest/api/3/filter/12844'
+                }
+            }
+
+            It "does not delete a filter with WhatIf" {
+                Remove-JiraFilter -InputObject (Get-JiraFilter -Id 12345) -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $Method -eq 'Delete'
                 }
             }
         }

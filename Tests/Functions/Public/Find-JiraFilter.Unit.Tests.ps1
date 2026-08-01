@@ -10,6 +10,7 @@ InModuleScope JiraPS {
     Describe "Find-JiraFilter" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'  # Uncomment for mock debugging
 
             #region Definitions
@@ -240,6 +241,25 @@ InModuleScope JiraPS {
             Context "Type Validation - Positive Cases" {}
 
             Context "Type Validation - Negative Cases" {}
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses REST API v3 and the owner's account ID" {
+                Find-JiraFilter -Owner $mockOwner.AccountId -First 25
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Get' -and
+                    $URI -eq '/rest/api/3/filter/search' -and
+                    $Paging -eq $true -and
+                    $First -eq 25 -and
+                    $GetParameter['accountId'] -eq $mockOwner.AccountId -and
+                    -not $GetParameter.ContainsKey('owner')
+                }
+            }
         }
     }
 }

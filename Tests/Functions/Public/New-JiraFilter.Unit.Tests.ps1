@@ -10,6 +10,7 @@ InModuleScope JiraPS {
     Describe "New-JiraFilter" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'
 
             #region Definitions
@@ -155,6 +156,26 @@ InModuleScope JiraPS {
             }
             Context "Negative cases" {
                 # TODO: Add negative input validation tests
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses REST API v3 for filter creation" {
+                New-JiraFilter -Name 'Cloud filter' -JQL 'project = TEST'
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Post' -and $URI -eq '/rest/api/3/filter'
+                }
+            }
+
+            It "does not create a filter with WhatIf" {
+                New-JiraFilter -Name 'Cloud filter' -JQL 'project = TEST' -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
             }
         }
     }

@@ -10,6 +10,7 @@ InModuleScope JiraPS {
     Describe "Get-JiraFilterPermission" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'  # Uncomment for mock debugging
 
             #region Definitions
@@ -45,7 +46,7 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "$jiraServer/rest/api/*/filter/*/permission" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/filter/*/permission" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $sampleResponse
             }
@@ -139,6 +140,28 @@ InModuleScope JiraPS {
             Context "Type Validation - Positive Cases" {}
 
             Context "Type Validation - Negative Cases" {}
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses REST API v3 for filter permission reads" {
+                Get-JiraFilterPermission -Id 23456
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq '/rest/api/3/filter/23456/permission'
+                }
+            }
+
+            It "propagates Jira permission failures" {
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq '/rest/api/3/filter/23456/permission'
+                } { throw 'Forbidden' }
+
+                { Get-JiraFilterPermission -Id 23456 } | Should -Throw -ExpectedMessage '*Forbidden*'
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ InModuleScope JiraPS {
     Describe "Add-JiraFilterPermission" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
 
             #region Definitions
             $script:jiraServer = "https://jira.example.com"
@@ -131,7 +132,7 @@ InModuleScope JiraPS {
             }
 
             Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
-                $Method -eq 'Post' -and $URI -like "$jiraServer/rest/api/*/filter/*/permission"
+                $Method -eq 'Post' -and $URI -like "/rest/api/*/filter/*/permission"
             } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 ConvertFrom-Json $permissionJSON
@@ -357,6 +358,26 @@ InModuleScope JiraPS {
                         $Body -match '"projectRoleId":\s*"11822"'
                     }
                 }
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses REST API v3 for filter permission creation" {
+                Add-JiraFilterPermission -Id 12844 -Type Global
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Post' -and $URI -eq '/rest/api/3/filter/12844/permission'
+                }
+            }
+
+            It "does not create a permission with WhatIf" {
+                Add-JiraFilterPermission -Id 12844 -Type Global -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
             }
         }
     }

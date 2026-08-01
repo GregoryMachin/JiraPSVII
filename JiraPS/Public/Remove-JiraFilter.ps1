@@ -20,21 +20,27 @@
 
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/filter/{0}' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         if ($PSCmdlet.ParameterSetName -eq 'ById') {
             $InputObject = foreach ($_id in $Id) {
-                Get-JiraFilter -Id $_id
+                Get-JiraFilter -Id $_id -Credential $Credential
             }
         }
 
         foreach ($filter in $InputObject) {
+            if (-not $filter.Id) {
+                throw [System.ArgumentException]::new('Filter ID is required to remove a filter.')
+            }
             $parameter = @{
-                URI        = $filter.RestURL
+                URI        = $resourceUri -f $filter.Id
                 Method     = "DELETE"
                 Credential = $Credential
             }

@@ -9,6 +9,7 @@ InModuleScope JiraPS {
     Describe "Get-JiraFilter" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'  # Uncomment for mock debugging
 
             #region Definitions
@@ -200,6 +201,24 @@ InModuleScope JiraPS {
             Context "Type Validation - Positive Cases" {}
 
             Context "Type Validation - Negative Cases" {}
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses REST API v3 for direct and favorite filter reads" {
+                Get-JiraFilter -Id 12345
+                Get-JiraFilter -Favorite
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq '/rest/api/3/filter/12345'
+                }
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Get' -and $URI -eq '/rest/api/3/filter/favourite'
+                }
+            }
         }
     }
 }

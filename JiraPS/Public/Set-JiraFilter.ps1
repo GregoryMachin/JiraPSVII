@@ -34,11 +34,18 @@
 
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/filter/{0}' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
+
+        if (@($InputObject).Count -ne 1) {
+            throw [System.ArgumentException]::new('Only one filter can be updated at a time. Pass multiple filters through the pipeline.')
+        }
 
         $requestBody = @{}
         if ($PSCmdlet.MyInvocation.BoundParameters.ContainsKey("Name")) {
@@ -55,8 +62,11 @@
         }
 
         if ($requestBody.Keys.Count) {
+            if (-not $InputObject.Id) {
+                throw [System.ArgumentException]::new('Filter ID is required to update a filter.')
+            }
             $parameter = @{
-                URI        = $InputObject.RestURL
+                URI        = $resourceUri -f $InputObject.Id
                 Method     = "PUT"
                 Body       = ConvertTo-Json -InputObject $requestBody
                 Credential = $Credential

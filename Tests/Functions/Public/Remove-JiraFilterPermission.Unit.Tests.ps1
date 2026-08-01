@@ -11,6 +11,7 @@ InModuleScope JiraPS {
 
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'
 
             #region Definitions
@@ -52,7 +53,7 @@ InModuleScope JiraPS {
                 $fullFilter
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "$jiraServer/rest/api/*/filter/*/permission*" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/*/filter/*/permission*" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
             }
 
@@ -171,6 +172,31 @@ InModuleScope JiraPS {
                     $filter += Get-JiraFilterPermission -Id 1
 
                     { Remove-JiraFilterPermission -Filter $filter } | Should -Throw -ExpectedMessage "*Invalid Parameter*"
+                }
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses an ID-derived REST API v3 route for permission deletion" {
+                Remove-JiraFilterPermission -Filter $fullFilter
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Delete' -and $URI -eq '/rest/api/3/filter/12345/permission/1111'
+                }
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Delete' -and $URI -eq '/rest/api/3/filter/12345/permission/2222'
+                }
+            }
+
+            It "does not delete permissions with WhatIf" {
+                Remove-JiraFilterPermission -Filter $fullFilter -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $Method -eq 'Delete'
                 }
             }
         }

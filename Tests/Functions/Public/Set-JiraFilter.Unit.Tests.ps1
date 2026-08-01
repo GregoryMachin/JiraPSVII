@@ -11,6 +11,7 @@ InModuleScope JiraPS {
 
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
+            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
             # $VerbosePreference = 'Continue'
 
             #region Definitions
@@ -84,7 +85,7 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -like "$jiraServer/rest/api/*/filter/*" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -like "/rest/api/*/filter/*" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 ConvertFrom-Json $responseFilter
             }
@@ -334,12 +335,34 @@ InModuleScope JiraPS {
 
             Context "Negative cases" {
                 It "fails with multiple filter objects to the -Filter parameter" {
-                    { Set-JiraFilter -InputObject (Get-JiraFilter 12345, 12345) -Name "test" } | Should -Throw -ExpectedMessage "*'URI'*"
+                    { Set-JiraFilter -InputObject (Get-JiraFilter 12345, 12345) -Name "test" } | Should -Throw -ExpectedMessage "*one filter*"
                 }
 
                 It "fails if something other than [AtlassianPS.JiraPS.Filter] is provided to InputObject" {
                     { "12345" | Set-JiraFilter -ErrorAction Stop } | Should -Throw -ExpectedMessage "*input object*"
                     { Set-JiraFilter "12345" -ErrorAction Stop } | Should -Throw -ExpectedMessage "*'InputObject'*"
+                }
+            }
+        }
+
+        Describe "Cloud Deployment" {
+            BeforeEach {
+                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+            }
+
+            It "uses an ID-derived REST API v3 route instead of the returned self link" {
+                Set-JiraFilter -InputObject (Get-JiraFilter -Id 12345) -Name 'Cloud filter'
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $Method -eq 'Put' -and $URI -eq '/rest/api/3/filter/12844'
+                }
+            }
+
+            It "does not update a filter with WhatIf" {
+                Set-JiraFilter -InputObject (Get-JiraFilter -Id 12345) -Name 'Cloud filter' -WhatIf
+
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                    $Method -eq 'Put'
                 }
             }
         }

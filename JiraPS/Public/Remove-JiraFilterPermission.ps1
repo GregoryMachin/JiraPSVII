@@ -52,29 +52,35 @@
 
     begin {
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $resourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/filter/{0}/permission/{1}' -IsCloud $isCloud
     }
 
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         switch ($PSCmdlet.ParameterSetName) {
             "ByFilterObject" {
                 $PermissionId = $Filter.FilterPermissions.Id
             }
             "ByFilterId" {
-                $Filter = Get-JiraFilter -Id $FilterId
+                $Filter = Get-JiraFilter -Id $FilterId -Credential $Credential
             }
         }
 
         foreach ($_permissionId in $PermissionId) {
+            if (-not $Filter.Id) {
+                throw [System.ArgumentException]::new('Filter ID is required to remove filter permissions.')
+            }
             $parameter = @{
-                URI        = "{0}/permission/{1}" -f $Filter.RestURL, $_permissionId
+                URI        = $resourceUri -f $Filter.Id, $_permissionId
                 Method     = "DELETE"
                 Credential = $Credential
             }
             Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
-            if ($PSCmdlet.ShouldProcess($InputObject.Type, "Remove Permission")) {
+            if ($PSCmdlet.ShouldProcess("filter $($Filter.Id) permission $_permissionId", "Remove Permission")) {
                 Invoke-JiraMethod @parameter
             }
         }
