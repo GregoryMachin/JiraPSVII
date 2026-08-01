@@ -364,6 +364,8 @@ Filter commands now select the API version from the configured deployment. Jira 
 
 No command or parameter rename is required. `Find-JiraFilter -Owner` sends the resolved account ID on Cloud and the username on Data Center. Update, delete, and permission-delete commands derive their endpoint from the validated filter and permission IDs, so scripts should not depend on a returned `RestUrl` being reused for later mutations. All filter mutations support `-WhatIf` and confirmation.
 
+`Get-JiraProjectRole` is now available for retrieving typed role details and actors for a project. It uses Cloud v3 or Data Center v2 automatically. Use `-RoleId` (alias `-Id`) for a direct lookup, or omit it to enumerate the roles discovered for each project.
+
 ### PSTypeName Rename — `AtlassianPS.JiraPS.*`
 
 The eight most-used JiraPS domain types are now real .NET classes under the
