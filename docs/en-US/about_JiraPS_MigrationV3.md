@@ -368,6 +368,14 @@ No command or parameter rename is required. `Find-JiraFilter -Owner` sends the r
 
 Remote-link reads and deletion also select Cloud v3 or Data Center v2 automatically. Returned remote URLs remain inert data; JiraPS does not open or render them. `Get-JiraRemoteLink` and `Remove-JiraRemoteLink` now require positive link IDs when an ID is supplied, and deletion continues to honor `-WhatIf`, confirmation, and `-Force`.
 
+### Jira Cloud JQL validation and approximate counts
+
+`Test-JiraJql` parses one or more queries with Jira Cloud's REST API v3 and returns an `AtlassianPS.JiraPS.JqlValidationResult` for every input query. Invalid queries are returned with structured errors; the command does not execute a search. `Get-JiraJqlApproximateCount` performs strict validation first and does not call the count endpoint when the query is invalid.
+
+Approximate-count results are `AtlassianPS.JiraPS.JqlApproximateCountResult` objects. Their counts can lag recent updates and include only issues visible to the authenticated user. Treat a count as permission-scoped aggregate information, especially when exposing it to less-trusted callers. Both commands are Cloud-only and fail explicitly on Data Center.
+
+JiraPS sends JQL in JSON request bodies rather than concatenating it into endpoint URLs. Scripts must still avoid building JQL by directly concatenating untrusted values; validate or safely escape values before composing a query.
+
 ### PSTypeName Rename — `AtlassianPS.JiraPS.*`
 
 The eight most-used JiraPS domain types are now real .NET classes under the

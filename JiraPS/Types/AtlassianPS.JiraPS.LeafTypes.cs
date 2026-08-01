@@ -414,6 +414,47 @@ namespace AtlassianPS.JiraPS
         }
     }
 
+    public class JqlValidationResult
+    {
+        public string Query { get; set; }
+        public string NormalizedQuery { get; set; }
+        public bool IsValid { get; set; }
+        public string[] Errors { get; set; }
+        public object Structure { get; set; }
+
+        public JqlValidationResult()
+        {
+            Errors = new string[0];
+        }
+
+        public override string ToString()
+        {
+            return IsValid ? Query ?? string.Empty : string.Join("; ", Errors ?? new string[0]);
+        }
+    }
+
+    public class JqlApproximateCountResult
+    {
+        public string Query { get; set; }
+        public long? Count { get; set; }
+        public bool IsValid { get; set; }
+        public bool IsApproximate { get; set; }
+        public bool PermissionScoped { get; set; }
+        public string[] Errors { get; set; }
+
+        public JqlApproximateCountResult()
+        {
+            Errors = new string[0];
+            IsApproximate = true;
+            PermissionScoped = true;
+        }
+
+        public override string ToString()
+        {
+            return Count.HasValue ? Count.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty;
+        }
+    }
+
     public class ProjectRole
     {
         public long? Id { get; set; }

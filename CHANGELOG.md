@@ -26,6 +26,7 @@
 - Jira Cloud filter search, reads, creation, updates, deletion, and share-permission operations now use REST API v3 while Jira Data Center retains REST API v2. Owner searches use Cloud `accountId` or Data Center username as appropriate; filter mutations build routes from validated IDs instead of returned self-links and continue to honor `-WhatIf` and confirmation.
 - Added `Get-JiraProjectRole` for typed project-role and actor retrieval through Jira Cloud REST API v3 and Jira Data Center REST API v2. Collection discovery accepts only numeric role IDs from returned URLs and rebuilds detail requests against the configured Jira origin.
 - Jira Cloud remote-link reads and deletion now use REST API v3 while Jira Data Center retains REST API v2. Both operations build relative routes from escaped issue keys and validated positive link IDs rather than following returned self-links; deletion continues to support `-WhatIf`, confirmation, and `-Force`.
+- Added Jira Cloud-only `Test-JiraJql` and `Get-JiraJqlApproximateCount` commands. JQL is sent in JSON request bodies, invalid queries return structured validation errors without reaching the count endpoint, and count results are explicitly marked approximate and permission-scoped.
 
 ## v3.0.0 - 2026-05-10
 

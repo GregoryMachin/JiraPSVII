@@ -85,6 +85,15 @@ Identifier-based equality and comparisons deduplicate correctly (`-eq`, `Sort-Ob
 When you need properties that are not modeled on a given class, query the relevant endpoint/cmdlet that surfaces that data and inspect the returned payload shape before building assumptions into script logic.
 In practice, prefer explicit property access for stable fields and avoid relying on display formatting as data.
 
+## JQL result classes
+
+Jira Cloud JQL operations return dedicated result classes rather than loose objects.
+
+| Class | Purpose |
+| ----- | ------- |
+| `AtlassianPS.JiraPS.JqlValidationResult` | Preserves the input and normalized query, validity, structured error messages, and parsed structure returned by `Test-JiraJql`. |
+| `AtlassianPS.JiraPS.JqlApproximateCountResult` | Preserves the query, nullable 64-bit count, validation errors, and explicit approximate and permission-scoped flags returned by `Get-JiraJqlApproximateCount`. |
+
 # SEE ALSO
 
 - [about_JiraPS_MigrationV3](migration-v3.html)
