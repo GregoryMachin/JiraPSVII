@@ -59,6 +59,7 @@ InModuleScope JiraPS {
                 @{ typeName = 'AtlassianPS.JiraPS.IssueType' }
                 @{ typeName = 'AtlassianPS.JiraPS.JqlApproximateCountResult' }
                 @{ typeName = 'AtlassianPS.JiraPS.JqlValidationResult' }
+                @{ typeName = 'AtlassianPS.JiraPS.OAuthResource' }
                 @{ typeName = 'AtlassianPS.JiraPS.Link' }
                 @{ typeName = 'AtlassianPS.JiraPS.Priority' }
                 @{ typeName = 'AtlassianPS.JiraPS.Project' }

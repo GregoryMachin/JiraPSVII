@@ -90,6 +90,7 @@
         Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with redacted authentication headers"
         try {
             $result = Invoke-JiraMethod @parameter
+            $script:JiraOAuthResourceCache = $null
             $restoreServerMetadata = $false
         }
         finally {

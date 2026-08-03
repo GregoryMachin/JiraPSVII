@@ -310,3 +310,5 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 [about_JiraPS_Authentication](../../about/authentication.html)
 
 [Get-JiraSession](../Get-JiraSession/)
+
+[Get-JiraOAuthResource](../Get-JiraOAuthResource/)

@@ -455,6 +455,27 @@ namespace AtlassianPS.JiraPS
         }
     }
 
+    public class OAuthResource
+    {
+        public string CloudId { get; set; }
+        public string Name { get; set; }
+        public Uri Url { get; set; }
+        public string[] Scopes { get; set; }
+        public Uri AvatarUrl { get; set; }
+
+        public OAuthResource()
+        {
+            Scopes = new string[0];
+        }
+
+        public override string ToString()
+        {
+            if (!string.IsNullOrEmpty(Name)) { return Name; }
+            if (Url != null) { return Url.ToString(); }
+            return CloudId ?? string.Empty;
+        }
+    }
+
     public class ProjectRole
     {
         public long? Id { get; set; }

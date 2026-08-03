@@ -3,7 +3,7 @@
     [CmdletBinding()]
     param(
         [Parameter()]
-        [ValidateSet('All', 'Fields', 'IssueTypes', 'Priorities', 'Statuses', 'ServerInfo')]
+        [ValidateSet('All', 'Fields', 'IssueTypes', 'OAuthResources', 'Priorities', 'Statuses', 'ServerInfo')]
         [string]$Type = 'All'
     )
 
@@ -14,18 +14,27 @@
     process {
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
 
-        if (-not $script:JiraCache) {
+        if (-not $script:JiraCache -and -not $script:JiraOAuthResourceCache) {
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] No cache to clear"
             return
         }
 
         if ($Type -eq 'All') {
-            $count = $script:JiraCache.Count
+            $count = if ($script:JiraCache) { $script:JiraCache.Count } else { 0 }
             $script:JiraCache = @{}
+            $script:JiraOAuthResourceCache = $null
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Cleared all $count cached items"
         }
+        elseif ($Type -eq 'OAuthResources') {
+            $script:JiraOAuthResourceCache = $null
+            Write-Verbose "[$($MyInvocation.MyCommand.Name)] Cleared OAuth resource metadata"
+        }
         else {
-            $keysToRemove = $script:JiraCache.Keys | Where-Object { $_ -like "${Type}:*" }
+            $keysToRemove = @(
+                if ($script:JiraCache) {
+                    $script:JiraCache.Keys | Where-Object { $_ -like "${Type}:*" }
+                }
+            )
             foreach ($key in $keysToRemove) {
                 $script:JiraCache.Remove($key)
             }

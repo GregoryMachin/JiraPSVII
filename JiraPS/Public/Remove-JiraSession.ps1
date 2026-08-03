@@ -19,6 +19,7 @@
         if ($Session = Get-JiraSession) {
             $MyInvocation.MyCommand.Module.PrivateData.Session = $null
         }
+        $script:JiraOAuthResourceCache = $null
     }
 
     end {

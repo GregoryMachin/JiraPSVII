@@ -105,6 +105,24 @@ If `-Headers` also contains `Authorization`, the explicit `-OAuthAccessToken` va
 This release does not implement interactive authorization, authorization-code exchange, or token refresh.
 The caller remains responsible for obtaining a valid token with appropriate Jira scopes and replacing it when it expires.
 
+### Discovering and selecting an accessible Jira site
+
+Use `Get-JiraOAuthResource` to retrieve the sites and Cloud IDs represented by a caller-supplied token.
+
+```powershell
+$sites = Get-JiraOAuthResource -OAuthAccessToken $accessToken
+$site = Get-JiraOAuthResource -OAuthAccessToken $accessToken -SiteUrl 'https://example.atlassian.net'
+$site | New-JiraSession -OAuthAccessToken $accessToken
+```
+
+The command returns `AtlassianPS.JiraPS.OAuthResource` objects whose `CloudId` property binds to `New-JiraSession -CloudId` by property name.
+When more than one site is returned, select explicitly by Cloud ID or site URL.
+Display-name selection is accepted only when exactly one resource has that name; names are never used to construct request routes.
+
+Validated site metadata is cached for 15 minutes for the current OAuth session.
+Explicit-token calls always refresh the metadata, `-BypassCache` refreshes the current session, and `Clear-JiraCache -Type OAuthResources` removes it.
+Access tokens and authorization headers are never cached.
+
 ## Automation and CI/CD
 
 For scripts, CI/CD pipelines, or other non-interactive scenarios,
@@ -232,3 +250,4 @@ Use an external broker to obtain and refresh the token, then pass it through `-O
 
 * [Wikipedia's "Basic Access Authentication"](https://en.wikipedia.org/wiki/Basic_access_authentication)
 * [Implement OAuth for JiraPS](https://github.com/AtlassianPS/JiraPS/issues/101)
+* [Get-JiraOAuthResource](../commands/Get-JiraOAuthResource/)

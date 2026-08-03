@@ -38,6 +38,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Get-JiraIssueType` | [Get-JiraIssueType](/docs/JiraPS/commands/Get-JiraIssueType/) |
 | `Get-JiraIssueWatcher` | [Get-JiraIssueWatcher](/docs/JiraPS/commands/Get-JiraIssueWatcher/) |
 | `Get-JiraIssueWorklog` | [Get-JiraIssueWorklog](/docs/JiraPS/commands/Get-JiraIssueWorklog/) |
+| `Get-JiraOAuthResource` | [Get-JiraOAuthResource](/docs/JiraPS/commands/Get-JiraOAuthResource/) |
 | `Get-JiraPriority` | [Get-JiraPriority](/docs/JiraPS/commands/Get-JiraPriority/) |
 | `Get-JiraProject` | [Get-JiraProject](/docs/JiraPS/commands/Get-JiraProject/) |
 | `Get-JiraRemoteLink` | [Get-JiraRemoteLink](/docs/JiraPS/commands/Get-JiraRemoteLink/) |

@@ -386,6 +386,11 @@ OAuth sessions reject non-HTTPS, non-Atlassian, and mismatched-Cloud-ID routes b
 Authentication tokens are prohibited in query parameters and are not included in JiraPS debug diagnostics.
 The OAuth parameter set does not perform interactive authorization, token exchange, or refresh; obtain and refresh the access token externally.
 
+`Get-JiraOAuthResource` discovers the Jira Cloud sites authorized for a token through Atlassian's `accessible-resources` endpoint.
+It returns validated `AtlassianPS.JiraPS.OAuthResource` objects and can select by Cloud ID, site URL, or a unique exact display name.
+Multiple returned sites are never selected by response order, and duplicate names require selection by Cloud ID or URL.
+Only validated site metadata is cached; explicit-token calls, session replacement, session removal, and explicit cache clearing invalidate it.
+
 ### PSTypeName Rename — `AtlassianPS.JiraPS.*`
 
 The eight most-used JiraPS domain types are now real .NET classes under the

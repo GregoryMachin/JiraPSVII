@@ -94,6 +94,12 @@ Jira Cloud JQL operations return dedicated result classes rather than loose obje
 | `AtlassianPS.JiraPS.JqlValidationResult` | Preserves the input and normalized query, validity, structured error messages, and parsed structure returned by `Test-JiraJql`. |
 | `AtlassianPS.JiraPS.JqlApproximateCountResult` | Preserves the query, nullable 64-bit count, validation errors, and explicit approximate and permission-scoped flags returned by `Get-JiraJqlApproximateCount`. |
 
+## OAuth resource class
+
+`Get-JiraOAuthResource` returns `AtlassianPS.JiraPS.OAuthResource` objects.
+The class exposes the validated `CloudId`, site `Name`, canonical `Url`, granted `Scopes`, and optional inert `AvatarUrl` metadata.
+Its `CloudId` property can bind by property name to `New-JiraSession -CloudId`.
+
 # SEE ALSO
 
 - [about_JiraPS_MigrationV3](migration-v3.html)

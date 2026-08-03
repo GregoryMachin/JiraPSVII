@@ -23,7 +23,7 @@ Clear-JiraCache [[-Type] <string>] [<CommonParameters>]
 JiraPS caches certain API responses to improve performance and reduce API calls.
 This function clears the cached data, either entirely or for a specific type of data.
 
-Cached data includes: - Fields (from `Get-JiraField`) - Issue Types (from `Get-JiraIssueType`) - Priorities (from `Get-JiraPriority`) - Statuses - Server Information (from `Get-JiraServerInformation`)
+Cached data includes fields, issue types, OAuth resource metadata, priorities, statuses, and server information.
 
 Use this function when you need fresh data from the server, for example after making configuration changes in Jira.
 
@@ -66,6 +66,7 @@ Valid values are:
 - `All` (default): Clears all cached data
 - `Fields`: Clears cached field metadata
 - `IssueTypes`: Clears cached issue types
+- `OAuthResources`: Clears validated non-secret OAuth site metadata
 - `Priorities`: Clears cached priorities
 - `Statuses`: Clears cached statuses
 - `ServerInfo`: Clears cached server information
@@ -87,6 +88,7 @@ AcceptedValues:
 - All
 - Fields
 - IssueTypes
+- OAuthResources
 - Priorities
 - Statuses
 - ServerInfo

@@ -28,6 +28,7 @@
 - Jira Cloud remote-link reads and deletion now use REST API v3 while Jira Data Center retains REST API v2. Both operations build relative routes from escaped issue keys and validated positive link IDs rather than following returned self-links; deletion continues to support `-WhatIf`, confirmation, and `-Force`.
 - Added Jira Cloud-only `Test-JiraJql` and `Get-JiraJqlApproximateCount` commands. JQL is sent in JSON request bodies, invalid queries return structured validation errors without reaching the count endpoint, and count results are explicitly marked approximate and permission-scoped.
 - `New-JiraSession` now accepts a caller-supplied Jira Cloud OAuth access token as a `SecureString` with an explicit Cloud ID. OAuth requests are routed only through `https://api.atlassian.com/ex/jira/{cloudId}`, authorization values are excluded from diagnostics, token query parameters are rejected, and existing Cloud API-token and Data Center PAT authentication remain supported.
+- Added `Get-JiraOAuthResource` to discover the Jira sites and Cloud IDs authorized for a caller-supplied token or current OAuth session. Returned site URLs and UUIDs are validated, ambiguous display names require Cloud ID or URL selection, and only non-secret resource metadata is cached with bounded expiry and explicit bypass/clear controls.
 
 ## v3.0.0 - 2026-05-10
 

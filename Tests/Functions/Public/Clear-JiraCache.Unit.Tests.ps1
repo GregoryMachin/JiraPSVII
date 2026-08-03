@@ -19,6 +19,10 @@ InModuleScope JiraPS {
                 "IssueTypes:http://server1.example.com" = @{ Data = "Types1"; Expiry = (Get-Date).AddHours(1) }
                 "ServerInfo:http://server1.example.com" = @{ Data = "Info1"; Expiry = (Get-Date).AddHours(1) }
             }
+            $script:JiraOAuthResourceCache = @{
+                Data   = @('site')
+                Expiry = (Get-Date).AddMinutes(15)
+            }
         }
 
         Describe "Clear All Cache" {
@@ -26,6 +30,7 @@ InModuleScope JiraPS {
                 Clear-JiraCache -Type All
 
                 $script:JiraCache.Count | Should -Be 0
+                $script:JiraOAuthResourceCache | Should -BeNullOrEmpty
             }
 
             It "clears all cached items by default" {
@@ -36,6 +41,22 @@ InModuleScope JiraPS {
         }
 
         Describe "Clear Specific Type" {
+            It "clears only OAuth resource metadata" {
+                Clear-JiraCache -Type OAuthResources
+
+                $script:JiraOAuthResourceCache | Should -BeNullOrEmpty
+                $script:JiraCache.Count | Should -Be 4
+            }
+
+            It "does not fail when only OAuth metadata exists and another cache type is cleared" {
+                $script:JiraCache = $null
+                $script:JiraOAuthResourceCache = @{ Data = @('resource'); Expiry = (Get-Date).AddMinutes(5) }
+
+                { Clear-JiraCache -Type Fields } | Should -Not -Throw
+
+                $script:JiraOAuthResourceCache.Data | Should -HaveCount 1
+            }
+
             It "clears only 'Fields' entries" {
                 Clear-JiraCache -Type Fields
 
@@ -79,6 +100,7 @@ InModuleScope JiraPS {
                 @{ Type = 'All' }
                 @{ Type = 'Fields' }
                 @{ Type = 'IssueTypes' }
+                @{ Type = 'OAuthResources' }
                 @{ Type = 'Priorities' }
                 @{ Type = 'Statuses' }
                 @{ Type = 'ServerInfo' }

@@ -45,12 +45,25 @@ Describe "Remove-JiraSession" -Tag 'Unit' {
     Describe "Behavior" {
         Context "Session Cleanup" {
             It "Closes and removes the AtlassianPS.JiraPS.Session data from module PrivateData" {
-                (Get-Module JiraPS).PrivateData = @{ Session = $true }
-                (Get-Module JiraPS).PrivateData.Session | Should -Not -BeNullOrEmpty
+                $commandModule = (Get-Command Remove-JiraSession).Module
+                $commandModule.PrivateData = @{ Session = $true }
+                $commandModule.SessionState.PSVariable.Set('JiraOAuthResourceCache', @{ Data = @('site') })
+                $commandModule.PrivateData.Session | Should -Not -BeNullOrEmpty
 
                 Remove-JiraSession
 
-                $script:command.Module.PrivateData.Session | Should -BeNullOrEmpty
+                $commandModule.PrivateData.Session | Should -BeNullOrEmpty
+                $commandModule.SessionState.PSVariable.GetValue('JiraOAuthResourceCache') | Should -BeNullOrEmpty
+            }
+
+            It "clears OAuth metadata when no session exists" {
+                $commandModule = (Get-Command Remove-JiraSession).Module
+                $commandModule.PrivateData = @{ Session = $null }
+                $commandModule.SessionState.PSVariable.Set('JiraOAuthResourceCache', @{ Data = @('site') })
+
+                Remove-JiraSession
+
+                $commandModule.SessionState.PSVariable.GetValue('JiraOAuthResourceCache') | Should -BeNullOrEmpty
             }
         }
     }

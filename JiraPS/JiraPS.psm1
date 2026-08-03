@@ -71,6 +71,7 @@ $script:DefaultHeaders = @{
 }
 $script:JiraResponseHeaderLogConfiguration = $null
 $script:JiraLastResponseTelemetry = $null
+$script:JiraOAuthResourceCache = $null
 $script:PagingContainers = @(
     "comments"
     "dashboards"
