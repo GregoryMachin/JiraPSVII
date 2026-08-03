@@ -30,6 +30,10 @@ InModuleScope JiraPS {
             }
         }
 
+        BeforeEach {
+            $script:JiraServerMetadata = @{}
+        }
+
         It "resolves a relative URI against the configured Jira server and applies default page size" {
             Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://jira.example.com' }
 
@@ -75,6 +79,70 @@ InModuleScope JiraPS {
             Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'jira.example.com' }
 
             { Invoke-ResolveJiraRequestContext -Uri '/rest/api/2/search' } | Should -Throw -ExpectedMessage "*must be an absolute URI*"
+        }
+
+        It "routes relative OAuth requests through api.atlassian.com and the configured Cloud ID" {
+            $script:JiraServerMetadata = @{
+                DeploymentType     = 'Cloud'
+                AuthenticationType = 'OAuth'
+                CloudId            = '11223344-a1b2-3b33-c444-def123456789'
+            }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://example.atlassian.net' }
+
+            $result = Invoke-ResolveJiraRequestContext -Uri '/rest/api/3/myself'
+
+            $result.Uri.AbsoluteUri | Should -Be 'https://api.atlassian.com/ex/jira/11223344-a1b2-3b33-c444-def123456789/rest/api/3/myself'
+        }
+
+        It "rejects an absolute OAuth request to a non-Atlassian host" {
+            $script:JiraServerMetadata = @{
+                DeploymentType     = 'Cloud'
+                AuthenticationType = 'OAuth'
+                CloudId            = '11223344-a1b2-3b33-c444-def123456789'
+            }
+
+            { Invoke-ResolveJiraRequestContext -Uri 'https://attacker.example/rest/api/3/myself' } |
+                Should -Throw '*restricted to the configured Jira Cloud ID*'
+        }
+
+        It "rejects an absolute OAuth request for a different Cloud ID" {
+            $script:JiraServerMetadata = @{
+                DeploymentType     = 'Cloud'
+                AuthenticationType = 'OAuth'
+                CloudId            = '11223344-a1b2-3b33-c444-def123456789'
+            }
+
+            { Invoke-ResolveJiraRequestContext -Uri 'https://api.atlassian.com/ex/jira/aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee/rest/api/3/myself' } |
+                Should -Throw '*restricted to the configured Jira Cloud ID*'
+        }
+
+        It "permits the Atlassian accessible-resources endpoint during an OAuth session" {
+            $script:JiraServerMetadata = @{
+                DeploymentType     = 'Cloud'
+                AuthenticationType = 'OAuth'
+                CloudId            = '11223344-a1b2-3b33-c444-def123456789'
+            }
+
+            $result = Invoke-ResolveJiraRequestContext -Uri 'https://api.atlassian.com/oauth/token/accessible-resources'
+
+            $result.Uri.AbsoluteUri | Should -Be 'https://api.atlassian.com/oauth/token/accessible-resources'
+        }
+
+        It "rejects token values in URI query parameters" -TestCases @(
+            @{ Uri = 'https://jira.example.com/rest/api/3/myself?access_token=secret'; GetParameter = @{} }
+            @{ Uri = 'https://jira.example.com/rest/api/3/myself'; GetParameter = @{ OAuthAccessToken = 'secret' } }
+            @{ Uri = 'https://jira.example.com/rest/api/3/myself'; GetParameter = @{ Authorization = 'Bearer secret' } }
+        ) {
+            param($Uri, $GetParameter)
+
+            { Invoke-ResolveJiraRequestContext -Uri $Uri -GetParameter $GetParameter } |
+                Should -Throw '*tokens are not permitted in URI query parameters*'
+        }
+
+        It "does not mistake nextPageToken for an authentication token" {
+            $result = Invoke-ResolveJiraRequestContext -Uri 'https://jira.example.com/rest/api/3/search/jql' -GetParameter @{ nextPageToken = 'page-token' }
+
+            $result.PaginatedUri.AbsoluteUri | Should -Match 'nextPageToken=page-token'
         }
     }
 }

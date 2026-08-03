@@ -16,6 +16,7 @@ InModuleScope JiraPS {
                 (Get-Module JiraPS).PrivateData.Remove("Session")
             }
             catch { $null }
+            $script:JiraServerMetadata = @{}
         }
 
         BeforeAll {
@@ -74,6 +75,8 @@ InModuleScope JiraPS {
                     @{ parameter = 'PersonalAccessToken'; type = 'SecureString' }
                     @{ parameter = 'ApiToken'; type = 'SecureString' }
                     @{ parameter = 'EmailAddress'; type = 'String' }
+                    @{ parameter = 'OAuthAccessToken'; type = 'SecureString' }
+                    @{ parameter = 'CloudId'; type = 'String' }
                     @{ parameter = 'Headers'; type = 'Hashtable' }
                 ) {
                     param($parameter, $type)
@@ -95,6 +98,7 @@ InModuleScope JiraPS {
                     @{ parameterSet = 'Credential' }
                     @{ parameterSet = 'PersonalAccessToken' }
                     @{ parameterSet = 'ApiToken' }
+                    @{ parameterSet = 'OAuthAccessToken' }
                 ) {
                     $command.ParameterSets.Name | Should -Contain $parameterSet
                 }
@@ -120,6 +124,15 @@ InModuleScope JiraPS {
                         Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] -and $_.ParameterSetName -eq 'ApiToken' } |
                         Select-Object -ExpandProperty Mandatory |
                         Should -BeTrue
+                }
+
+                It "OAuthAccessToken and CloudId are mandatory in the OAuthAccessToken parameter set" {
+                    foreach ($parameterName in 'OAuthAccessToken', 'CloudId') {
+                        $command.Parameters[$parameterName].Attributes |
+                            Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] -and $_.ParameterSetName -eq 'OAuthAccessToken' } |
+                            Select-Object -ExpandProperty Mandatory |
+                            Should -BeTrue
+                    }
                 }
             }
 
@@ -210,6 +223,60 @@ InModuleScope JiraPS {
                 Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
                     $Headers.ContainsKey("Authorization") -and $Headers.ContainsKey("X-Custom")
                 } -Exactly -Times 1
+            }
+
+            It "uses a caller-supplied OAuth access token on the explicit Cloud ID route" {
+                New-JiraSession -OAuthAccessToken $testToken -CloudId '11223344-a1b2-3b33-c444-def123456789'
+
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                    $Uri -eq '/rest/api/3/myself' -and
+                    $Headers['Authorization'] -eq 'Bearer test-token-12345'
+                } -Exactly -Times 1
+                $script:JiraServerMetadata.DeploymentType | Should -Be 'Cloud'
+                $script:JiraServerMetadata.AuthenticationType | Should -Be 'OAuth'
+                $script:JiraServerMetadata.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
+            }
+
+            It "gives the OAuth access token precedence over a caller Authorization header" {
+                New-JiraSession -OAuthAccessToken $testToken `
+                    -CloudId '11223344-a1b2-3b33-c444-def123456789' `
+                    -Headers @{ Authorization = 'Bearer caller-value'; 'X-Custom' = 'value' }
+
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                    $Headers['Authorization'] -eq 'Bearer test-token-12345' -and
+                    $Headers['X-Custom'] -eq 'value'
+                } -Exactly -Times 1
+            }
+
+            It "rejects an invalid OAuth Cloud ID before making a request" {
+                { New-JiraSession -OAuthAccessToken $testToken -CloudId '../attacker' } |
+                    Should -Throw '*CloudId must be a UUID*'
+
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -Exactly -Times 0
+            }
+
+            It "restores prior server metadata when OAuth validation fails" {
+                $script:JiraServerMetadata = @{ DeploymentType = 'DataCenter' }
+                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Uri -eq '/rest/api/3/myself' } { throw 'Unauthorized' }
+
+                { New-JiraSession -OAuthAccessToken $testToken -CloudId '11223344-a1b2-3b33-c444-def123456789' } |
+                    Should -Throw '*Unauthorized*'
+
+                $script:JiraServerMetadata.DeploymentType | Should -Be 'DataCenter'
+            }
+
+            It "requires the OAuth access token parameter" {
+                { New-JiraSession -OAuthAccessToken $null -CloudId '11223344-a1b2-3b33-c444-def123456789' } |
+                    Should -Throw
+            }
+
+            It "does not disclose OAuth token or overridden header values in debug output" {
+                $debugOutput = New-JiraSession -OAuthAccessToken $testToken `
+                    -CloudId '11223344-a1b2-3b33-c444-def123456789' `
+                    -Headers @{ Authorization = 'Bearer caller-value' } `
+                    -Debug 5>&1 | Out-String
+
+                $debugOutput | Should -Not -Match 'test-token-12345|caller-value'
             }
         }
 

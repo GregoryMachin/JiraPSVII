@@ -14,7 +14,7 @@ permalink: /docs/JiraPS/about/authentication.html
 
 JiraPS supports multiple authentication methods: HTTP basic authentication,
 API tokens (Jira Cloud), Personal Access Tokens (Jira Data Center),
-and session-based authentication.
+caller-supplied OAuth access tokens (Jira Cloud), and session-based authentication.
 
 # LONG DESCRIPTION
 
@@ -23,6 +23,7 @@ JiraPS supports the following authentication methods:
 * HTTP basic authentication - username and password
 * API tokens - for Jira Cloud (email + token)
 * Personal Access Tokens (PAT) - for Jira Data Center (bearer token)
+* OAuth access tokens - for Jira Cloud, supplied by an external token broker
 * Session-based authentication - creates a persistent session for subsequent commands
 
 > Be sure to set JIRA up to use HTTPS with a valid SSL certificate if you are
@@ -86,6 +87,24 @@ The PAT is sent as a Bearer token in the Authorization header.
 More information on PATs for Data Center:
 https://confluence.atlassian.com/enterprise/using-personal-access-tokens-1026032365.html
 
+## OAuth Access Token (Jira Cloud)
+
+JiraPS accepts an OAuth access token that an external authorization or token broker has already obtained.
+The token must be a `SecureString`, and the Jira Cloud site must be identified by its UUID Cloud ID.
+
+```powershell
+$accessToken = Read-Host -AsSecureString "Enter the OAuth access token"
+New-JiraSession -OAuthAccessToken $accessToken `
+    -CloudId '11223344-a1b2-3b33-c444-def123456789'
+```
+
+JiraPS constructs `https://api.atlassian.com/ex/jira/{cloudId}` and sends the token only in the `Authorization: Bearer` header.
+OAuth routing is restricted to HTTPS on `api.atlassian.com`, and authentication-token query parameters are rejected.
+If `-Headers` also contains `Authorization`, the explicit `-OAuthAccessToken` value takes precedence.
+
+This release does not implement interactive authorization, authorization-code exchange, or token refresh.
+The caller remains responsible for obtaining a valid token with appropriate Jira scopes and replacing it when it expires.
+
 ## Automation and CI/CD
 
 For scripts, CI/CD pipelines, or other non-interactive scenarios,
@@ -103,6 +122,10 @@ New-JiraSession -ApiToken $token -EmailAddress $env:JIRA_EMAIL
 # Jira Data Center with PAT from environment variable
 $pat = ConvertTo-SecureString -String $env:JIRA_PAT -AsPlainText -Force
 New-JiraSession -PersonalAccessToken $pat
+
+# Jira Cloud with an externally supplied OAuth access token
+$oauthToken = ConvertTo-SecureString -String $env:JIRA_OAUTH_ACCESS_TOKEN -AsPlainText -Force
+New-JiraSession -OAuthAccessToken $oauthToken -CloudId $env:JIRA_CLOUD_ID
 ```
 
 ### From a String Variable
@@ -162,12 +185,16 @@ Once a session is created, you do not need to pass credentials to each command.
 Choose the method that matches your Jira deployment:
 
 - Jira Cloud: Use `-ApiToken` with `-EmailAddress`
+- Jira Cloud OAuth: Use `-OAuthAccessToken` with `-CloudId`
 - Jira Data Center: Use `-PersonalAccessToken` (aliases: `-PAT`, `-BearerToken`)
 - Either (legacy): Use `-Credential`
 
 ```powershell
 # Jira Cloud
 New-JiraSession -ApiToken $token -EmailAddress "you@example.com"
+
+# Jira Cloud OAuth token supplied by an external broker
+New-JiraSession -OAuthAccessToken $oauthToken -CloudId $cloudId
 
 # Jira Data Center
 New-JiraSession -PersonalAccessToken $pat
@@ -184,25 +211,22 @@ The session is stored in the module's runtime.
 This means that it will not be available in a new PowerShell session
 or if the module is reloaded.
 
-### Custom Authorization Headers
+### Custom Headers
 
-For advanced scenarios, you can also pass custom headers:
+For advanced scenarios, you can also pass custom non-authentication headers:
 
 ```powershell
-$headers = @{ Authorization = "Bearer $token" }
+$headers = @{ 'X-Correlation-ID' = $correlationId }
 New-JiraSession -Headers $headers
 ```
 
-## What About OAuth 2.0 (3LO)
+## OAuth Authorization and Refresh
 
 Jira Cloud supports OAuth 2.0 Three-Legged OAuth (3LO) for user-delegated access,
 which is the recommended approach for integrations that act on behalf of Jira users.
 
-JiraPS does not currently provide first-class OAuth 2.0 helpers. Tracking issue:
-https://github.com/AtlassianPS/JiraPS/issues/101
-
-For scripts and automation, use API tokens (Cloud) or Personal Access Tokens
-(Data Center) as described above.
+JiraPS accepts a caller-supplied OAuth access token but does not yet implement the interactive authorization-code or refresh flow.
+Use an external broker to obtain and refresh the token, then pass it through `-OAuthAccessToken`.
 
 # SEE ALSO
 

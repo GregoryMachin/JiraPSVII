@@ -72,6 +72,12 @@
         if ([string]::IsNullOrWhiteSpace([string]$metadata.DeploymentType)) {
             $metadata.DeploymentType = 'Cloud'
         }
+
+        if ([string]::IsNullOrWhiteSpace([string]$metadata.CloudId)) {
+            throw "Conflicting Jira configuration metadata: AuthenticationType OAuth requires CloudId."
+        }
+
+        $null = Resolve-JiraOAuthBaseUri -CloudId ([string]$metadata.CloudId)
     }
 
     if ($metadata.DeploymentType -eq 'Cloud' -and $serverUri.Scheme -ne 'https') {

@@ -81,7 +81,7 @@
         Set-TlsLevel -Tls12
 
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         #region Manage URI
         $requestContext = Resolve-JiraRequestContext -Uri $Uri -GetParameter $GetParameter -DefaultPageSize $script:DefaultPageSize -Cmdlet $PSCmdlet
@@ -115,7 +115,7 @@
 
         #region Execute the actual query
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] $($splatParameters.Method) $($splatParameters.Uri)"
-        Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoke-WebRequest with `$splatParameters: $($splatParameters | Out-String)"
+        Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoke-WebRequest parameter names: $($splatParameters.Keys -join ', ')"
         $webRequestResult = Invoke-JiraWebRequestSafely -SplatParameters $splatParameters
         $webResponse = $webRequestResult.WebResponse
         $exception = $webRequestResult.Exception

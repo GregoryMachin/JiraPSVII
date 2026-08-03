@@ -14,7 +14,7 @@
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
 
         Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
-        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] PSBoundParameters: $($PSBoundParameters | Out-String)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
 
         # Powershell v6+ populates the body of the response into the exception
         if ($Exception.ErrorDetails) {

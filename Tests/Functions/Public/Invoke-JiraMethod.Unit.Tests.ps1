@@ -321,6 +321,14 @@ InModuleScope JiraPS {
 
                 { Invoke-JiraMethod -URI "https://postman-echo.com/get?test=123" -ErrorAction Stop } | Should -Not -Throw
             }
+
+            It "does not disclose authorization header values in debug output" {
+                $debugOutput = Invoke-JiraMethod -URI 'https://postman-echo.com/get' `
+                    -Headers @{ Authorization = 'Bearer transport-secret' } `
+                    -Debug 5>&1 | Out-String
+
+                $debugOutput | Should -Not -Match 'transport-secret'
+            }
         }
 
         Context "Input testing" {

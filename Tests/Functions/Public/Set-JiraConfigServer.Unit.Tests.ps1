@@ -114,6 +114,24 @@ InModuleScope JiraPS {
                 { Set-JiraConfigServer -Server $entry } | Should -Throw '*Cloud configuration requires an HTTPS*'
             }
 
+            It "requires a valid Cloud ID for OAuth configuration metadata" -TestCases @(
+                @{ CloudId = $null }
+                @{ CloudId = 'not-a-uuid' }
+            ) {
+                param($CloudId)
+
+                $entry = [PSCustomObject]@{
+                    Uri                = 'https://example.atlassian.net/'
+                    Type               = 'Jira'
+                    Product            = 'Jira'
+                    DeploymentType     = 'Cloud'
+                    AuthenticationType = 'OAuth'
+                    CloudId            = $CloudId
+                }
+
+                { Set-JiraConfigServer -Server $entry } | Should -Throw '*CloudId*'
+            }
+
             Context "Type Validation - Positive Cases" {}
 
             Context "Type Validation - Negative Cases" {}

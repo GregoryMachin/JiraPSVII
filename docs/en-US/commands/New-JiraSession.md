@@ -33,6 +33,13 @@ New-JiraSession -ApiToken <securestring> -EmailAddress <string> [-Headers <hasht
  [<CommonParameters>]
 ```
 
+### OAuthAccessToken
+
+```powershell
+New-JiraSession -OAuthAccessToken <securestring> -CloudId <string> [-Headers <hashtable>]
+ [<CommonParameters>]
+```
+
 ## DESCRIPTION
 
 This function creates a persistent, authenticated session in to JIRA which can be used by all other JiraPS functions instead of explicitly passing parameters.
@@ -44,6 +51,7 @@ JiraPS supports multiple authentication methods:
 - **Credential**: Traditional username/password authentication (Jira Data Center)
 - **PersonalAccessToken**: Personal Access Token (PAT) authentication (Jira Data Center 8.14+)
 - **ApiToken**: API Token authentication with email address (Jira Cloud)
+- **OAuthAccessToken**: Caller-supplied OAuth bearer access token with an explicit Jira Cloud ID
 
 You can find more information in [about_JiraPS_Authentication](../../about/authentication.html)
 
@@ -100,7 +108,41 @@ New-JiraSession -PAT $pat
 Uses the `-PAT` alias for brevity.
 The `-BearerToken` alias is also supported for backward compatibility.
 
+### EXAMPLE 6
+
+```powershell
+$accessToken = Read-Host -AsSecureString "Enter the OAuth access token"
+New-JiraSession -OAuthAccessToken $accessToken `
+    -CloudId '11223344-a1b2-3b33-c444-def123456789'
+Get-JiraIssue TEST-01
+```
+
+Creates a Jira Cloud OAuth session from a token obtained by an external broker.
+JiraPS validates the Cloud ID and routes subsequent requests through `api.atlassian.com`.
+
 ## PARAMETERS
+
+### -CloudId
+
+The UUID Cloud ID of the Jira site authorized for the OAuth access token.
+JiraPS uses it to construct `https://api.atlassian.com/ex/jira/{cloudId}` and rejects other OAuth request hosts or Cloud IDs.
+
+```yaml
+Type: String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthAccessToken
+  Position: Named
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
 
 ### -ApiToken
 
@@ -218,6 +260,28 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -OAuthAccessToken
+
+A caller-supplied Jira Cloud OAuth bearer access token.
+The value must be a `SecureString`; JiraPS does not perform interactive authorization or refresh in this parameter set.
+
+```yaml
+Type: SecureString
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthAccessToken
+  Position: Named
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### CommonParameters
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
@@ -228,6 +292,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### PSCredential
+
+### System.Security.SecureString
 
 ## OUTPUTS
 

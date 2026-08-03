@@ -376,6 +376,16 @@ Approximate-count results are `AtlassianPS.JiraPS.JqlApproximateCountResult` obj
 
 JiraPS sends JQL in JSON request bodies rather than concatenating it into endpoint URLs. Scripts must still avoid building JQL by directly concatenating untrusted values; validate or safely escape values before composing a query.
 
+### Caller-supplied Jira Cloud OAuth tokens
+
+`New-JiraSession` accepts an access token obtained from an external OAuth broker through `-OAuthAccessToken`, which is typed as `SecureString`.
+The caller must also provide the site's UUID Cloud ID through `-CloudId`.
+JiraPS constructs the OAuth base route as `https://api.atlassian.com/ex/jira/{cloudId}` and uses it for subsequent relative Jira API requests.
+
+OAuth sessions reject non-HTTPS, non-Atlassian, and mismatched-Cloud-ID routes before sending authorization data.
+Authentication tokens are prohibited in query parameters and are not included in JiraPS debug diagnostics.
+The OAuth parameter set does not perform interactive authorization, token exchange, or refresh; obtain and refresh the access token externally.
+
 ### PSTypeName Rename — `AtlassianPS.JiraPS.*`
 
 The eight most-used JiraPS domain types are now real .NET classes under the
