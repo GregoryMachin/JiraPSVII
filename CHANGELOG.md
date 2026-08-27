@@ -4,7 +4,8 @@
 
 ### Changed
 
-- Added typed bulk-operation request and status DTOs for Jira Cloud issue bulk edit, move, and delete operations, including Jira wire-name serialization helpers, documented issue/field limits, and unsafe payload value rejection. No public bulk submit commands are exported yet.
+- Added `Move-JiraIssueBulk` and high-impact `Remove-JiraIssueBulk` for typed Jira Cloud bulk move and delete submissions, with explicit move target project/type, optional subtask parent, validation-only output, `WhatIf`, notification control, wildcard rejection, and asynchronous task-id output.
+- Added typed bulk-operation request and status DTOs for Jira Cloud issue bulk edit, move, and delete operations, including Jira wire-name serialization helpers, documented issue/field limits, and unsafe payload value rejection.
 - Added `Set-JiraIssueBulk` for Jira Cloud bulk issue edits with typed request support, `-WhatIf`/confirmation, validation-only output, safe summary/description/string-field builders, explicit cross-project opt-in, and asynchronous task-id output.
 - Added scoped Jira Cloud API-token guidance, including command-family scope mapping and safer 401/403 diagnostics for missing scopes or permissions.
 - Stabilized the Server integration `Search.Integration.Tests.ps1` OR-operator case by replacing the non-existent-key branch with a deterministic project-scoped OR predicate (`key = <fixture> OR key != <fixture>`), avoiding an intermittent Jira 11 backend null-deref (`issueObject` null) that failed nightly `integration_tests.yml` runs even when JiraPS behavior was correct.

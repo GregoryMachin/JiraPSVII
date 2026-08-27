@@ -50,6 +50,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Get-JiraVersion` | [Get-JiraVersion](/docs/JiraPS/commands/Get-JiraVersion/) |
 | `Invoke-JiraIssueTransition` | [Invoke-JiraIssueTransition](/docs/JiraPS/commands/Invoke-JiraIssueTransition/) |
 | `Invoke-JiraMethod` | [Invoke-JiraMethod](/docs/JiraPS/commands/Invoke-JiraMethod/) |
+| `Move-JiraIssueBulk` | [Move-JiraIssueBulk](/docs/JiraPS/commands/Move-JiraIssueBulk/) |
 | `Move-JiraVersion` | [Move-JiraVersion](/docs/JiraPS/commands/Move-JiraVersion/) |
 | `New-JiraFilter` | [New-JiraFilter](/docs/JiraPS/commands/New-JiraFilter/) |
 | `New-JiraGroup` | [New-JiraGroup](/docs/JiraPS/commands/New-JiraGroup/) |
@@ -64,6 +65,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Remove-JiraGroupMember` | [Remove-JiraGroupMember](/docs/JiraPS/commands/Remove-JiraGroupMember/) |
 | `Remove-JiraIssue` | [Remove-JiraIssue](/docs/JiraPS/commands/Remove-JiraIssue/) |
 | `Remove-JiraIssueAttachment` | [Remove-JiraIssueAttachment](/docs/JiraPS/commands/Remove-JiraIssueAttachment/) |
+| `Remove-JiraIssueBulk` | [Remove-JiraIssueBulk](/docs/JiraPS/commands/Remove-JiraIssueBulk/) |
 | `Remove-JiraIssueLink` | [Remove-JiraIssueLink](/docs/JiraPS/commands/Remove-JiraIssueLink/) |
 | `Remove-JiraIssueWatcher` | [Remove-JiraIssueWatcher](/docs/JiraPS/commands/Remove-JiraIssueWatcher/) |
 | `Remove-JiraRemoteLink` | [Remove-JiraRemoteLink](/docs/JiraPS/commands/Remove-JiraRemoteLink/) |
