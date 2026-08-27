@@ -17,6 +17,7 @@ InModuleScope JiraPS {
             }
             catch { $null }
             $script:JiraServerMetadata = @{}
+            $script:JiraOAuthClientCredentials = $null
         }
 
         BeforeAll {
@@ -35,11 +36,17 @@ InModuleScope JiraPS {
             }
 
             Mock ConvertTo-JiraSession -ModuleName JiraPS {
+                param($Session, $DeploymentType, $AuthenticationType, $CloudId)
                 Write-MockDebugInfo 'ConvertTo-JiraSession'
                 # Return a AtlassianPS.JiraPS.Session object to simulate successful conversion
                 $session = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSession
+                if ($null -ne $Session) {
+                    $session = $Session
+                }
                 $result = New-Object -TypeName PSObject -Property @{
-                    'WebSession' = $session
+                    'WebSession'          = $session
+                    'AuthenticationType'  = $AuthenticationType
+                    'CloudId'             = $CloudId
                 }
                 $result.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Session')
                 $result
@@ -61,6 +68,23 @@ InModuleScope JiraPS {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
+            Mock Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS {
+                [PSCustomObject]@{
+                    AccessToken = ConvertTo-SecureString 'oauth-client-token' -AsPlainText -Force
+                    ExpiresAt   = [DateTimeOffset]::UtcNow.AddHours(1)
+                    RefreshAt   = [DateTimeOffset]::UtcNow.AddMinutes(55)
+                    TokenType   = 'Bearer'
+                    Scopes      = @('read:jira-work', 'write:jira-work')
+                }
+            }
+            Mock Get-JiraOAuthResource -ModuleName JiraPS {
+                [AtlassianPS.JiraPS.OAuthResource]@{
+                    CloudId = '11223344-a1b2-3b33-c444-def123456789'
+                    Name    = 'One'
+                    Url     = [Uri]'https://one.atlassian.net'
+                    Scopes  = @('read:jira-work', 'write:jira-work')
+                }
+            }
             #endregion Mocks
         }
 
@@ -77,6 +101,12 @@ InModuleScope JiraPS {
                     @{ parameter = 'EmailAddress'; type = 'String' }
                     @{ parameter = 'OAuthAccessToken'; type = 'SecureString' }
                     @{ parameter = 'CloudId'; type = 'String' }
+                    @{ parameter = 'OAuthClientId'; type = 'String' }
+                    @{ parameter = 'OAuthClientSecret'; type = 'SecureString' }
+                    @{ parameter = 'OAuthCloudId'; type = 'String' }
+                    @{ parameter = 'OAuthSiteName'; type = 'String' }
+                    @{ parameter = 'OAuthSiteUrl'; type = 'Uri' }
+                    @{ parameter = 'OAuthTokenRefreshSkew'; type = 'TimeSpan' }
                     @{ parameter = 'Headers'; type = 'Hashtable' }
                 ) {
                     param($parameter, $type)
@@ -99,6 +129,7 @@ InModuleScope JiraPS {
                     @{ parameterSet = 'PersonalAccessToken' }
                     @{ parameterSet = 'ApiToken' }
                     @{ parameterSet = 'OAuthAccessToken' }
+                    @{ parameterSet = 'OAuthClientCredentials' }
                 ) {
                     $command.ParameterSets.Name | Should -Contain $parameterSet
                 }
@@ -130,6 +161,15 @@ InModuleScope JiraPS {
                     foreach ($parameterName in 'OAuthAccessToken', 'CloudId') {
                         $command.Parameters[$parameterName].Attributes |
                             Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] -and $_.ParameterSetName -eq 'OAuthAccessToken' } |
+                        Select-Object -ExpandProperty Mandatory |
+                        Should -BeTrue
+                    }
+                }
+
+                It "OAuthClientId and OAuthClientSecret are mandatory in the OAuthClientCredentials parameter set" {
+                    foreach ($parameterName in 'OAuthClientId', 'OAuthClientSecret') {
+                        $command.Parameters[$parameterName].Attributes |
+                            Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] -and $_.ParameterSetName -eq 'OAuthClientCredentials' } |
                             Select-Object -ExpandProperty Mandatory |
                             Should -BeTrue
                     }
@@ -217,6 +257,19 @@ InModuleScope JiraPS {
                 } -Exactly -Times 1
             }
 
+            It "supports scoped API token authentication through an explicit Cloud ID" {
+                { New-JiraSession -ApiToken $testToken -EmailAddress $testEmail -CloudId '11223344-a1b2-3b33-c444-def123456789' } | Should -Not -Throw
+
+                $script:JiraServerMetadata.DeploymentType | Should -Be 'Cloud'
+                $script:JiraServerMetadata.AuthenticationType | Should -Be 'ApiToken'
+                $script:JiraServerMetadata.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                    $Uri -eq '/rest/api/3/myself' -and
+                    $Headers.ContainsKey('Authorization') -and
+                    $Headers['Authorization'] -like 'Basic *'
+                } -Exactly -Times 1
+            }
+
             It "can combine token auth with custom headers" {
                 { New-JiraSession -PersonalAccessToken $testToken -Headers @{ "X-Custom" = "value" } } | Should -Not -Throw
 
@@ -277,6 +330,71 @@ InModuleScope JiraPS {
                     -Debug 5>&1 | Out-String
 
                 $debugOutput | Should -Not -Match 'test-token-12345|caller-value'
+            }
+
+            It "uses OAuth client credentials without requiring a delegated /myself call" {
+                $session = New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthSiteUrl 'https://one.atlassian.net'
+
+                $session.AuthenticationType | Should -Be 'OAuth'
+                $session.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
+                $script:JiraServerMetadata.DeploymentType | Should -Be 'Cloud'
+                $script:JiraServerMetadata.AuthenticationType | Should -Be 'OAuth'
+                $script:JiraOAuthClientCredentials.ClientId | Should -Be 'client-id'
+                ($script:JiraOAuthClientCredentials | ConvertTo-Json -Depth 5) | Should -Not -Match 'oauth-client-token|test-token-12345'
+                $script:JiraOAuthClientCredentials.AccessToken | Should -BeOfType [SecureString]
+                Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS -Exactly 1
+                Should -Invoke Get-JiraOAuthResource -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Uri -like '*/myself' } -Exactly 0
+            }
+
+            It "selects an OAuth client-credentials resource by Cloud ID" {
+                $null = New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthCloudId '11223344-a1b2-3b33-c444-def123456789'
+
+                Should -Invoke Get-JiraOAuthResource -ModuleName JiraPS -Exactly 1
+                $script:JiraOAuthClientCredentials.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
+            }
+
+            It "selects the Jira resource when Atlassian returns product-specific resources for the same site" {
+                Mock Get-JiraOAuthResource -ModuleName JiraPS {
+                    [AtlassianPS.JiraPS.OAuthResource]@{
+                        CloudId = '11223344-a1b2-3b33-c444-def123456789'
+                        Name    = 'One'
+                        Url     = [Uri]'https://one.atlassian.net'
+                        Scopes  = @('read:confluence-content.all')
+                    }
+                    [AtlassianPS.JiraPS.OAuthResource]@{
+                        CloudId = '11223344-a1b2-3b33-c444-def123456789'
+                        Name    = 'One'
+                        Url     = [Uri]'https://one.atlassian.net'
+                        Scopes  = @('read:jira-work', 'write:jira-work')
+                    }
+                }
+
+                $session = New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthSiteUrl 'https://one.atlassian.net'
+
+                $session.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
+                $script:JiraOAuthClientCredentials.Scopes | Should -Contain 'read:jira-work'
+            }
+
+            It "rejects multiple OAuth client-credentials resource selectors" {
+                { New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthCloudId '11223344-a1b2-3b33-c444-def123456789' -OAuthSiteName 'One' } |
+                    Should -Throw '*Specify only one OAuth resource selector*'
+
+                Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS -Exactly 0
+            }
+
+            It "rejects a selected OAuth resource without Jira scopes" {
+                Mock Get-JiraOAuthResource -ModuleName JiraPS {
+                    [AtlassianPS.JiraPS.OAuthResource]@{
+                        CloudId = '11223344-a1b2-3b33-c444-def123456789'
+                        Name    = 'One'
+                        Url     = [Uri]'https://one.atlassian.net'
+                        Scopes  = @('read:confluence-content.all')
+                    }
+                }
+
+                { New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthSiteUrl 'https://one.atlassian.net' } |
+                    Should -Throw '*does not include Jira scopes*'
             }
         }
 

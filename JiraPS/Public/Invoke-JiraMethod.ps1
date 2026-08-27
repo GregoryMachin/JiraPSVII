@@ -115,7 +115,7 @@
 
         #region Execute the actual query
         Write-Verbose "[$($MyInvocation.MyCommand.Name)] $($splatParameters.Method) $($splatParameters.Uri)"
-        Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoke-WebRequest parameter names: $($splatParameters.Keys -join ', ')"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Invoke-WebRequest parameter names: $($splatParameters.Keys -join ', ')"
         $webRequestResult = Invoke-JiraWebRequestSafely -SplatParameters $splatParameters
         $webResponse = $webRequestResult.WebResponse
         $exception = $webRequestResult.Exception
@@ -126,7 +126,7 @@
             Write-Verbose "[$($MyInvocation.MyCommand.Name)] Failed to get an answer from the server"
         }
 
-        Write-Debug "[$($MyInvocation.MyCommand.Name)] Executed WebRequest. Access `$webResponse to see details"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Executed WebRequest. Access `$webResponse to see details"
         $null = Resolve-JiraResponseTelemetry -InputObject $webResponse
         $shouldRetry = Test-ServerResponse -InputObject $webResponse -Cmdlet $Cmdlet -RetryCount $_RetryCount
         if ($shouldRetry) {
@@ -137,7 +137,7 @@
         if ($script:JiraResponseHeaderLogConfiguration) {
             Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Jira response headers"
             try { Write-JiraResponseHeaderLog -InputObject $webResponse }
-            catch { Write-Debug "[$($MyInvocation.MyCommand.Name)] Failed to log response headers: $_" }
+            catch { Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Failed to log response headers: $_" }
         }
         #endregion Execute the actual query
     }

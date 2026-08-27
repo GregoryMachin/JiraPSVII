@@ -209,5 +209,56 @@ InModuleScope JiraPS {
 
             Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'An unknown error occurred.' }
         }
+
+        It "adds API token and scope guidance for authorization failures without exposing secrets" {
+            $responseBody = '{"errorMessages":["Forbidden"]}'
+
+            & {
+                [CmdletBinding()]
+                param(
+                    [Parameter(Mandatory)]
+                    [string]
+                    $ResponseBody
+                )
+
+                $exception = [PSCustomObject]@{
+                    ErrorDetails = [PSCustomObject]@{
+                        Message = $ResponseBody
+                    }
+                }
+
+                Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::Forbidden) -Cmdlet $PSCmdlet
+            } -ResponseBody $responseBody
+
+            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter {
+                $Message -like '*Forbidden*API-token scopes*OAuth scopes*project permissions*issue security*' -and
+                $Message -notmatch 'Authorization|Bearer|Basic|ATSTT|token-secret'
+            }
+        }
+
+        It "adds revoked token guidance for authentication failures" {
+            $responseBody = '{"errorMessages":["Unauthorized"]}'
+
+            & {
+                [CmdletBinding()]
+                param(
+                    [Parameter(Mandatory)]
+                    [string]
+                    $ResponseBody
+                )
+
+                $exception = [PSCustomObject]@{
+                    ErrorDetails = [PSCustomObject]@{
+                        Message = $ResponseBody
+                    }
+                }
+
+                Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::Unauthorized) -Cmdlet $PSCmdlet
+            } -ResponseBody $responseBody
+
+            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter {
+                $Message -like '*Unauthorized*API token is valid and not revoked*OAuth token/client credentials*required Jira scopes*'
+            }
+        }
     }
 }

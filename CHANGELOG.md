@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Added typed bulk-operation request and status DTOs for Jira Cloud issue bulk edit, move, and delete operations, including Jira wire-name serialization helpers, documented issue/field limits, and unsafe payload value rejection. No public bulk submit commands are exported yet.
+- Added `Set-JiraIssueBulk` for Jira Cloud bulk issue edits with typed request support, `-WhatIf`/confirmation, validation-only output, safe summary/description/string-field builders, explicit cross-project opt-in, and asynchronous task-id output.
+- Added scoped Jira Cloud API-token guidance, including command-family scope mapping and safer 401/403 diagnostics for missing scopes or permissions.
 - Stabilized the Server integration `Search.Integration.Tests.ps1` OR-operator case by replacing the non-existent-key branch with a deterministic project-scoped OR predicate (`key = <fixture> OR key != <fixture>`), avoiding an intermittent Jira 11 backend null-deref (`issueObject` null) that failed nightly `integration_tests.yml` runs even when JiraPS behavior was correct.
 - Updated JiraPS shared standards dependency pins to `AtlassianPS.Standards` `0.1.11`, with scripts resolving the required standards version from `Tools/build.requirements.psd1`, validating PSGallery availability across runtimes, running NuGet/PSGallery trust preflight only on Windows PowerShell (Desktop), and then using direct `Install-Module`/`Import-Module` bootstrap before delegating to shared commands (`Tools/update.dependencies.ps1` now honors `-WhatIf` before any bootstrap side effects).
 - Replaced duplicated JiraPS build/test helper internals with shared `AtlassianPS.Standards` primitives for external help generation, orphaned help cleanup, package validation, `.env` loading, and source/release test module resolution.
@@ -29,6 +32,7 @@
 - Added Jira Cloud-only `Test-JiraJql` and `Get-JiraJqlApproximateCount` commands. JQL is sent in JSON request bodies, invalid queries return structured validation errors without reaching the count endpoint, and count results are explicitly marked approximate and permission-scoped.
 - `New-JiraSession` now accepts a caller-supplied Jira Cloud OAuth access token as a `SecureString` with an explicit Cloud ID. OAuth requests are routed only through `https://api.atlassian.com/ex/jira/{cloudId}`, authorization values are excluded from diagnostics, token query parameters are rejected, and existing Cloud API-token and Data Center PAT authentication remain supported.
 - Added `Get-JiraOAuthResource` to discover the Jira sites and Cloud IDs authorized for a caller-supplied token or current OAuth session. Returned site URLs and UUIDs are validated, ambiguous display names require Cloud ID or URL selection, and only non-secret resource metadata is cached with bounded expiry and explicit bypass/clear controls.
+- `New-JiraSession` now supports non-interactive Jira Cloud OAuth client-credentials authentication for service-account and backend automation. JiraPS exchanges client ID/secret values for short-lived access tokens, discovers Jira Cloud resources, renews tokens in memory before expiry, and never persists client secrets or access tokens to module configuration.
 
 ## v3.0.0 - 2026-05-10
 

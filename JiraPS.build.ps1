@@ -173,10 +173,22 @@ Task GenerateExternalHelp -Inputs {
 
 # Synopsis: Update the manifest of the module
 Task UpdateManifest {
-    $null = Update-AtlassianPSModuleManifestExports `
-        -SourceModulePath $env:BHModulePath `
-        -BuiltManifestPath $builtManifestPath `
-        -ModuleName $env:BHProjectName
+    $moduleFunctions = @(
+        Get-ChildItem -Path (Join-Path -Path $env:BHModulePath -ChildPath 'Public/*.ps1') -ErrorAction SilentlyContinue
+    ).BaseName
+    $sourceManifestPath = Join-Path -Path $env:BHModulePath -ChildPath "$env:BHProjectName.psd1"
+    $sourceModuleInfo = Test-ModuleManifest -Path $sourceManifestPath -ErrorAction Stop
+    $moduleAliases = @($sourceModuleInfo.ExportedAliases.Keys | Where-Object { $_ })
+
+    $manifestParameters = @{
+        Path              = $builtManifestPath
+        FunctionsToExport = @($moduleFunctions)
+    }
+    if ($moduleAliases.Count -gt 0) {
+        $manifestParameters.AliasesToExport = @($moduleAliases)
+    }
+
+    Update-ModuleManifest @manifestParameters
 }
 
 Task SetVersion {
@@ -209,6 +221,7 @@ Task Test {
             -ExcludeTag $ExcludeTag `
             -DefaultExcludeTag @('Integration') `
             -MinimumPesterVersion ([Version]'5.7.0') `
+            -MaximumPesterVersion ([Version]'5.999') `
             -ResultOutputPath (Join-Path $env:BHProjectPath "Test-$resultName.xml")
     }
 }

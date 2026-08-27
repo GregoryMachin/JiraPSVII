@@ -15,7 +15,7 @@ InModuleScope JiraPS {
                 [AtlassianPS.JiraPS.JqlValidationResult]@{
                     Query   = $Query
                     IsValid = ($Query -ne 'invalid query')
-                    Errors  = if ($Query -eq 'invalid query') { @('Invalid JQL') } else { @() }
+                    Errors  = [String[]]@($(if ($Query -eq 'invalid query') { 'Invalid JQL' }))
                 }
             }
             Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {

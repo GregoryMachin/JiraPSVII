@@ -18,9 +18,13 @@
     )
 
     $providedUriValue = $Uri.OriginalString
-    $oauthBaseUri = $null
-    if ($script:JiraServerMetadata -and [string]$script:JiraServerMetadata.AuthenticationType -eq 'OAuth') {
-        $oauthBaseUri = Resolve-JiraOAuthBaseUri -CloudId ([string]$script:JiraServerMetadata.CloudId)
+    $atlassianCloudBaseUri = $null
+    if (
+        $script:JiraServerMetadata -and
+        [string]$script:JiraServerMetadata.AuthenticationType -in 'OAuth', 'ApiToken' -and
+        -not [string]::IsNullOrWhiteSpace([string]$script:JiraServerMetadata.CloudId)
+    ) {
+        $atlassianCloudBaseUri = Resolve-JiraOAuthBaseUri -CloudId ([string]$script:JiraServerMetadata.CloudId)
     }
 
     if (-not $Uri.IsAbsoluteUri) {
@@ -35,8 +39,8 @@
             ThrowError @errorParameter
         }
 
-        if ($oauthBaseUri) {
-            [Uri]$Uri = "{0}{1}" -f $oauthBaseUri.AbsoluteUri.TrimEnd('/'), $providedUriValue
+        if ($atlassianCloudBaseUri) {
+            [Uri]$Uri = "{0}{1}" -f $atlassianCloudBaseUri.AbsoluteUri.TrimEnd('/'), $providedUriValue
         }
         else {
             $server = Get-JiraConfigServer -ErrorAction SilentlyContinue
@@ -66,21 +70,21 @@
         ThrowError @errorParameter
     }
 
-    if ($oauthBaseUri) {
+    if ($atlassianCloudBaseUri) {
         $isAtlassianApiHost = $Uri.Scheme -eq 'https'
         $isAtlassianApiHost = $isAtlassianApiHost -and $Uri.Host -ceq 'api.atlassian.com'
         $isAtlassianApiHost = $isAtlassianApiHost -and $Uri.IsDefaultPort
         $isAtlassianApiHost = $isAtlassianApiHost -and [string]::IsNullOrEmpty($Uri.UserInfo)
-        $oauthApiPath = $oauthBaseUri.AbsolutePath.TrimEnd('/')
-        $isCloudApiPath = $Uri.AbsolutePath -eq $oauthApiPath
-        $isCloudApiPath = $isCloudApiPath -or $Uri.AbsolutePath.StartsWith("$oauthApiPath/", [StringComparison]::Ordinal)
+        $cloudApiPath = $atlassianCloudBaseUri.AbsolutePath.TrimEnd('/')
+        $isCloudApiPath = $Uri.AbsolutePath -eq $cloudApiPath
+        $isCloudApiPath = $isCloudApiPath -or $Uri.AbsolutePath.StartsWith("$cloudApiPath/", [StringComparison]::Ordinal)
         $isResourceDiscoveryPath = $Uri.AbsolutePath -eq '/oauth/token/accessible-resources'
 
         if (-not $isAtlassianApiHost -or (-not $isCloudApiPath -and -not $isResourceDiscoveryPath)) {
             $errorParameter = @{
                 Cmdlet       = $Cmdlet
-                Exception    = [System.ArgumentException]::new('OAuth requests are restricted to the configured Jira Cloud ID under https://api.atlassian.com.')
-                ErrorId      = 'ParameterValue.UntrustedOAuthUri'
+                Exception    = [System.ArgumentException]::new('Atlassian Cloud authenticated requests are restricted to the configured Jira Cloud ID under https://api.atlassian.com.')
+                ErrorId      = 'ParameterValue.UntrustedAtlassianCloudUri'
                 Category     = [System.Management.Automation.ErrorCategory]::SecurityError
                 TargetObject = $Uri.GetLeftPart([UriPartial]::Path)
             }

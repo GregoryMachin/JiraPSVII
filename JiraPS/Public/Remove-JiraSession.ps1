@@ -20,6 +20,7 @@
             $MyInvocation.MyCommand.Module.PrivateData.Session = $null
         }
         $script:JiraOAuthResourceCache = $null
+        $script:JiraOAuthClientCredentials = $null
     }
 
     end {

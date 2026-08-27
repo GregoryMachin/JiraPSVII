@@ -13,8 +13,11 @@ if (!("System.Net.Http" -as [Type])) {
 # Compiled once per session; the type-presence guard keeps re-imports cheap.
 $requiredJiraTypes = @(
     'AtlassianPS.JiraPS.Attachment'
+    'AtlassianPS.JiraPS.BulkIssueEditRequest'
+    'AtlassianPS.JiraPS.BulkIssueMoveRequest'
     'AtlassianPS.JiraPS.Issue'
     'AtlassianPS.JiraPS.Status'
+    'AtlassianPS.JiraPS.SubmittedBulkOperation'
     'AtlassianPS.JiraPS.VersionTransformationAttribute'
 )
 $loadedJiraTypes = @($requiredJiraTypes | Where-Object { $_ -as [Type] })
@@ -72,6 +75,7 @@ $script:DefaultHeaders = @{
 $script:JiraResponseHeaderLogConfiguration = $null
 $script:JiraLastResponseTelemetry = $null
 $script:JiraOAuthResourceCache = $null
+$script:JiraOAuthClientCredentials = $null
 $script:PagingContainers = @(
     "comments"
     "dashboards"

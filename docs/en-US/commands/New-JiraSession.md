@@ -29,7 +29,7 @@ New-JiraSession -PersonalAccessToken <securestring> [-Headers <hashtable>] [<Com
 ### ApiToken
 
 ```powershell
-New-JiraSession -ApiToken <securestring> -EmailAddress <string> [-Headers <hashtable>]
+New-JiraSession -ApiToken <securestring> -EmailAddress <string> [-CloudId <string>] [-Headers <hashtable>]
  [<CommonParameters>]
 ```
 
@@ -38,6 +38,14 @@ New-JiraSession -ApiToken <securestring> -EmailAddress <string> [-Headers <hasht
 ```powershell
 New-JiraSession -OAuthAccessToken <securestring> -CloudId <string> [-Headers <hashtable>]
  [<CommonParameters>]
+```
+
+### OAuthClientCredentials
+
+```powershell
+New-JiraSession -OAuthClientId <string> -OAuthClientSecret <securestring>
+ [-OAuthCloudId <string>] [-OAuthSiteName <string>] [-OAuthSiteUrl <uri>]
+ [-OAuthTokenRefreshSkew <timespan>] [-Headers <hashtable>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -52,6 +60,7 @@ JiraPS supports multiple authentication methods:
 - **PersonalAccessToken**: Personal Access Token (PAT) authentication (Jira Data Center 8.14+)
 - **ApiToken**: API Token authentication with email address (Jira Cloud)
 - **OAuthAccessToken**: Caller-supplied OAuth bearer access token with an explicit Jira Cloud ID
+- **OAuthClientCredentials**: Non-interactive OAuth client-credentials authentication for Jira Cloud service accounts and backend automation
 
 You can find more information in [about_JiraPS_Authentication](../../about/authentication.html)
 
@@ -87,9 +96,24 @@ Get-JiraIssue TEST-01
 ```
 
 Creates a Jira session using an API token with your Atlassian account email.
-This is the recommended method for Jira Cloud.
+Use a scoped API token where possible, and make sure the token includes the
+scopes needed by the Jira commands you call.
 
 ### EXAMPLE 4
+
+```powershell
+$apiToken = Read-Host -AsSecureString "Enter your scoped API token"
+New-JiraSession `
+    -ApiToken $apiToken `
+    -EmailAddress "user@example.com" `
+    -CloudId '11223344-a1b2-3b33-c444-def123456789'
+Get-JiraIssue TEST-01
+```
+
+Creates a Jira session using a scoped API token and explicit Jira Cloud ID.
+Scoped API tokens are routed through `api.atlassian.com/ex/jira/{cloudId}`.
+
+### EXAMPLE 5
 
 ```powershell
 $headers = @{ "X-Custom-Header" = "value" }
@@ -98,7 +122,7 @@ New-JiraSession -PersonalAccessToken $pat -Headers $headers
 
 Creates a Jira session with a PAT and additional custom headers.
 
-### EXAMPLE 5
+### EXAMPLE 6
 
 ```powershell
 $pat = ConvertTo-SecureString $env:JIRA_PAT -AsPlainText -Force
@@ -108,7 +132,7 @@ New-JiraSession -PAT $pat
 Uses the `-PAT` alias for brevity.
 The `-BearerToken` alias is also supported for backward compatibility.
 
-### EXAMPLE 6
+### EXAMPLE 7
 
 ```powershell
 $accessToken = Read-Host -AsSecureString "Enter the OAuth access token"
@@ -120,12 +144,28 @@ Get-JiraIssue TEST-01
 Creates a Jira Cloud OAuth session from a token obtained by an external broker.
 JiraPS validates the Cloud ID and routes subsequent requests through `api.atlassian.com`.
 
+### EXAMPLE 8
+
+```powershell
+$clientSecret = ConvertTo-SecureString $env:JIRA_OAUTH_CLIENT_SECRET -AsPlainText -Force
+New-JiraSession `
+    -OAuthClientId $env:JIRA_OAUTH_CLIENT_ID `
+    -OAuthClientSecret $clientSecret `
+    -OAuthSiteUrl 'https://example.atlassian.net'
+Get-JiraProject
+```
+
+Creates a Jira Cloud OAuth session using the non-interactive client-credentials grant.
+JiraPS exchanges the client ID and client secret for a short-lived bearer token, selects the Jira Cloud site, and renews the token in memory before expiry.
+
 ## PARAMETERS
 
 ### -CloudId
 
-The UUID Cloud ID of the Jira site authorized for the OAuth access token.
-JiraPS uses it to construct `https://api.atlassian.com/ex/jira/{cloudId}` and rejects other OAuth request hosts or Cloud IDs.
+The UUID Cloud ID of the Jira site authorized for the OAuth access token or
+scoped API token. JiraPS uses it to construct
+`https://api.atlassian.com/ex/jira/{cloudId}` and rejects other Atlassian Cloud
+request hosts or Cloud IDs.
 
 ```yaml
 Type: String
@@ -133,6 +173,12 @@ DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
 ParameterSets:
+- Name: ApiToken
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
 - Name: OAuthAccessToken
   Position: Named
   IsRequired: true
@@ -150,6 +196,11 @@ An API token for Jira Cloud authentication.
 Must be used together with `-EmailAddress`.
 
 Create an API token at: https://id.atlassian.com/manage-profile/security/api-tokens
+
+Scoped API tokens are recommended. JiraPS cannot inspect the token to verify
+its scopes before use; Jira Cloud enforces the selected scopes and account
+permissions per request. See `about_JiraPS_ApiTokenScopes` for command-family
+scope guidance.
 
 ```yaml
 Type: SecureString
@@ -274,6 +325,135 @@ ParameterSets:
 - Name: OAuthAccessToken
   Position: Named
   IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OAuthClientId
+
+The OAuth client ID for a Jira Cloud app or service account credential that supports the client-credentials grant.
+
+```yaml
+Type: String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthClientCredentials
+  Position: Named
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OAuthClientSecret
+
+The OAuth client secret for the client-credentials grant.
+The value must be supplied as a `SecureString`; JiraPS keeps it in memory only for token renewal and does not persist it to configuration.
+
+```yaml
+Type: SecureString
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthClientCredentials
+  Position: Named
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OAuthCloudId
+
+Selects the Jira Cloud site by UUID Cloud ID when the OAuth credential can access more than one site.
+
+```yaml
+Type: String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthClientCredentials
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OAuthSiteName
+
+Selects the Jira Cloud site by exact accessible-resource display name.
+Use `-OAuthCloudId` or `-OAuthSiteUrl` instead when names are ambiguous.
+
+```yaml
+Type: String
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthClientCredentials
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OAuthSiteUrl
+
+Selects the Jira Cloud site by root `https://*.atlassian.net` URL.
+
+```yaml
+Type: Uri
+DefaultValue: ''
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthClientCredentials
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OAuthTokenRefreshSkew
+
+How long before token expiry JiraPS should renew an OAuth client-credentials access token.
+The default is five minutes.
+
+```yaml
+Type: TimeSpan
+DefaultValue: 00:05:00
+SupportsWildcards: false
+Aliases: []
+ParameterSets:
+- Name: OAuthClientCredentials
+  Position: Named
+  IsRequired: false
   ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false

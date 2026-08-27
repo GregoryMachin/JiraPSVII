@@ -46,6 +46,15 @@ InModuleScope JiraPS {
         Context "Type loading" {
             It "loads <typeName> into the current AppDomain" -TestCases @(
                 @{ typeName = 'AtlassianPS.JiraPS.Attachment' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkEditMultiSelectFieldOption' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueDeleteRequest' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueEditRequest' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueMoveRequest' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueOperation' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueMoveTarget' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationLimits' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationProgress' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationStatus' }
                 @{ typeName = 'AtlassianPS.JiraPS.Comment' }
                 @{ typeName = 'AtlassianPS.JiraPS.Component' }
                 @{ typeName = 'AtlassianPS.JiraPS.CreateMetaField' }
@@ -69,6 +78,7 @@ InModuleScope JiraPS {
                 @{ typeName = 'AtlassianPS.JiraPS.Session' }
                 @{ typeName = 'AtlassianPS.JiraPS.Status' }
                 @{ typeName = 'AtlassianPS.JiraPS.StatusCategory' }
+                @{ typeName = 'AtlassianPS.JiraPS.SubmittedBulkOperation' }
                 @{ typeName = 'AtlassianPS.JiraPS.Transition' }
                 @{ typeName = 'AtlassianPS.JiraPS.User' }
                 @{ typeName = 'AtlassianPS.JiraPS.Version' }
@@ -115,6 +125,8 @@ InModuleScope JiraPS {
                 @{ typeName = 'AtlassianPS.JiraPS.ServerInfo'; property = @{}; scenario = 'empty'; expected = '' }
                 @{ typeName = 'AtlassianPS.JiraPS.Session'; property = @{ JSessionID = 'abc' }; scenario = 'session ID'; expected = 'JiraSession[JSessionID=abc]' }
                 @{ typeName = 'AtlassianPS.JiraPS.Session'; property = @{}; scenario = 'empty'; expected = 'JiraSession' }
+                @{ typeName = 'AtlassianPS.JiraPS.SubmittedBulkOperation'; property = @{ TaskId = '10641' }; scenario = 'task id'; expected = '10641' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationProgress'; property = @{ TaskId = '10641'; Status = [AtlassianPS.JiraPS.BulkOperationStatus]::RUNNING }; scenario = 'task id and status'; expected = '10641 [RUNNING]' }
             ) {
                 param($typeName, $property, $expected)
 
@@ -154,6 +166,12 @@ InModuleScope JiraPS {
                 @{ typeName = 'AtlassianPS.JiraPS.User'; property = 'Groups'; expectedType = [string[]] }
                 @{ typeName = 'AtlassianPS.JiraPS.ServerInfo'; property = 'ScmInfo'; expectedType = [string] }
                 @{ typeName = 'AtlassianPS.JiraPS.ServerInfo'; property = 'BuildNumber'; expectedType = [System.Nullable[long]] }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueEditRequest'; property = 'EditedFieldsInput'; expectedType = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput] }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueEditRequest'; property = 'SelectedActions'; expectedType = [string[]] }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueMoveRequest'; property = 'TargetToSourcesMapping'; expectedType = [System.Collections.IDictionary] }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueMoveTarget'; property = 'IssueIdsOrKeys'; expectedType = [string[]] }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationProgress'; property = 'SubmittedBy'; expectedType = [AtlassianPS.JiraPS.User] }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationProgress'; property = 'ProcessedAccessibleIssues'; expectedType = [long[]] }
                 @{ typeName = 'AtlassianPS.JiraPS.Filter'; property = 'Favourite'; expectedType = [bool] }
                 @{ typeName = 'AtlassianPS.JiraPS.Version'; property = 'Archived'; expectedType = [bool] }
                 @{ typeName = 'AtlassianPS.JiraPS.Version'; property = 'Released'; expectedType = [bool] }
@@ -231,6 +249,13 @@ InModuleScope JiraPS {
                 @{ typeName = 'AtlassianPS.JiraPS.Comment' }
                 @{ typeName = 'AtlassianPS.JiraPS.Session' }
                 @{ typeName = 'AtlassianPS.JiraPS.ServerInfo' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueDeleteRequest' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueEditRequest' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueMoveRequest' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkIssueMoveTarget' }
+                @{ typeName = 'AtlassianPS.JiraPS.JiraBulkEditFieldsInput' }
+                @{ typeName = 'AtlassianPS.JiraPS.SubmittedBulkOperation' }
+                @{ typeName = 'AtlassianPS.JiraPS.BulkOperationProgress' }
             ) {
                 param($typeName)
 
@@ -536,6 +561,158 @@ InModuleScope JiraPS {
 
                 $transformer = $transformerType::new()
                 { $transformer.Transform($null, [datetime]::UtcNow) } | Should -Throw $expectedMessage
+            }
+        }
+
+        Context "Bulk operation request DTOs" {
+            It "serializes a bulk delete request with Jira wire names" {
+                $request = [AtlassianPS.JiraPS.BulkIssueDeleteRequest]@{
+                    SelectedIssueIdsOrKeys = @('TEST-1', '10002')
+                    SendBulkNotification   = $false
+                }
+
+                $payload = $request.ToJiraPayload()
+                $json = $payload | ConvertTo-Json -Depth 10
+                $roundTrip = $json | ConvertFrom-Json
+
+                $request.Operation | Should -Be ([AtlassianPS.JiraPS.BulkIssueOperation]::Delete)
+                $roundTrip.selectedIssueIdsOrKeys | Should -Be @('TEST-1', '10002')
+                $roundTrip.sendBulkNotification | Should -BeFalse
+                ($json -cmatch 'SelectedIssueIdsOrKeys|SendBulkNotification') | Should -BeFalse
+            }
+
+            It "serializes a bulk edit request with explicit field collections and selected actions" {
+                $fields = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]::FromDictionary(@{
+                        singleLineTextFields = @(
+                            @{
+                                fieldId = 'summary'
+                                text    = 'Updated summary'
+                            }
+                        )
+                        priority             = @{
+                            priorityId = '2'
+                        }
+                    })
+                $request = [AtlassianPS.JiraPS.BulkIssueEditRequest]@{
+                    SelectedIssueIdsOrKeys = @('TEST-1')
+                    SelectedActions        = @('summary', 'priority')
+                    EditedFieldsInput      = $fields
+                    SendBulkNotification   = $true
+                }
+
+                $payload = $request.ToJiraPayload()
+                $roundTrip = $payload | ConvertTo-Json -Depth 10 | ConvertFrom-Json
+
+                $request.Operation | Should -Be ([AtlassianPS.JiraPS.BulkIssueOperation]::Edit)
+                $fields.GetFieldUpdateCount() | Should -Be 2
+                $roundTrip.editedFieldsInput.singleLineTextFields[0].fieldId | Should -Be 'summary'
+                $roundTrip.editedFieldsInput.priority.priorityId | Should -Be '2'
+                $roundTrip.selectedActions | Should -Be @('summary', 'priority')
+                $roundTrip.selectedIssueIdsOrKeys | Should -Be @('TEST-1')
+                $roundTrip.sendBulkNotification | Should -BeTrue
+            }
+
+            It "rejects unknown bulk edit field collections" {
+                {
+                    [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]::FromDictionary(@{
+                            unknownFields = @(@{ fieldId = 'customfield_10000'; value = 'x' })
+                        })
+                } | Should -Throw '*Unknown bulk edit field collection*'
+            }
+
+            It "enforces the 200-field bulk edit limit" {
+                $updates = foreach ($index in 1..201) {
+                    @{
+                        fieldId = "customfield_$index"
+                        text    = "value-$index"
+                    }
+                }
+                $request = [AtlassianPS.JiraPS.BulkIssueEditRequest]@{
+                    SelectedIssueIdsOrKeys = @('TEST-1')
+                    SelectedActions        = @('customfield_1')
+                    EditedFieldsInput      = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]@{
+                        SingleLineTextFields = @($updates)
+                    }
+                }
+
+                { $request.ToJiraPayload() } | Should -Throw '*200 fields*'
+            }
+
+            It "enforces the 1,000-issue limit for delete requests" {
+                $request = [AtlassianPS.JiraPS.BulkIssueDeleteRequest]@{
+                    SelectedIssueIdsOrKeys = @(1..1001 | ForEach-Object { "TEST-$_" })
+                }
+
+                { $request.ToJiraPayload() } | Should -Throw '*1,000 issues*'
+            }
+
+            It "serializes a bulk move request with target-to-sources mapping" {
+                $target = [AtlassianPS.JiraPS.BulkIssueMoveTarget]@{
+                    IssueIdsOrKeys          = @('TEST-1', 'TEST-2')
+                    InferFieldDefaults      = $false
+                    InferStatusDefaults     = $true
+                    InferSubtaskTypeDefault = $true
+                    TargetStatus            = @(
+                        @{
+                            statuses = @{
+                                '10001' = @('10002')
+                            }
+                        }
+                    )
+                }
+                $request = [AtlassianPS.JiraPS.BulkIssueMoveRequest]@{
+                    SendBulkNotification   = $true
+                    TargetToSourcesMapping = @{
+                        'DEST,10001' = $target
+                    }
+                }
+
+                $payload = $request.ToJiraPayload()
+                $roundTrip = $payload | ConvertTo-Json -Depth 20 | ConvertFrom-Json
+
+                $request.Operation | Should -Be ([AtlassianPS.JiraPS.BulkIssueOperation]::Move)
+                $roundTrip.sendBulkNotification | Should -BeTrue
+                $roundTrip.targetToSourcesMapping.'DEST,10001'.issueIdsOrKeys | Should -Be @('TEST-1', 'TEST-2')
+                $roundTrip.targetToSourcesMapping.'DEST,10001'.inferFieldDefaults | Should -BeFalse
+                $roundTrip.targetToSourcesMapping.'DEST,10001'.inferStatusDefaults | Should -BeTrue
+            }
+
+            It "rejects unsafe values before serialization" {
+                $fields = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]@{
+                    RichTextFields = @(
+                        @{
+                            fieldId  = 'description'
+                            richText = { Get-Secret }
+                        }
+                    )
+                }
+                $request = [AtlassianPS.JiraPS.BulkIssueEditRequest]@{
+                    SelectedIssueIdsOrKeys = @('TEST-1')
+                    SelectedActions        = @('description')
+                    EditedFieldsInput      = $fields
+                }
+
+                { $request.ToJiraPayload() } | Should -Throw '*must not contain credentials, secure strings, or script blocks*'
+            }
+
+            It "models submitted and progress status responses without request credentials" {
+                $submitted = [AtlassianPS.JiraPS.SubmittedBulkOperation]@{ TaskId = '10641' }
+                $progress = [AtlassianPS.JiraPS.BulkOperationProgress]@{
+                    TaskId                           = '10641'
+                    Status                           = [AtlassianPS.JiraPS.BulkOperationStatus]::COMPLETE
+                    ProgressPercent                  = 100
+                    SubmittedBy                      = [AtlassianPS.JiraPS.User]@{ AccountId = 'abc-123' }
+                    ProcessedAccessibleIssues        = @([long]10001, [long]10002)
+                    InvalidOrInaccessibleIssueCount  = 0
+                    TotalIssueCount                  = 2
+                }
+
+                $submitted.TaskId | Should -Be '10641'
+                $progress.Status | Should -Be ([AtlassianPS.JiraPS.BulkOperationStatus]::COMPLETE)
+                $progress.SubmittedBy.AccountId | Should -Be 'abc-123'
+                $progress.ProcessedAccessibleIssues | Should -Be @([long]10001, [long]10002)
+                ($progress.PSObject.Properties.Name | Where-Object { $_ -match 'Credential|Token|Secret|Password' }) |
+                    Should -BeNullOrEmpty
             }
         }
 

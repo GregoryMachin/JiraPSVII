@@ -16,11 +16,18 @@
 
             Write-Debug "[$($MyInvocation.MyCommand.Name)] Converting `$InputObject to AtlassianPS.JiraPS.Attachment"
 
+            $author = if ($i.Author) {
+                ConvertTo-JiraUser -InputObject $i.Author
+            }
+            else {
+                $null
+            }
+
             $props = @{
                 'ID'        = $i.id
                 'Self'      = [uri]$i.self
                 'FileName'  = $i.FileName
-                'Author'    = ConvertTo-JiraUser -InputObject $i.Author
+                'Author'    = $author
                 'Created'   = ConvertTo-JiraDateTimeOffsetValue $i.created
                 'Size'      = ConvertTo-JiraNullableInt64 $i.size
                 'MimeType'  = $i.mimeType
@@ -29,7 +36,11 @@
             }
 
             if ($i.properties) {
-                $props.Properties = $i.properties
+                $attachmentProperties = @{}
+                foreach ($property in $i.properties.PSObject.Properties) {
+                    $attachmentProperties[$property.Name] = $property.Value
+                }
+                $props.Properties = $attachmentProperties
             }
 
             [AtlassianPS.JiraPS.Attachment]$props

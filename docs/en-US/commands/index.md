@@ -73,6 +73,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Set-JiraConfigServer` | [Set-JiraConfigServer](/docs/JiraPS/commands/Set-JiraConfigServer/) |
 | `Set-JiraFilter` | [Set-JiraFilter](/docs/JiraPS/commands/Set-JiraFilter/) |
 | `Set-JiraIssue` | [Set-JiraIssue](/docs/JiraPS/commands/Set-JiraIssue/) |
+| `Set-JiraIssueBulk` | [Set-JiraIssueBulk](/docs/JiraPS/commands/Set-JiraIssueBulk/) |
 | `Set-JiraIssueLabel` | [Set-JiraIssueLabel](/docs/JiraPS/commands/Set-JiraIssueLabel/) |
 | `Set-JiraResponseHeaderLogConfiguration` | [Set-JiraResponseHeaderLogConfiguration](/docs/JiraPS/commands/Set-JiraResponseHeaderLogConfiguration/) |
 | `Set-JiraUser` | [Set-JiraUser](/docs/JiraPS/commands/Set-JiraUser/) |

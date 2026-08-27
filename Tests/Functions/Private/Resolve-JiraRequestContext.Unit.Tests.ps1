@@ -94,6 +94,19 @@ InModuleScope JiraPS {
             $result.Uri.AbsoluteUri | Should -Be 'https://api.atlassian.com/ex/jira/11223344-a1b2-3b33-c444-def123456789/rest/api/3/myself'
         }
 
+        It "routes relative scoped API-token requests through api.atlassian.com and the configured Cloud ID" {
+            $script:JiraServerMetadata = @{
+                DeploymentType     = 'Cloud'
+                AuthenticationType = 'ApiToken'
+                CloudId            = '11223344-a1b2-3b33-c444-def123456789'
+            }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://example.atlassian.net' }
+
+            $result = Invoke-ResolveJiraRequestContext -Uri '/rest/api/3/project/search'
+
+            $result.Uri.AbsoluteUri | Should -Be 'https://api.atlassian.com/ex/jira/11223344-a1b2-3b33-c444-def123456789/rest/api/3/project/search'
+        }
+
         It "rejects an absolute OAuth request to a non-Atlassian host" {
             $script:JiraServerMetadata = @{
                 DeploymentType     = 'Cloud'

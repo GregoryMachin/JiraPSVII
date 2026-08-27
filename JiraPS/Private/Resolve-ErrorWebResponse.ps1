@@ -30,6 +30,11 @@
         $exception = "Invalid Server Response"
         $errorId = "InvalidResponse.Status$($StatusCode.value__)"
         $errorCategory = "InvalidResult"
+        $authorizationGuidance = switch ($StatusCode.value__) {
+            401 { " Check that the Jira Cloud API token is valid and not revoked, or that the OAuth token/client credentials are current and include the required Jira scopes." }
+            403 { " Check Jira Cloud API-token scopes or OAuth scopes, product access, project permissions, and issue security for the authenticated principal." }
+            default { "" }
+        }
 
         if ($responseBody) {
             # Clear the body in case it is not a JSON (but rather html)
@@ -95,7 +100,7 @@
                         Exception    = $exception
                         ErrorId      = $errorId
                         Category     = $errorCategory
-                        Message      = $_error
+                    Message      = "$_error$authorizationGuidance"
                         TargetObject = $targetObject
                         Cmdlet       = $Cmdlet
                     }
@@ -108,7 +113,7 @@
                     Exception    = $exception
                     ErrorId      = $errorId
                     Category     = $errorCategory
-                    Message      = $responseBody
+                    Message      = "$responseBody$authorizationGuidance"
                     TargetObject = $targetObject
                     Cmdlet       = $Cmdlet
                 }
@@ -119,7 +124,7 @@
                     Exception    = $exception
                     ErrorId      = $errorId
                     Category     = $errorCategory
-                    Message      = "An unknown error occurred."
+                    Message      = "An unknown error occurred.$authorizationGuidance"
                     TargetObject = $targetObject
                     Cmdlet       = $Cmdlet
                 }
@@ -132,7 +137,7 @@
                 Exception = $exception
                 ErrorId   = $errorId
                 Category  = $errorCategory
-                Message   = "Server responded with $StatusCode"
+                Message   = "Server responded with $StatusCode$authorizationGuidance"
                 Cmdlet    = $Cmdlet
             }
             WriteError @writeErrorSplat

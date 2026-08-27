@@ -88,6 +88,10 @@
         }
     }
 
+    if ($script:JiraServerMetadata -and [string]$script:JiraServerMetadata.AuthenticationType -eq 'OAuth') {
+        Set-JiraOAuthAuthorizationHeader -Headers $splatParameters["Headers"] -WebSession $splatParameters["WebSession"]
+    }
+
     if ($StoreSession) {
         $splatParameters["SessionVariable"] = "newSessionVar"
         $splatParameters.Remove("WebSession")
