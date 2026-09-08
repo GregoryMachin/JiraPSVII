@@ -22,6 +22,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Find-JiraFilter` | [Find-JiraFilter](/docs/JiraPS/commands/Find-JiraFilter/) |
 | `Get-JiraComponent` | [Get-JiraComponent](/docs/JiraPS/commands/Get-JiraComponent/) |
 | `Get-JiraConfigServer` | [Get-JiraConfigServer](/docs/JiraPS/commands/Get-JiraConfigServer/) |
+| `Get-JiraBulkOperationProgress` | [Get-JiraBulkOperationProgress](/docs/JiraPS/commands/Get-JiraBulkOperationProgress/) |
 | `Get-JiraField` | [Get-JiraField](/docs/JiraPS/commands/Get-JiraField/) |
 | `Get-JiraFilter` | [Get-JiraFilter](/docs/JiraPS/commands/Get-JiraFilter/) |
 | `Get-JiraFilterPermission` | [Get-JiraFilterPermission](/docs/JiraPS/commands/Get-JiraFilterPermission/) |
@@ -80,5 +81,6 @@ JiraPS exports these commands directly without an additional default command pre
 | `Set-JiraResponseHeaderLogConfiguration` | [Set-JiraResponseHeaderLogConfiguration](/docs/JiraPS/commands/Set-JiraResponseHeaderLogConfiguration/) |
 | `Set-JiraUser` | [Set-JiraUser](/docs/JiraPS/commands/Set-JiraUser/) |
 | `Set-JiraVersion` | [Set-JiraVersion](/docs/JiraPS/commands/Set-JiraVersion/) |
+| `Wait-JiraBulkOperation` | [Wait-JiraBulkOperation](/docs/JiraPS/commands/Wait-JiraBulkOperation/) |
 
 For conceptual documentation, see the [JiraPS about topics](/docs/JiraPS/about/).

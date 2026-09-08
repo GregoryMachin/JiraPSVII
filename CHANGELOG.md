@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Added `Get-JiraBulkOperationProgress` and `Wait-JiraBulkOperation` for Cloud bulk-operation queue status, typed partial-failure details, bounded polling, progress reporting, timeout safety, and Retry-After-aware delays without cancellation or destructive-operation resubmission.
 - Added `Move-JiraIssueBulk` and high-impact `Remove-JiraIssueBulk` for typed Jira Cloud bulk move and delete submissions, with explicit move target project/type, optional subtask parent, validation-only output, `WhatIf`, notification control, wildcard rejection, and asynchronous task-id output.
 - Added typed bulk-operation request and status DTOs for Jira Cloud issue bulk edit, move, and delete operations, including Jira wire-name serialization helpers, documented issue/field limits, and unsafe payload value rejection.
 - Added `Set-JiraIssueBulk` for Jira Cloud bulk issue edits with typed request support, `-WhatIf`/confirmation, validation-only output, safe summary/description/string-field builders, explicit cross-project opt-in, and asynchronous task-id output.
