@@ -463,8 +463,18 @@ namespace AtlassianPS.JiraPS
         public long? Started { get; set; }
         public long? Updated { get; set; }
         public long[] ProcessedAccessibleIssues { get; set; }
+        public Dictionary<string, string[]> FailedAccessibleIssues { get; set; }
         public int? InvalidOrInaccessibleIssueCount { get; set; }
         public int? TotalIssueCount { get; set; }
+
+        public bool HasPartialFailures
+        {
+            get
+            {
+                return (FailedAccessibleIssues != null && FailedAccessibleIssues.Count > 0)
+                    || (InvalidOrInaccessibleIssueCount.HasValue && InvalidOrInaccessibleIssueCount.Value > 0);
+            }
+        }
 
         public BulkOperationProgress() { }
 
