@@ -36,6 +36,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Get-JiraIssueEditMetadata` | [Get-JiraIssueEditMetadata](/docs/JiraPS/commands/Get-JiraIssueEditMetadata/) |
 | `Get-JiraIssueLink` | [Get-JiraIssueLink](/docs/JiraPS/commands/Get-JiraIssueLink/) |
 | `Get-JiraIssueLinkType` | [Get-JiraIssueLinkType](/docs/JiraPS/commands/Get-JiraIssueLinkType/) |
+| `Get-JiraIssueProperty` | [Get-JiraIssueProperty](/docs/JiraPS/commands/Get-JiraIssueProperty/) |
 | `Get-JiraIssueType` | [Get-JiraIssueType](/docs/JiraPS/commands/Get-JiraIssueType/) |
 | `Get-JiraIssueWatcher` | [Get-JiraIssueWatcher](/docs/JiraPS/commands/Get-JiraIssueWatcher/) |
 | `Get-JiraIssueWorklog` | [Get-JiraIssueWorklog](/docs/JiraPS/commands/Get-JiraIssueWorklog/) |
@@ -68,6 +69,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Remove-JiraIssueAttachment` | [Remove-JiraIssueAttachment](/docs/JiraPS/commands/Remove-JiraIssueAttachment/) |
 | `Remove-JiraIssueBulk` | [Remove-JiraIssueBulk](/docs/JiraPS/commands/Remove-JiraIssueBulk/) |
 | `Remove-JiraIssueLink` | [Remove-JiraIssueLink](/docs/JiraPS/commands/Remove-JiraIssueLink/) |
+| `Remove-JiraIssueProperty` | [Remove-JiraIssueProperty](/docs/JiraPS/commands/Remove-JiraIssueProperty/) |
 | `Remove-JiraIssueWatcher` | [Remove-JiraIssueWatcher](/docs/JiraPS/commands/Remove-JiraIssueWatcher/) |
 | `Remove-JiraRemoteLink` | [Remove-JiraRemoteLink](/docs/JiraPS/commands/Remove-JiraRemoteLink/) |
 | `Remove-JiraSession` | [Remove-JiraSession](/docs/JiraPS/commands/Remove-JiraSession/) |
@@ -78,6 +80,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Set-JiraIssue` | [Set-JiraIssue](/docs/JiraPS/commands/Set-JiraIssue/) |
 | `Set-JiraIssueBulk` | [Set-JiraIssueBulk](/docs/JiraPS/commands/Set-JiraIssueBulk/) |
 | `Set-JiraIssueLabel` | [Set-JiraIssueLabel](/docs/JiraPS/commands/Set-JiraIssueLabel/) |
+| `Set-JiraIssueProperty` | [Set-JiraIssueProperty](/docs/JiraPS/commands/Set-JiraIssueProperty/) |
 | `Set-JiraResponseHeaderLogConfiguration` | [Set-JiraResponseHeaderLogConfiguration](/docs/JiraPS/commands/Set-JiraResponseHeaderLogConfiguration/) |
 | `Set-JiraUser` | [Set-JiraUser](/docs/JiraPS/commands/Set-JiraUser/) |
 | `Set-JiraVersion` | [Set-JiraVersion](/docs/JiraPS/commands/Set-JiraVersion/) |
