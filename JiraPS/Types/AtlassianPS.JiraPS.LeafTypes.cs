@@ -6,6 +6,36 @@ using System;
 namespace AtlassianPS.JiraPS
 {
 
+    public class AuditRecord
+    {
+        public long? Id { get; set; }
+        public DateTimeOffset? Created { get; set; }
+        public string Category { get; set; }
+        public string EventSource { get; set; }
+        public string Summary { get; set; }
+        public string AuthorKey { get; set; }
+        public string AuthorAccountId { get; set; }
+        public string AuthorDisplayName { get; set; }
+        public string RemoteAddress { get; set; }
+        public object ObjectItem { get; set; }
+        public object[] AssociatedItems { get; set; }
+        public object[] ChangedValues { get; set; }
+    }
+
+    public class ProjectClassificationLevel
+    {
+        public string Id { get; set; }
+        public string Status { get; set; }
+        public string Name { get; set; }
+        public int? Rank { get; set; }
+        public string Description { get; set; }
+        public string Guideline { get; set; }
+        public string Color { get; set; }
+        public bool? IsDefault { get; set; }
+        public bool? IsOrganizationDefault { get; set; }
+        public string ContainerOverride { get; set; }
+    }
+
     // StatusCategory, CreateMetaField, and EditMetaField have convenience
     // string constructors for direct PowerShell construction but are not
     // used as cmdlet parameter types, so they have no transformation attribute.

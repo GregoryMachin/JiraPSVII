@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Added read-only Jira audit-record retrieval with bounded date defaults and offset paging, plus Cloud-only experimental project classification-level mapping for governance visibility.
 - Added Cloud v3 and Data Center v2 project-property get, set, and remove commands with JSON-safe values, secret/prototype key policy enforcement, 32 KiB serialization limits, and `WhatIf` support for mutations.
 - Added Cloud v3 and Data Center v2 issue-property get, set, and remove commands with JSON-safe values, secret/prototype key policy enforcement, 32 KiB serialization limits, and `WhatIf` support for mutations.
 - Added `Get-JiraBulkOperationProgress` and `Wait-JiraBulkOperation` for Cloud bulk-operation queue status, typed partial-failure details, bounded polling, progress reporting, timeout safety, and Retry-After-aware delays without cancellation or destructive-operation resubmission.
