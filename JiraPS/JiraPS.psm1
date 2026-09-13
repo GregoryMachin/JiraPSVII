@@ -13,9 +13,11 @@ if (!("System.Net.Http" -as [Type])) {
 # Compiled once per session; the type-presence guard keeps re-imports cheap.
 $requiredJiraTypes = @(
     'AtlassianPS.JiraPS.Attachment'
+    'AtlassianPS.JiraPS.AuditRecord'
     'AtlassianPS.JiraPS.BulkIssueEditRequest'
     'AtlassianPS.JiraPS.BulkIssueMoveRequest'
     'AtlassianPS.JiraPS.Issue'
+    'AtlassianPS.JiraPS.ProjectClassificationLevel'
     'AtlassianPS.JiraPS.Status'
     'AtlassianPS.JiraPS.SubmittedBulkOperation'
     'AtlassianPS.JiraPS.VersionTransformationAttribute'

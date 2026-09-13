@@ -20,6 +20,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `ConvertTo-AtlassianDocumentFormat` | [ConvertTo-AtlassianDocumentFormat](/docs/JiraPS/commands/ConvertTo-AtlassianDocumentFormat/) |
 | `ConvertTo-JiraTable` | [ConvertTo-JiraTable](/docs/JiraPS/commands/ConvertTo-JiraTable/) |
 | `Find-JiraFilter` | [Find-JiraFilter](/docs/JiraPS/commands/Find-JiraFilter/) |
+| `Get-JiraAuditRecord` | [Get-JiraAuditRecord](/docs/JiraPS/commands/Get-JiraAuditRecord/) |
 | `Get-JiraComponent` | [Get-JiraComponent](/docs/JiraPS/commands/Get-JiraComponent/) |
 | `Get-JiraConfigServer` | [Get-JiraConfigServer](/docs/JiraPS/commands/Get-JiraConfigServer/) |
 | `Get-JiraBulkOperationProgress` | [Get-JiraBulkOperationProgress](/docs/JiraPS/commands/Get-JiraBulkOperationProgress/) |
@@ -43,6 +44,7 @@ JiraPS exports these commands directly without an additional default command pre
 | `Get-JiraOAuthResource` | [Get-JiraOAuthResource](/docs/JiraPS/commands/Get-JiraOAuthResource/) |
 | `Get-JiraPriority` | [Get-JiraPriority](/docs/JiraPS/commands/Get-JiraPriority/) |
 | `Get-JiraProject` | [Get-JiraProject](/docs/JiraPS/commands/Get-JiraProject/) |
+| `Get-JiraProjectClassificationLevel` | [Get-JiraProjectClassificationLevel](/docs/JiraPS/commands/Get-JiraProjectClassificationLevel/) |
 | `Get-JiraProjectProperty` | [Get-JiraProjectProperty](/docs/JiraPS/commands/Get-JiraProjectProperty/) |
 | `Get-JiraRemoteLink` | [Get-JiraRemoteLink](/docs/JiraPS/commands/Get-JiraRemoteLink/) |
 | `Get-JiraResponseHeaderLogConfiguration` | [Get-JiraResponseHeaderLogConfiguration](/docs/JiraPS/commands/Get-JiraResponseHeaderLogConfiguration/) |
