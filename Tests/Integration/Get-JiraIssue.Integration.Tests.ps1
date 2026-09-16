@@ -23,7 +23,7 @@ BeforeDiscovery {
 }
 
 InModuleScope JiraPS {
-    Describe "Get-JiraIssue" -Tag 'Integration', 'Smoke', 'Server', 'Cloud' -Skip:$Skip {
+    Describe "Get-JiraIssue" -Tag 'Integration', 'Smoke', 'CanaryRead', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
 

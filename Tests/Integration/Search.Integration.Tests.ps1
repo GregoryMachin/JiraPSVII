@@ -14,7 +14,7 @@ BeforeDiscovery {
 }
 
 InModuleScope JiraPS {
-    Describe "JQL Search" -Tag 'Integration', 'Smoke', 'Server', 'Cloud' -Skip:$Skip {
+    Describe "JQL Search" -Tag 'Integration', 'Smoke', 'CanaryRead', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
 

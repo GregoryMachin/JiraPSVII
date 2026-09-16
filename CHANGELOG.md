@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Added scheduled API contract canaries (Phase 9 Task 60): `.github/workflows/api_canary.yml` runs a low-impact `CanaryRead` tier every 4 hours (reusing existing read-only `Smoke`-tagged checks) and a bounded `CanaryWrite` tier once daily (a new `Tests/Integration/ApiCanary.Integration.Tests.ps1`, one disposable issue through create/read/update/delete/confirm-gone), both Cloud-only and both against a dedicated, least-privilege `ATLASSIAN_CANARY_USER`/`ATLASSIAN_CANARY_PAT` account separate from the shared smoke/nightly credentials. Each run publishes a machine-readable per-operation result (`Tools/Publish-ApiCanaryResult.ps1`) as a workflow artifact. See `docs/ApiCanaries.md`, including the required manual account-provisioning step this environment cannot perform itself, and why the results format is hand-built rather than calling `AtlassianPS.Standards`' already-written `ConvertTo-ApiCanaryResult` (that function has never been published; this repository still pins the release that predates it).
 - Declared the source manifest's `FunctionsToExport` explicitly instead of `'*'` (Phase 9 Task 58), making the manifest itself the committed compatibility baseline, and added a new `Tests/Project.Tests.ps1` assertion that fails the build if the declared list drifts from the actual `Public/` folder contents. Module behavior is unchanged, since `JiraPS.psm1` already restricted runtime exports to `Public/*.ps1` via `Export-ModuleMember`; only the source manifest's own declared surface was still an unrestricted wildcard.
 
 ## v3.1.0 - 2026-09-16
