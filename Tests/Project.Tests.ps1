@@ -95,5 +95,22 @@ Describe "General project validation" -Tag Unit {
                 $publicFunctionFiles | Should -Contain $exportedFunctionName -Because "exported function '$exportedFunctionName' should have a corresponding file in JiraPS/Public/"
             }
         }
+
+        It "exports every public function file" {
+            foreach ($publicFunction in $publicFunctionFiles) {
+                $exportedFunctionNames | Should -Contain $publicFunction
+            }
+        }
+
+        It "declares its exported functions explicitly in the manifest (Task 58)" {
+            # The manifest's own FunctionsToExport is this module's committed compatibility
+            # baseline: unlike the Public-folder-consistency checks above (which only catch a
+            # folder/export mismatch), this catches an unreviewed addition or removal of a
+            # public command, since updating the manifest is the explicit approval step.
+            $manifestData = Import-PowerShellDataFile -Path "$moduleRoot/JiraPS/JiraPS.psd1"
+            $manifestData.FunctionsToExport | Should -Not -Be '*'
+            Compare-Object -ReferenceObject ($manifestData.FunctionsToExport | Sort-Object) -DifferenceObject ($publicFunctionFiles | Sort-Object) |
+                Should -BeNullOrEmpty
+        }
     }
 }

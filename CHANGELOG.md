@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Declared the source manifest's `FunctionsToExport` explicitly instead of `'*'` (Phase 9 Task 58), making the manifest itself the committed compatibility baseline, and added a new `Tests/Project.Tests.ps1` assertion that fails the build if the declared list drifts from the actual `Public/` folder contents. Module behavior is unchanged, since `JiraPS.psm1` already restricted runtime exports to `Public/*.ps1` via `Export-ModuleMember`; only the source manifest's own declared surface was still an unrestricted wildcard.
+
 ## v3.1.0 - 2026-09-16
 
 This release completes the Jira Cloud REST API v3 migration project: every in-scope Cloud read and write now uses a current v3 contract while Jira Data Center keeps its existing v2 behavior, and it adds OAuth, bulk-operation, entity-property, and governance-read capabilities that the v3 platform now exposes. There are no breaking changes to existing commands, parameters, aliases, or output shapes.
