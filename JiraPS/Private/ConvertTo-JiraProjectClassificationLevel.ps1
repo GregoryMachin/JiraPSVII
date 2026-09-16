@@ -1,4 +1,4 @@
-function ConvertTo-JiraProjectClassificationLevel {
+﻿function ConvertTo-JiraProjectClassificationLevel {
     [CmdletBinding()]
     [OutputType([AtlassianPS.JiraPS.ProjectClassificationLevel])]
     param(

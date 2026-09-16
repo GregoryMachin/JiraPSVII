@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## v3.1.0 - 2026-09-16
+
+This release completes the Jira Cloud REST API v3 migration project: every in-scope Cloud read and write now uses a current v3 contract while Jira Data Center keeps its existing v2 behavior, and it adds OAuth, bulk-operation, entity-property, and governance-read capabilities that the v3 platform now exposes. There are no breaking changes to existing commands, parameters, aliases, or output shapes.
+
+### Highlights for users
+
+- Every Cloud-facing JiraPS command now routes through Jira REST API v3 (issues, comments, worklogs, links, attachments download validation, users/groups, projects, components, versions, filters, project roles, remote links) while Jira Data Center keeps its existing v2 routes and identity model unchanged.
+- Authentication now has three Cloud options in addition to existing API tokens and Data Center PATs: caller-supplied OAuth bearer access tokens with explicit Cloud ID routing, `Get-JiraOAuthResource` for Cloud ID/site discovery, and non-interactive OAuth client-credentials for service accounts and CI/CD.
+- New bulk-operation support lets automation edit, move, or delete up to 1,000 issues per request (`Set-JiraIssueBulk`, `Move-JiraIssueBulk`, `Remove-JiraIssueBulk`) and observe the result (`Get-JiraBulkOperationProgress`, `Wait-JiraBulkOperation`) without unsupported cancellation or automatic resubmission.
+- New issue- and project-property commands (get/set/remove) let integrations attach JSON-safe metadata without custom fields, on both Cloud v3 and Data Center v2.
+- New read-only `Get-JiraAuditRecord` and Cloud-only experimental `Get-JiraProjectClassificationLevel` add governance and audit visibility.
+- New `Test-JiraJql` and `Get-JiraJqlApproximateCount` let automation validate JQL and estimate result size before running an expensive search.
+- Scoped Jira Cloud API tokens are now documented per command family, with safer 401/403 diagnostics that point at the missing scope without exposing tokens.
+
+See [`about_JiraPS_CloudV3`](https://atlassianps.org/docs/JiraPS/about/cloud-v3.html) for a full summary of the migrated surface, the new authentication options, and current Cloud/Data Center parity gaps.
+
 ### Changed
 
 - Added read-only Jira audit-record retrieval with bounded date defaults and offset paging, plus Cloud-only experimental project classification-level mapping for governance visibility.

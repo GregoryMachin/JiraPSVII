@@ -32,9 +32,13 @@ Sets a JSON-safe property value on a Jira issue. JiraPS validates property keys 
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1
 
-Runs Set-JiraIssueProperty with the requested identifiers.
+```powershell
+Set-JiraIssueProperty -Issue TEST-01 -PropertyKey 'integration.syncedAt' -Value (Get-Date).ToString('o')
+```
+
+Sets the `integration.syncedAt` property on issue `TEST-01` to the current timestamp.
 
 ## PARAMETERS
 
@@ -43,7 +47,7 @@ Runs Set-JiraIssueProperty with the requested identifiers.
 Prompts you for confirmation before running the cmdlet.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -65,7 +69,7 @@ HelpMessage: ''
 The Credential parameter.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -86,7 +90,7 @@ HelpMessage: ''
 The Issue parameter.
 
 ```yaml
-Type: AtlassianPS.JiraPS.Issue
+Type: Issue
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -108,7 +112,7 @@ HelpMessage: ''
 The PropertyKey parameter.
 
 ```yaml
-Type: System.String
+Type: String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -129,7 +133,7 @@ HelpMessage: ''
 The Value parameter.
 
 ```yaml
-Type: System.Object
+Type: Object
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -150,7 +154,7 @@ HelpMessage: ''
 Runs the command in a mode that only reports what would happen without performing the actions.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:

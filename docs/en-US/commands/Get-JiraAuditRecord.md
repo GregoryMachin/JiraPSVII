@@ -53,7 +53,7 @@ Credentials for a Jira administrator.
 Jira rejects this request when the authenticated principal lacks access to audit records.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -74,7 +74,7 @@ HelpMessage: ''
 Limits the number of audit records emitted by the command.
 
 ```yaml
-Type: System.UInt64
+Type: UInt64
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -96,7 +96,7 @@ The inclusive UTC start of the audit time range.
 The default is 24 hours before invocation.
 
 ```yaml
-Type: System.DateTimeOffset
+Type: DateTimeOffset
 DefaultValue: ([DateTimeOffset]::UtcNow.AddDays(-1))
 SupportsWildcards: false
 Aliases: []
@@ -117,7 +117,7 @@ HelpMessage: ''
 Includes the PowerShell paging total-count metadata when supported by the host.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -138,7 +138,7 @@ HelpMessage: ''
 The zero-based Jira audit-record offset from which to start reading.
 
 ```yaml
-Type: System.UInt32
+Type: UInt32
 DefaultValue: 0
 SupportsWildcards: false
 Aliases: []
@@ -159,7 +159,7 @@ HelpMessage: ''
 The number of audit records requested per Jira call.
 
 ```yaml
-Type: System.UInt32
+Type: UInt32
 DefaultValue: 100
 SupportsWildcards: false
 Aliases: []
@@ -180,7 +180,7 @@ HelpMessage: ''
 Skips this many audit records before emitting output.
 
 ```yaml
-Type: System.UInt64
+Type: UInt64
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -202,7 +202,7 @@ The inclusive UTC end of the audit time range.
 The default is the invocation time.
 
 ```yaml
-Type: System.DateTimeOffset
+Type: DateTimeOffset
 DefaultValue: '[DateTimeOffset]::UtcNow'
 SupportsWildcards: false
 Aliases: []

@@ -51,7 +51,7 @@ Credentials to use for Jira Cloud.
 The caller must have the permissions Jira requires to view the project's classification configuration.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -72,7 +72,7 @@ HelpMessage: ''
 A Jira project key, ID, or JiraPS project object.
 
 ```yaml
-Type: AtlassianPS.JiraPS.Project[]
+Type: Project[]
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []

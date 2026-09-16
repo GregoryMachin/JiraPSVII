@@ -100,7 +100,7 @@
                         Exception    = $exception
                         ErrorId      = $errorId
                         Category     = $errorCategory
-                    Message      = "$_error$authorizationGuidance"
+                        Message      = "$_error$authorizationGuidance"
                         TargetObject = $targetObject
                         Cmdlet       = $Cmdlet
                     }

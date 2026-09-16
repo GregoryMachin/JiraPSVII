@@ -70,7 +70,7 @@ Builds and validates the typed request without sending it to Jira.
 Controls the Confirm parameter.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -92,7 +92,7 @@ HelpMessage: ''
 Credentials to use to connect to Jira. If omitted, the current JiraPS session or anonymous access is used.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -114,7 +114,7 @@ Explicit issue keys, issue IDs, typed issue objects, or objects with a `Key` or 
 Wildcards are not supported.
 
 ```yaml
-Type: System.Object[]
+Type: Object[]
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -137,7 +137,7 @@ HelpMessage: ''
 A prebuilt typed `AtlassianPS.JiraPS.BulkIssueMoveRequest` for advanced target mappings.
 
 ```yaml
-Type: AtlassianPS.JiraPS.BulkIssueMoveRequest
+Type: BulkIssueMoveRequest
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -158,7 +158,7 @@ HelpMessage: ''
 Sets Jira's `sendBulkNotification` field to `false`.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: False
 SupportsWildcards: false
 Aliases: []
@@ -179,7 +179,7 @@ HelpMessage: ''
 The destination Jira issue-type ID.
 
 ```yaml
-Type: System.String
+Type: String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -200,7 +200,7 @@ HelpMessage: ''
 The destination parent issue key or ID when the target is a subtask type.
 
 ```yaml
-Type: System.String
+Type: String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -221,7 +221,7 @@ HelpMessage: ''
 The destination Jira project key or ID.
 
 ```yaml
-Type: System.String
+Type: String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -242,7 +242,7 @@ HelpMessage: ''
 Builds and validates the typed request without submitting it.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: False
 SupportsWildcards: false
 Aliases: []
@@ -263,7 +263,7 @@ HelpMessage: ''
 Shows what would happen if the cmdlet runs.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:

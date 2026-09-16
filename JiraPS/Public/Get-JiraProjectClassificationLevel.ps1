@@ -1,4 +1,4 @@
-function Get-JiraProjectClassificationLevel {
+﻿function Get-JiraProjectClassificationLevel {
     # .ExternalHelp ..\JiraPS-help.xml
     [CmdletBinding()]
     [OutputType([AtlassianPS.JiraPS.ProjectClassificationLevel])]

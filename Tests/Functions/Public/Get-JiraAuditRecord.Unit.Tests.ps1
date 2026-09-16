@@ -1,4 +1,4 @@
-#requires -modules @{ ModuleName = 'Pester'; ModuleVersion = '5.7'; MaximumVersion = '5.999' }
+﻿#requires -modules @{ ModuleName = 'Pester'; ModuleVersion = '5.7'; MaximumVersion = '5.999' }
 
 BeforeDiscovery {
     . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -15,7 +15,7 @@ InModuleScope JiraPS {
                 if ($URI -ne '/rest/api/2/auditing/record' -or $Method -ne 'GET') { throw 'Unexpected audit request.' }
                 if ($GetParameter.offset -eq 0) {
                     return [pscustomobject]@{
-                        total = 3
+                        total   = 3
                         records = @(
                             [pscustomobject]@{ id = 1; created = 1704067200000; category = 'USER_MANAGEMENT'; summary = 'Actor redacted'; authorAccountId = $null; authorDisplayName = $null },
                             [pscustomobject]@{ id = 2; created = '2024-01-01T00:01:00.000+0000'; category = 'USER_MANAGEMENT'; summary = 'Role changed'; authorAccountId = 'account-1'; authorDisplayName = 'Admin' }

@@ -1,5 +1,10 @@
 ﻿function Set-JiraOAuthAuthorizationHeader {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+        'PSUseShouldProcessForStateChangingFunctions',
+        '',
+        Justification = 'Private helper used internally by Invoke-JiraMethod to populate an in-memory request header; no interactive ShouldProcess flow is expected.'
+    )]
     param(
         [Parameter(Mandatory)]
         [Hashtable]

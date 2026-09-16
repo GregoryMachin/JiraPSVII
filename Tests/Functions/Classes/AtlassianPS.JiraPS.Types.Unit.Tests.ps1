@@ -698,13 +698,13 @@ InModuleScope JiraPS {
             It "models submitted and progress status responses without request credentials" {
                 $submitted = [AtlassianPS.JiraPS.SubmittedBulkOperation]@{ TaskId = '10641' }
                 $progress = [AtlassianPS.JiraPS.BulkOperationProgress]@{
-                    TaskId                           = '10641'
-                    Status                           = [AtlassianPS.JiraPS.BulkOperationStatus]::COMPLETE
-                    ProgressPercent                  = 100
-                    SubmittedBy                      = [AtlassianPS.JiraPS.User]@{ AccountId = 'abc-123' }
-                    ProcessedAccessibleIssues        = @([long]10001, [long]10002)
-                    InvalidOrInaccessibleIssueCount  = 0
-                    TotalIssueCount                  = 2
+                    TaskId                          = '10641'
+                    Status                          = [AtlassianPS.JiraPS.BulkOperationStatus]::COMPLETE
+                    ProgressPercent                 = 100
+                    SubmittedBy                     = [AtlassianPS.JiraPS.User]@{ AccountId = 'abc-123' }
+                    ProcessedAccessibleIssues       = @([long]10001, [long]10002)
+                    InvalidOrInaccessibleIssueCount = 0
+                    TotalIssueCount                 = 2
                 }
 
                 $submitted.TaskId | Should -Be '10641'

@@ -1,4 +1,4 @@
-function ConvertTo-JiraAuditRecord {
+﻿function ConvertTo-JiraAuditRecord {
     [CmdletBinding()]
     [OutputType([AtlassianPS.JiraPS.AuditRecord])]
     param(

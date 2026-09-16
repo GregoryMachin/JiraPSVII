@@ -1,4 +1,4 @@
-function Get-JiraAuditRecord {
+﻿function Get-JiraAuditRecord {
     # .ExternalHelp ..\JiraPS-help.xml
     [CmdletBinding(SupportsPaging)]
     [OutputType([AtlassianPS.JiraPS.AuditRecord])]

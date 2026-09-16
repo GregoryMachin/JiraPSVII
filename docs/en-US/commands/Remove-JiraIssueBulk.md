@@ -59,7 +59,7 @@ Builds and validates a no-notification delete request without sending it to Jira
 Prompts for confirmation before submitting the permanent deletion.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -81,7 +81,7 @@ HelpMessage: ''
 Credentials to use to connect to Jira. If omitted, the current JiraPS session or anonymous access is used.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -103,7 +103,7 @@ Explicit issue keys, issue IDs, typed issue objects, or objects with a `Key` or 
 Wildcards are not supported.
 
 ```yaml
-Type: System.Object[]
+Type: Object[]
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -126,7 +126,7 @@ HelpMessage: ''
 A prebuilt typed `AtlassianPS.JiraPS.BulkIssueDeleteRequest`.
 
 ```yaml
-Type: AtlassianPS.JiraPS.BulkIssueDeleteRequest
+Type: BulkIssueDeleteRequest
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -147,7 +147,7 @@ HelpMessage: ''
 Sets Jira's `sendBulkNotification` field to `false`.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: False
 SupportsWildcards: false
 Aliases: []
@@ -168,7 +168,7 @@ HelpMessage: ''
 Builds and validates the typed request without submitting it.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: False
 SupportsWildcards: false
 Aliases: []
@@ -189,7 +189,7 @@ HelpMessage: ''
 Shows what would happen if the cmdlet runs.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:

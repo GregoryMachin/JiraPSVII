@@ -1,4 +1,4 @@
-#requires -modules @{ ModuleName = 'Pester'; ModuleVersion = '5.7'; MaximumVersion = '5.999' }
+﻿#requires -modules @{ ModuleName = 'Pester'; ModuleVersion = '5.7'; MaximumVersion = '5.999' }
 
 BeforeDiscovery {
     . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -13,10 +13,10 @@ InModuleScope JiraPS {
                 $URI -eq '/rest/api/3/project/TEAM%20OPS/classification-config' -and $Method -eq 'GET'
             } {
                 [pscustomobject]@{
-                    containerOverride = 'ANY'
-                    defaultClassificationLevel = [pscustomobject]@{ id = 'classification/restricted' }
+                    containerOverride               = 'ANY'
+                    defaultClassificationLevel      = [pscustomobject]@{ id = 'classification/restricted' }
                     organizationClassificationLevel = [pscustomobject]@{ id = 'classification/confidential' }
-                    classificationLevels = @(
+                    classificationLevels            = @(
                         [pscustomobject]@{ id = 'classification/restricted'; status = 'published'; name = 'Restricted'; rank = 1; description = 'Redacted fixture'; guideline = 'Need to know'; color = 'RED' },
                         [pscustomobject]@{ id = 'classification/confidential'; status = 'published'; name = 'Confidential'; rank = 2; color = 'BLUE' }
                     )

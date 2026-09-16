@@ -40,7 +40,7 @@ InModuleScope JiraPS {
                 $failures['10002'] = @('No edit permission.')
                 [AtlassianPS.JiraPS.BulkOperationProgress]@{
                     TaskId = '10641'; Status = [AtlassianPS.JiraPS.BulkOperationStatus]::COMPLETE
-                    FailedAccessibleIssues = $failures
+                    FailedAccessibleIssues          = $failures
                     InvalidOrInaccessibleIssueCount = 1
                 }
             }

@@ -3,7 +3,7 @@
 ## Purpose
 
 This inventory maps every exported JiraPS function to its current HTTP contract, deployment differences, data conventions, authorization needs, output conversion, and automated coverage.
-It records the implementation as it exists on 27 July 2026 rather than presenting planned routes as completed work.
+It records the implementation as it exists on 16 September 2026 (last refreshed for the `v3.1.0` Cloud v3 completion release) rather than presenting planned routes as completed work.
 
 The inventory is a migration control for the Cloud v3 work in `Project/Project.md`.
 Any API-affecting change must update the relevant row together with its source, tests, help, and changelog.

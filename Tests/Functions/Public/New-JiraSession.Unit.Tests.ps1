@@ -44,9 +44,9 @@ InModuleScope JiraPS {
                     $session = $Session
                 }
                 $result = New-Object -TypeName PSObject -Property @{
-                    'WebSession'          = $session
-                    'AuthenticationType'  = $AuthenticationType
-                    'CloudId'             = $CloudId
+                    'WebSession'         = $session
+                    'AuthenticationType' = $AuthenticationType
+                    'CloudId'            = $CloudId
                 }
                 $result.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Session')
                 $result
@@ -161,8 +161,8 @@ InModuleScope JiraPS {
                     foreach ($parameterName in 'OAuthAccessToken', 'CloudId') {
                         $command.Parameters[$parameterName].Attributes |
                             Where-Object { $_ -is [System.Management.Automation.ParameterAttribute] -and $_.ParameterSetName -eq 'OAuthAccessToken' } |
-                        Select-Object -ExpandProperty Mandatory |
-                        Should -BeTrue
+                            Select-Object -ExpandProperty Mandatory |
+                            Should -BeTrue
                     }
                 }
 

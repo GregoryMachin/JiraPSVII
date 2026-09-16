@@ -50,11 +50,11 @@
             if ($TargetParent) { $targetKeyParts += $TargetParent }
 
             $target = [AtlassianPS.JiraPS.BulkIssueMoveTarget]@{
-                IssueIdsOrKeys          = $issueIdsOrKeys
+                IssueIdsOrKeys              = $issueIdsOrKeys
                 InferClassificationDefaults = $true
-                InferFieldDefaults      = $true
-                InferStatusDefaults     = $true
-                InferSubtaskTypeDefault = $true
+                InferFieldDefaults          = $true
+                InferStatusDefaults         = $true
+                InferSubtaskTypeDefault     = $true
             }
             $bulkRequest = [AtlassianPS.JiraPS.BulkIssueMoveRequest]@{
                 SendBulkNotification   = -not $SkipNotification

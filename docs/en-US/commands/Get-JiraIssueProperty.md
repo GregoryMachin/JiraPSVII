@@ -32,9 +32,13 @@ Gets property keys or one property value from a Jira issue. JiraPS validates pro
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1
 
-Runs Get-JiraIssueProperty with the requested identifiers.
+```powershell
+Get-JiraIssueProperty -Issue TEST-01 -PropertyKey 'integration.syncedAt'
+```
+
+Reads the `integration.syncedAt` property from issue `TEST-01`.
 
 ## PARAMETERS
 
@@ -43,7 +47,7 @@ Runs Get-JiraIssueProperty with the requested identifiers.
 The Credential parameter.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -64,7 +68,7 @@ HelpMessage: ''
 The Issue parameter.
 
 ```yaml
-Type: AtlassianPS.JiraPS.Issue
+Type: Issue
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -86,7 +90,7 @@ HelpMessage: ''
 The PropertyKey parameter.
 
 ```yaml
-Type: System.String
+Type: String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []

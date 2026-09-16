@@ -81,7 +81,9 @@
                     }
                 }
             }
-            catch { }
+            catch {
+                Write-Verbose "OAuth client-credentials error response body could not be parsed: $($_.Exception.Message)"
+            }
         }
         if ([String]::IsNullOrWhiteSpace($errorText)) {
             $errorText = $_.Exception.Message

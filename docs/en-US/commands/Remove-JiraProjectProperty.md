@@ -32,9 +32,13 @@ Removes a property from a Jira project. JiraPS validates property keys and JSON 
 
 ## EXAMPLES
 
-### Example 1
+### EXAMPLE 1
 
-Runs Remove-JiraProjectProperty with the requested identifiers.
+```powershell
+Remove-JiraProjectProperty -Project TEST -PropertyKey 'integration.syncedAt'
+```
+
+Removes the `integration.syncedAt` property from project `TEST`.
 
 ## PARAMETERS
 
@@ -43,7 +47,7 @@ Runs Remove-JiraProjectProperty with the requested identifiers.
 Prompts you for confirmation before running the cmdlet.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -65,7 +69,7 @@ HelpMessage: ''
 The Credential parameter.
 
 ```yaml
-Type: System.Management.Automation.PSCredential
+Type: PSCredential
 DefaultValue: '[System.Management.Automation.PSCredential]::Empty'
 SupportsWildcards: false
 Aliases: []
@@ -86,7 +90,7 @@ HelpMessage: ''
 The Project parameter.
 
 ```yaml
-Type: AtlassianPS.JiraPS.Project
+Type: Project
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
@@ -108,7 +112,7 @@ HelpMessage: ''
 The PropertyKey parameter.
 
 ```yaml
-Type: System.String
+Type: String
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -129,7 +133,7 @@ HelpMessage: ''
 Runs the command in a mode that only reports what would happen without performing the actions.
 
 ```yaml
-Type: System.Management.Automation.SwitchParameter
+Type: SwitchParameter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases:
