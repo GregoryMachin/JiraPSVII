@@ -22,7 +22,7 @@ jobs:
     outputs:
       run_ci: ${{ github.event_name == 'workflow_dispatch' || steps.filter.outputs.code == 'true' }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -58,7 +58,7 @@ jobs:
     if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: rhysd/actionlint@914e7df21a07ef503a81201c76d2b11c789d3fca # v1.7.12
       - uses: GregoryMachin/AtlassianPSVII.Standards/.github/actions/setup-powershell@c70eaec1e4d771fe56f9e0b378eda1e521db8a07 # v1.0.0
 
@@ -71,7 +71,7 @@ jobs:
     if: needs.changes.outputs.run_ci == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: GregoryMachin/AtlassianPSVII.Standards/.github/actions/setup-powershell@c70eaec1e4d771fe56f9e0b378eda1e521db8a07 # v1.0.0
 
       - run: Invoke-Build -Task Clean, TestPublish
@@ -88,7 +88,7 @@ jobs:
     if: needs.changes.outputs.run_ci == 'true'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/download-artifact@v8
         with:
@@ -123,7 +123,7 @@ jobs:
           - { os: ubuntu-latest, name: "Ubuntu" }
           - { os: macos-latest, name: "macOS" }
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: GregoryMachin/AtlassianPSVII.Standards/.github/actions/setup-powershell@c70eaec1e4d771fe56f9e0b378eda1e521db8a07 # v1.0.0
 
       - uses: actions/download-artifact@v8
@@ -165,7 +165,7 @@ jobs:
       JIRA_TEST_FILTER: ${{ vars.JIRA_TEST_FILTER }}
       JIRA_TEST_VERSION: ${{ vars.JIRA_TEST_VERSION }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: GregoryMachin/AtlassianPSVII.Standards/.github/actions/setup-powershell@c70eaec1e4d771fe56f9e0b378eda1e521db8a07 # v1.0.0
 
       - run: |
