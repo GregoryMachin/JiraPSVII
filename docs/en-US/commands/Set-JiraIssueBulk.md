@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Set-JiraIssueBulk/
 locale: en-US
 layout: documentation
@@ -34,12 +34,12 @@ Set-JiraIssueBulk -Request <BulkIssueEditRequest> [-Credential <pscredential>] [
 Submits a Jira Cloud REST API v3 bulk issue edit request and returns the asynchronous bulk-operation task id.
 This command is Cloud-only. Jira Server and Data Center do not expose this Jira Cloud bulk operation route.
 
-`-Issue` must be an explicit list of issue keys, issue IDs, typed `AtlassianPS.JiraPS.Issue` objects, or objects with a `Key` or `Id` property.
+`-Issue` must be an explicit list of issue keys, issue IDs, typed `AtlassianPSVII.JiraPSVII.Issue` objects, or objects with a `Key` or `Id` property.
 Wildcard issue selection is rejected.
 When issue keys from multiple projects are supplied, pass `-AllowCrossProject` to make the cross-project edit explicit.
 
 For simple edits, use `-Summary`, `-Description`, and string-compatible `-Fields` entries.
-For advanced Jira bulk edit field collections, build an `AtlassianPS.JiraPS.JiraBulkEditFieldsInput` or full `AtlassianPS.JiraPS.BulkIssueEditRequest` and pass it to the command.
+For advanced Jira bulk edit field collections, build an `AtlassianPSVII.JiraPSVII.JiraBulkEditFieldsInput` or full `AtlassianPSVII.JiraPSVII.BulkIssueEditRequest` and pass it to the command.
 
 Use `-ValidateOnly` to build and validate the typed request without submitting it to Jira.
 
@@ -65,7 +65,7 @@ Builds and validates the typed bulk edit request without submitting it.
 ### EXAMPLE 3
 
 ```powershell
-$fields = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]@{
+$fields = [AtlassianPSVII.JiraPSVII.JiraBulkEditFieldsInput]@{
     SingleLineTextFields = @(
         @{
             fieldId = 'summary'
@@ -127,7 +127,7 @@ HelpMessage: ''
 ### -Credential
 
 Credentials to use to connect to Jira.
-If not specified, this function uses the current JiraPS session or anonymous access.
+If not specified, this function uses the current JiraPSVII session or anonymous access.
 
 ```yaml
 Type: PSCredential
@@ -375,11 +375,11 @@ For more information, see [about_CommonParameters](https://go.microsoft.com/fwli
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.SubmittedBulkOperation
+### AtlassianPSVII.JiraPSVII.SubmittedBulkOperation
 
 When the request is submitted, the command returns the Jira asynchronous bulk-operation task id.
 
-### AtlassianPS.JiraPS.BulkIssueEditRequest
+### AtlassianPSVII.JiraPSVII.BulkIssueEditRequest
 
 When `-ValidateOnly` is used, the command returns the validated request object instead of submitting it.
 

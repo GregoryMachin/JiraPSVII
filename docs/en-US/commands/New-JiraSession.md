@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/New-JiraSession/
 locale: en-US
 layout: documentation
@@ -10,7 +10,7 @@ permalink: /docs/JiraPS/commands/New-JiraSession/
 
 ## SYNOPSIS
 
-Creates a persistent JIRA authenticated session which can be used by other JiraPS functions
+Creates a persistent JIRA authenticated session which can be used by other JiraPSVII functions
 
 ## SYNTAX
 
@@ -50,11 +50,11 @@ New-JiraSession -OAuthClientId <string> -OAuthClientSecret <securestring>
 
 ## DESCRIPTION
 
-This function creates a persistent, authenticated session in to JIRA which can be used by all other JiraPS functions instead of explicitly passing parameters.
+This function creates a persistent, authenticated session in to JIRA which can be used by all other JiraPSVII functions instead of explicitly passing parameters.
 
 This removes the need to use the `-Credential` parameter constantly for each function call.
 
-JiraPS supports multiple authentication methods:
+JiraPSVII supports multiple authentication methods:
 
 - **Credential**: Traditional username/password authentication (Jira Data Center)
 - **PersonalAccessToken**: Personal Access Token (PAT) authentication (Jira Data Center 8.14+)
@@ -62,7 +62,7 @@ JiraPS supports multiple authentication methods:
 - **OAuthAccessToken**: Caller-supplied OAuth bearer access token with an explicit Jira Cloud ID
 - **OAuthClientCredentials**: Non-interactive OAuth client-credentials authentication for Jira Cloud service accounts and backend automation
 
-You can find more information in [about_JiraPS_Authentication](../../about/authentication.html)
+You can find more information in [about_JiraPSVII_Authentication](../../about/authentication.html)
 
 ## EXAMPLES
 
@@ -142,7 +142,7 @@ Get-JiraIssue TEST-01
 ```
 
 Creates a Jira Cloud OAuth session from a token obtained by an external broker.
-JiraPS validates the Cloud ID and routes subsequent requests through `api.atlassian.com`.
+JiraPSVII validates the Cloud ID and routes subsequent requests through `api.atlassian.com`.
 
 ### EXAMPLE 8
 
@@ -156,14 +156,14 @@ Get-JiraProject
 ```
 
 Creates a Jira Cloud OAuth session using the non-interactive client-credentials grant.
-JiraPS exchanges the client ID and client secret for a short-lived bearer token, selects the Jira Cloud site, and renews the token in memory before expiry.
+JiraPSVII exchanges the client ID and client secret for a short-lived bearer token, selects the Jira Cloud site, and renews the token in memory before expiry.
 
 ## PARAMETERS
 
 ### -CloudId
 
 The UUID Cloud ID of the Jira site authorized for the OAuth access token or
-scoped API token. JiraPS uses it to construct
+scoped API token. JiraPSVII uses it to construct
 `https://api.atlassian.com/ex/jira/{cloudId}` and rejects other Atlassian Cloud
 request hosts or Cloud IDs.
 
@@ -197,9 +197,9 @@ Must be used together with `-EmailAddress`.
 
 Create an API token at: https://id.atlassian.com/manage-profile/security/api-tokens
 
-Scoped API tokens are recommended. JiraPS cannot inspect the token to verify
+Scoped API tokens are recommended. JiraPSVII cannot inspect the token to verify
 its scopes before use; Jira Cloud enforces the selected scopes and account
-permissions per request. See `about_JiraPS_ApiTokenScopes` for command-family
+permissions per request. See `about_JiraPSVII_ApiTokenScopes` for command-family
 scope guidance.
 
 ```yaml
@@ -314,7 +314,7 @@ HelpMessage: ''
 ### -OAuthAccessToken
 
 A caller-supplied Jira Cloud OAuth bearer access token.
-The value must be a `SecureString`; JiraPS does not perform interactive authorization or refresh in this parameter set.
+The value must be a `SecureString`; JiraPSVII does not perform interactive authorization or refresh in this parameter set.
 
 ```yaml
 Type: SecureString
@@ -357,7 +357,7 @@ HelpMessage: ''
 ### -OAuthClientSecret
 
 The OAuth client secret for the client-credentials grant.
-The value must be supplied as a `SecureString`; JiraPS keeps it in memory only for token renewal and does not persist it to configuration.
+The value must be supplied as a `SecureString`; JiraPSVII keeps it in memory only for token renewal and does not persist it to configuration.
 
 ```yaml
 Type: SecureString
@@ -442,7 +442,7 @@ HelpMessage: ''
 
 ### -OAuthTokenRefreshSkew
 
-How long before token expiry JiraPS should renew an OAuth client-credentials access token.
+How long before token expiry JiraPSVII should renew an OAuth client-credentials access token.
 The default is five minutes.
 
 ```yaml
@@ -477,7 +477,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Session
+### AtlassianPSVII.JiraPSVII.Session
 
 ## NOTES
 
@@ -487,7 +487,7 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 
 ## RELATED LINKS
 
-[about_JiraPS_Authentication](../../about/authentication.html)
+[about_JiraPSVII_Authentication](../../about/authentication.html)
 
 [Get-JiraSession](../Get-JiraSession/)
 

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraIssueHistoryEntry" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -33,11 +33,11 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock ConvertTo-JiraUser -ModuleName JiraPS {
+            Mock ConvertTo-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraUser'
 
                 [PSCustomObject]@{
-                    PSTypeName = 'AtlassianPS.JiraPS.User'
+                    PSTypeName = 'AtlassianPSVII.JiraPSVII.User'
                     Name       = $InputObject.name
                 }
             }
@@ -54,8 +54,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type JiraPS.IssueHistoryEntry" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'JiraPS.IssueHistoryEntry'
+                It "adds custom type JiraPSVII.IssueHistoryEntry" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'JiraPSVII.IssueHistoryEntry'
                 }
             }
 
@@ -81,7 +81,7 @@ InModuleScope JiraPS {
                     $null = ConvertTo-JiraIssueHistoryEntry -InputObject $sampleObject
 
                     $result.Author.Name | Should -Be 'jdoe'
-                    Should -Invoke ConvertTo-JiraUser -ModuleName JiraPS -Exactly -Times 1 -Scope It
+                    Should -Invoke ConvertTo-JiraUser -ModuleName JiraPSVII -Exactly -Times 1 -Scope It
                 }
             }
 

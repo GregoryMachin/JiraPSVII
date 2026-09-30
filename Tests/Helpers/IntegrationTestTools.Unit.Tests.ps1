@@ -6,48 +6,48 @@ BeforeAll {
 
 Describe 'Read-DotEnvFile' -Tag Unit {
     BeforeEach {
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_EXISTING', $null)
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_ALLOWED', $null)
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_EXCLUDED', $null)
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_EXISTING', $null)
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_ALLOWED', $null)
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_EXCLUDED', $null)
     }
 
     AfterEach {
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_EXISTING', $null)
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_ALLOWED', $null)
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_EXCLUDED', $null)
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_EXISTING', $null)
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_ALLOWED', $null)
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_EXCLUDED', $null)
     }
 
     It 'overwrites an existing process environment variable by default' {
         $envFile = Join-Path -Path $TestDrive -ChildPath 'existing.env'
-        Set-Content -LiteralPath $envFile -Value 'JIRAPS_ENV_EXISTING=from-file'
+        Set-Content -LiteralPath $envFile -Value 'JIRAPSVII_ENV_EXISTING=from-file'
 
-        [Environment]::SetEnvironmentVariable('JIRAPS_ENV_EXISTING', 'from-process')
+        [Environment]::SetEnvironmentVariable('JIRAPSVII_ENV_EXISTING', 'from-process')
 
         Read-DotEnvFile -Path $envFile
 
-        $env:JIRAPS_ENV_EXISTING | Should -Be 'from-file'
+        $env:JIRAPSVII_ENV_EXISTING | Should -Be 'from-file'
     }
 
     It 'loads missing variables that are not excluded' {
         $envFile = Join-Path -Path $TestDrive -ChildPath 'allowed.env'
-        Set-Content -LiteralPath $envFile -Value 'JIRAPS_ENV_ALLOWED=from-file'
+        Set-Content -LiteralPath $envFile -Value 'JIRAPSVII_ENV_ALLOWED=from-file'
 
         Read-DotEnvFile -Path $envFile
 
-        $env:JIRAPS_ENV_ALLOWED | Should -Be 'from-file'
+        $env:JIRAPSVII_ENV_ALLOWED | Should -Be 'from-file'
     }
 
     It 'does not load excluded variables' {
         $envFile = Join-Path -Path $TestDrive -ChildPath 'excluded.env'
         Set-Content -LiteralPath $envFile -Value @(
-            'JIRAPS_ENV_ALLOWED=from-file'
-            'JIRAPS_ENV_EXCLUDED=from-file'
+            'JIRAPSVII_ENV_ALLOWED=from-file'
+            'JIRAPSVII_ENV_EXCLUDED=from-file'
         )
 
-        Read-DotEnvFile -Path $envFile -ExcludeName 'JIRAPS_ENV_EXCLUDED'
+        Read-DotEnvFile -Path $envFile -ExcludeName 'JIRAPSVII_ENV_EXCLUDED'
 
-        $env:JIRAPS_ENV_ALLOWED | Should -Be 'from-file'
-        $env:JIRAPS_ENV_EXCLUDED | Should -BeNullOrEmpty
+        $env:JIRAPSVII_ENV_ALLOWED | Should -Be 'from-file'
+        $env:JIRAPSVII_ENV_EXCLUDED | Should -BeNullOrEmpty
     }
 }
 

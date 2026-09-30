@@ -9,8 +9,8 @@ BeforeDiscovery {
     Import-Module $script:moduleToTest -Force -ErrorAction Stop
 }
 
-InModuleScope JiraPS {
-    Describe "ConvertTo-Jira* roundtrip into AtlassianPS.JiraPS strong types" -Tag 'Unit' {
+InModuleScope JiraPSVII {
+    Describe "ConvertTo-Jira* roundtrip into AtlassianPSVII.JiraPSVII strong types" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
 
@@ -35,9 +35,9 @@ InModuleScope JiraPS {
                 $script:userObj = ConvertTo-JiraUser -InputObject (ConvertFrom-Json $userJson)
             }
 
-            It "returns AtlassianPS.JiraPS.User" {
-                $script:userObj.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.User'
-                $script:userObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+            It "returns AtlassianPSVII.JiraPSVII.User" {
+                $script:userObj.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.User'
+                $script:userObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
             }
 
             It "maps wire-payload fields onto class properties" {
@@ -78,14 +78,14 @@ InModuleScope JiraPS {
                 $script:projectObj = ConvertTo-JiraProject -InputObject (ConvertFrom-Json $projectJson)
             }
 
-            It "returns AtlassianPS.JiraPS.Project with the legacy alias" {
-                $script:projectObj.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.Project'
-                $script:projectObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Project'
+            It "returns AtlassianPSVII.JiraPSVII.Project with the legacy alias" {
+                $script:projectObj.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.Project'
+                $script:projectObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Project'
             }
 
             It "converts the lead into a strong-typed User" {
-                $script:projectObj.Lead.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.User'
-                $script:projectObj.Lead.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+                $script:projectObj.Lead.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.User'
+                $script:projectObj.Lead.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
             }
 
             It "preserves the projectCategory mapping" {
@@ -112,9 +112,9 @@ InModuleScope JiraPS {
                 $script:versionObj = ConvertTo-JiraVersion -InputObject (ConvertFrom-Json $versionJson)
             }
 
-            It "returns AtlassianPS.JiraPS.Version with the legacy alias" {
-                $script:versionObj.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.Version'
-                $script:versionObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Version'
+            It "returns AtlassianPSVII.JiraPSVII.Version with the legacy alias" {
+                $script:versionObj.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.Version'
+                $script:versionObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Version'
             }
 
             It "parses dates into DateTime" {
@@ -145,13 +145,13 @@ InModuleScope JiraPS {
                 $script:commentObj = ConvertTo-JiraComment -InputObject (ConvertFrom-Json $commentJson)
             }
 
-            It "returns AtlassianPS.JiraPS.Comment with the legacy alias" {
-                $script:commentObj.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.Comment'
-                $script:commentObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Comment'
+            It "returns AtlassianPSVII.JiraPSVII.Comment with the legacy alias" {
+                $script:commentObj.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.Comment'
+                $script:commentObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Comment'
             }
 
             It "promotes the author to a strong-typed User" {
-                $script:commentObj.Author.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.User'
+                $script:commentObj.Author.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.User'
             }
 
             It "parses timestamps into DateTimeOffset" {
@@ -175,9 +175,9 @@ InModuleScope JiraPS {
                 $script:filterObj = ConvertTo-JiraFilter -InputObject (ConvertFrom-Json $script:filterJson)
             }
 
-            It "returns AtlassianPS.JiraPS.Filter with the legacy alias" {
-                $script:filterObj.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.Filter'
-                $script:filterObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Filter'
+            It "returns AtlassianPSVII.JiraPSVII.Filter with the legacy alias" {
+                $script:filterObj.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.Filter'
+                $script:filterObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Filter'
             }
 
             It "exposes 'Favorite' as an AliasProperty for 'Favourite'" {
@@ -224,9 +224,9 @@ InModuleScope JiraPS {
                 $script:cloudIssue = ConvertTo-JiraIssue -InputObject (ConvertFrom-Json $script:cloudIssueJson)
             }
 
-            It "promotes Creator and Reporter to AtlassianPS.JiraPS.User" {
-                $script:cloudIssue.Creator | Should -BeOfType [AtlassianPS.JiraPS.User]
-                $script:cloudIssue.Reporter | Should -BeOfType [AtlassianPS.JiraPS.User]
+            It "promotes Creator and Reporter to AtlassianPSVII.JiraPSVII.User" {
+                $script:cloudIssue.Creator | Should -BeOfType [AtlassianPSVII.JiraPSVII.User]
+                $script:cloudIssue.Reporter | Should -BeOfType [AtlassianPSVII.JiraPSVII.User]
             }
 
             It "flattens an ADF description into a string" {
@@ -237,7 +237,7 @@ InModuleScope JiraPS {
             It "binds a single-comment payload as a Comment[] array" {
                 # Regression guard for PowerShell single-element unwrap.
                 $script:cloudIssue.Comment | Should -Not -BeNullOrEmpty
-                $script:cloudIssue.Comment.GetType() | Should -Be ([AtlassianPS.JiraPS.Comment[]])
+                $script:cloudIssue.Comment.GetType() | Should -Be ([AtlassianPSVII.JiraPSVII.Comment[]])
                 $script:cloudIssue.Comment.Length | Should -Be 1
                 $script:cloudIssue.Comment[0].Body | Should -Be 'Only comment'
             }
@@ -259,9 +259,9 @@ InModuleScope JiraPS {
                 $script:siObj = ConvertTo-JiraServerInfo -InputObject (ConvertFrom-Json $script:siJson)
             }
 
-            It "returns AtlassianPS.JiraPS.ServerInfo with the legacy alias" {
-                $script:siObj.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.ServerInfo'
-                $script:siObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.ServerInfo'
+            It "returns AtlassianPSVII.JiraPSVII.ServerInfo with the legacy alias" {
+                $script:siObj.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.ServerInfo'
+                $script:siObj.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.ServerInfo'
             }
 
             It "parses BuildDate into DateTime" {

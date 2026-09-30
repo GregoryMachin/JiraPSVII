@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Set-JiraIssueBulk" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -41,21 +41,21 @@ InModuleScope JiraPS {
                 )
             }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS { $jiraServer }
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII { $jiraServer }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'GET' -and $URI -eq '/rest/api/3/bulk/issues/fields'
             } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'GetParameter'
                 $bulkFields
             }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'POST' -and $URI -eq '/rest/api/3/bulk/issues/fields'
             } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 [PSCustomObject]@{ taskId = '10641' }
             }
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -72,9 +72,9 @@ InModuleScope JiraPS {
                     @{ parameter = 'Summary'; type = 'String' }
                     @{ parameter = 'Description'; type = 'String' }
                     @{ parameter = 'Fields'; type = 'PSObject' }
-                    @{ parameter = 'EditedFieldsInput'; type = 'AtlassianPS.JiraPS.JiraBulkEditFieldsInput' }
+                    @{ parameter = 'EditedFieldsInput'; type = 'AtlassianPSVII.JiraPSVII.JiraBulkEditFieldsInput' }
                     @{ parameter = 'SelectedAction'; type = 'String[]' }
-                    @{ parameter = 'Request'; type = 'AtlassianPS.JiraPS.BulkIssueEditRequest' }
+                    @{ parameter = 'Request'; type = 'AtlassianPSVII.JiraPSVII.BulkIssueEditRequest' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'SkipNotification'; type = 'Switch' }
                     @{ parameter = 'ValidateOnly'; type = 'Switch' }
@@ -109,9 +109,9 @@ InModuleScope JiraPS {
             It "submits a bulk edit request and returns the async task id" {
                 $result = Set-JiraIssueBulk -Issue 'TEST-1', 'TEST-2' -Summary 'Bulk summary'
 
-                $result | Should -BeOfType 'AtlassianPS.JiraPS.SubmittedBulkOperation'
+                $result | Should -BeOfType 'AtlassianPSVII.JiraPSVII.SubmittedBulkOperation'
                 $result.TaskId | Should -Be '10641'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     $Method -eq 'POST' -and
                     $URI -eq '/rest/api/3/bulk/issues/fields' -and
                     ($Body | ConvertFrom-Json).selectedIssueIdsOrKeys -contains 'TEST-1' -and
@@ -124,7 +124,7 @@ InModuleScope JiraPS {
             It "combines summary, description, and resolved custom string fields" {
                 Set-JiraIssueBulk -Issue 'TEST-1' -Summary 'Bulk summary' -Description 'Bulk **description**' -Fields @{ 'Customer Ref' = 'ABC-123' }
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     if ($Method -ne 'POST' -or $URI -ne '/rest/api/3/bulk/issues/fields') { return $false }
                     $payload = $Body | ConvertFrom-Json
                     $payload.selectedActions | Should -Contain 'summary'
@@ -139,10 +139,10 @@ InModuleScope JiraPS {
             }
 
             It "accepts a typed request payload" {
-                $fields = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]@{
+                $fields = [AtlassianPSVII.JiraPSVII.JiraBulkEditFieldsInput]@{
                     SingleLineTextFields = @(@{ fieldId = 'summary'; text = 'Typed summary' })
                 }
-                $request = [AtlassianPS.JiraPS.BulkIssueEditRequest]@{
+                $request = [AtlassianPSVII.JiraPSVII.BulkIssueEditRequest]@{
                     SelectedIssueIdsOrKeys = @('TEST-1')
                     SelectedActions        = @('summary')
                     EditedFieldsInput      = $fields
@@ -152,7 +152,7 @@ InModuleScope JiraPS {
                 $result = Set-JiraIssueBulk -Request $request
 
                 $result.TaskId | Should -Be '10641'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     $Method -eq 'POST' -and
                     ($Body | ConvertFrom-Json).sendBulkNotification -eq $false
                 }
@@ -161,10 +161,10 @@ InModuleScope JiraPS {
             It "returns a typed request and does not submit when -ValidateOnly is used" {
                 $result = Set-JiraIssueBulk -Issue 'TEST-1' -Summary 'Dry run' -ValidateOnly
 
-                $result | Should -BeOfType 'AtlassianPS.JiraPS.BulkIssueEditRequest'
+                $result | Should -BeOfType 'AtlassianPSVII.JiraPSVII.BulkIssueEditRequest'
                 $result.SelectedIssueIdsOrKeys | Should -Be @('TEST-1')
                 $result.SelectedActions | Should -Be @('summary')
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0 -ParameterFilter {
                     $Method -eq 'POST'
                 }
             }
@@ -172,7 +172,7 @@ InModuleScope JiraPS {
             It "supports -WhatIf without submitting" {
                 Set-JiraIssueBulk -Issue 'TEST-1' -Summary 'Bulk summary' -WhatIf
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0 -ParameterFilter {
                     $Method -eq 'POST'
                 }
             }
@@ -180,7 +180,7 @@ InModuleScope JiraPS {
             It "sets sendBulkNotification false when -SkipNotification is used" {
                 Set-JiraIssueBulk -Issue 'TEST-1' -Summary 'Bulk summary' -SkipNotification
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     $Method -eq 'POST' -and
                     ($Body | ConvertFrom-Json).sendBulkNotification -eq $false
                 }
@@ -189,12 +189,12 @@ InModuleScope JiraPS {
 
         Describe "Input Validation" {
             It "rejects Jira Server or Data Center before submitting" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
                 { Set-JiraIssueBulk -Issue 'TEST-1' -Summary 'Bulk summary' -ErrorAction Stop } |
                     Should -Throw '*not supported against Jira Server or Data Center*'
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0 -ParameterFilter {
                     $Method -eq 'POST'
                 }
             }
@@ -208,7 +208,7 @@ InModuleScope JiraPS {
                 { Set-JiraIssueBulk -Issue 'TEST-1', 'OPS-2' -Summary 'Bulk summary' -AllowCrossProject } |
                     Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     $Method -eq 'POST'
                 }
             }
@@ -224,10 +224,10 @@ InModuleScope JiraPS {
             }
 
             It "rejects typed request payloads with unsafe values" {
-                $fields = [AtlassianPS.JiraPS.JiraBulkEditFieldsInput]@{
+                $fields = [AtlassianPSVII.JiraPSVII.JiraBulkEditFieldsInput]@{
                     RichTextFields = @(@{ fieldId = 'description'; richText = { Get-Secret } })
                 }
-                $request = [AtlassianPS.JiraPS.BulkIssueEditRequest]@{
+                $request = [AtlassianPSVII.JiraPSVII.BulkIssueEditRequest]@{
                     SelectedIssueIdsOrKeys = @('TEST-1')
                     SelectedActions        = @('description')
                     EditedFieldsInput      = $fields

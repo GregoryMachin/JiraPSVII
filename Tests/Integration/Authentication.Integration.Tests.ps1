@@ -12,7 +12,7 @@ BeforeDiscovery {
     $script:Skip = Skip-IntegrationTest
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Authentication" -Tag 'Integration', 'Smoke', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -56,7 +56,7 @@ InModuleScope JiraPS {
             It "returns a session object with correct type" {
                 $session = New-JiraSession -ApiToken $secureToken -EmailAddress $env.Username
 
-                $session.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Session'
+                $session.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Session'
             }
 
             It "enables subsequent API calls without explicit credentials" {
@@ -98,7 +98,7 @@ InModuleScope JiraPS {
 
                 $session = Get-JiraSession
                 $session | Should -Not -BeNullOrEmpty
-                $session.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Session'
+                $session.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Session'
             }
         }
 

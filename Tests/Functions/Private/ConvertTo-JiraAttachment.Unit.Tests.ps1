@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraAttachment" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -57,9 +57,9 @@ InModuleScope JiraPS {
                     $result | Should -BeOfType [PSCustomObject]
                 }
 
-                It "adds the custom type name 'JiraPS.Attachment'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Attachment'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.Attachment]
+                It "adds the custom type name 'JiraPSVII.Attachment'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Attachment'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.Attachment]
                 }
             }
 
@@ -78,7 +78,7 @@ InModuleScope JiraPS {
                     @{ property = "Id"; type = [string]; value = '270709' }
                     @{ property = "FileName"; type = [string]; value = 'Nav2-HCF.PNG' }
                     @{ property = "self"; type = [uri]; value = $null }
-                    @{ property = "Author"; type = 'AtlassianPS.JiraPS.User'; value = 'JonDoe' }
+                    @{ property = "Author"; type = 'AtlassianPSVII.JiraPSVII.User'; value = 'JonDoe' }
                     @{ property = "Created"; type = [System.DateTimeOffset]; value = [System.DateTimeOffset](Get-Date "2017-05-30T13:20:34.0000000+02:00") }
                     @{ property = "Size"; type = [System.ValueType]; value = '366272' }
                     @{ property = "content"; type = [uri]; value = $null }

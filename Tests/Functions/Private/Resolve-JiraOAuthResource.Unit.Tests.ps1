@@ -5,16 +5,16 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraOAuthResource" -Tag 'Unit' {
         BeforeAll {
             $script:resources = @(
-                [AtlassianPS.JiraPS.OAuthResource]@{
+                [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                     CloudId = '11223344-a1b2-3b33-c444-def123456789'
                     Name    = 'Shared name'
                     Url     = 'https://one.atlassian.net/'
                 }
-                [AtlassianPS.JiraPS.OAuthResource]@{
+                [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                     CloudId = 'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee'
                     Name    = 'Shared name'
                     Url     = 'https://two.atlassian.net/'

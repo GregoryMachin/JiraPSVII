@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraIssueComment/
 locale: en-US
 layout: documentation
@@ -170,7 +170,7 @@ HelpMessage: ''
 
 Issue that should be commented upon.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -253,13 +253,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
-Pipe a AtlassianPS.JiraPS.Issue object to add a comment to it.
+Pipe a AtlassianPSVII.JiraPSVII.Issue object to add a comment to it.
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Comment
+### AtlassianPSVII.JiraPSVII.Comment
 
 ## NOTES
 

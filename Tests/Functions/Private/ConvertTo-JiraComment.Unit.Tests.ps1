@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraComment" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -74,8 +74,8 @@ InModuleScope JiraPS {
                     $result | Should -BeOfType [PSCustomObject]
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Comment'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Comment'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Comment'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Comment'
                 }
             }
 

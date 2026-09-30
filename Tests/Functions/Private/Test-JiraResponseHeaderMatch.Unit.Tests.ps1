@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Test-JiraResponseHeaderMatch" -Tag 'Unit' {
         BeforeAll {
             $script:wildcardConfig = [PSCustomObject]@{

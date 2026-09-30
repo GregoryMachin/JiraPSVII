@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraComponent/
 locale: en-US
 layout: documentation
@@ -235,7 +235,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 Retrieve all Components in a specific project.
 
-### JiraPS.Component[]
+### JiraPSVII.Component[]
 
 Pipe an existing Component object back into the cmdlet.
 
@@ -245,7 +245,7 @@ Retrieve specific Components by theirs id.
 
 ## OUTPUTS
 
-### JiraPS.Component
+### JiraPSVII.Component
 
 ## NOTES
 

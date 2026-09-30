@@ -8,7 +8,7 @@
     ../Project/DataCenterMaintenance.md records which Data Center version this
     repository's integration-test image represents. That document cannot be read at
     CI runtime -- Project/ is a tracker repository local to this workspace, not one
-    of the AtlassianPS GitHub organization's published repositories, so a real CI run
+    of the AtlassianPSVII GitHub organization's published repositories, so a real CI run
     of this repository has no sibling checkout of it -- so the expected image is
     duplicated here as a literal string instead. If you change docker-compose.yml's
     pinned image, update both this test and DataCenterMaintenance.md's version table

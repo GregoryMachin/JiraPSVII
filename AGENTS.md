@@ -1,4 +1,4 @@
-# AI Instructions for JiraPS
+# AI Instructions for JiraPSVII
 
 This file is the compact, always-loaded rule set for AI coding assistants.
 Load deeper context only when the task needs it.
@@ -12,7 +12,7 @@ Load deeper context only when the task needs it.
 - Cloud rich-text payloads use Atlassian Document Format; Data Center text fields generally use plain strings.
 - All REST calls go through `Invoke-JiraMethod`; do not call `Invoke-RestMethod` or `Invoke-WebRequest` directly from cmdlets.
 - Keep runtime dependencies at zero unless a task explicitly accepts adding one.
-- Public functions use generated external help only; do not add comment-based help to files in `JiraPS/Public/`.
+- Public functions use generated external help only; do not add comment-based help to files in `JiraPSVII/Public/`.
 - Out-of-scope ideas go to the backlog, not into the current PR.
 
 ## Context Map
@@ -33,13 +33,13 @@ Read these files only when relevant:
 
 | Type | Location |
 |------|----------|
-| Public cmdlets | `JiraPS/Public/` |
-| Private helpers and converters | `JiraPS/Private/` |
-| C# types and argument transformers | `JiraPS/Types/` |
+| Public cmdlets | `JiraPSVII/Public/` |
+| Private helpers and converters | `JiraPSVII/Private/` |
+| C# types and argument transformers | `JiraPSVII/Types/` |
 | Unit tests | `Tests/Functions/Public/` or `Tests/Functions/Private/` |
 | Integration tests | `Tests/Integration/` |
 | External help markdown | `docs/en-US/commands/` and `docs/en-US/about_*.md` |
-| Build and setup scripts | `JiraPS.build.ps1`, `Tools/` |
+| Build and setup scripts | `JiraPSVII.build.ps1`, `Tools/` |
 | Build output | `Release/` (ignored; never commit) |
 
 ## Development Workflow
@@ -118,13 +118,13 @@ Server tests use Dockerized Jira Data Center and can be slow.
 ## Backlog Handling
 
 - Do not expand the current PR with unrelated findings.
-- File durable follow-ups as `Backlog` issues on the JiraPS backlog project.
+- File durable follow-ups as `Backlog` issues on the JiraPSVII backlog project.
 - Include context, proposal, trade-offs, and related PR or transcript links when filing.
 
 ## Tool Entry Points
 
 - GitHub Copilot: `.github/copilot-instructions.md`
-- Cursor: `.cursor/rules/jiraps.mdc`
+- Cursor: `.cursor/rules/jirapsvii.mdc`
 - Claude Code: `CLAUDE.md`
 - Antigravity: `GEMINI.md`
 - Keep entry points short and route detailed guidance back here or to `.github/ai-context/`.

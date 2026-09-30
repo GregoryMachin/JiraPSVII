@@ -5,11 +5,11 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe 'Get-JiraProjectClassificationLevel' -Tag Unit {
         BeforeAll {
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $URI -eq '/rest/api/3/project/TEAM%20OPS/classification-config' -and $Method -eq 'GET'
             } {
                 [pscustomobject]@{
@@ -22,30 +22,30 @@ InModuleScope JiraPS {
                     )
                 }
             }
-            Mock Invoke-JiraMethod -ModuleName JiraPS { throw 'Unexpected classification request.' }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII { throw 'Unexpected classification request.' }
         }
 
         It 'maps configuration levels and escapes the project route segment' {
             $levels = @(Get-JiraProjectClassificationLevel -Project 'TEAM OPS')
 
             $levels | Should -HaveCount 2
-            $levels[0] | Should -BeOfType 'AtlassianPS.JiraPS.ProjectClassificationLevel'
+            $levels[0] | Should -BeOfType 'AtlassianPSVII.JiraPSVII.ProjectClassificationLevel'
             $levels[0].IsDefault | Should -BeTrue
             $levels[0].IsOrganizationDefault | Should -BeFalse
             $levels[1].IsOrganizationDefault | Should -BeTrue
             $levels[0].ContainerOverride | Should -Be 'ANY'
-            Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter { $URI -eq '/rest/api/3/project/TEAM%20OPS/classification-config' }
+            Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter { $URI -eq '/rest/api/3/project/TEAM%20OPS/classification-config' }
         }
 
         It 'rejects Data Center without sending the Cloud-only request' {
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
             { Get-JiraProjectClassificationLevel -Project 'TEST' -ErrorAction Stop } | Should -Throw '*only on Jira Cloud*'
-            Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0
+            Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0
         }
 
         It 'propagates project-administration permission failures' {
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $URI -eq '/rest/api/3/project/TEAM%20OPS/classification-config' } { throw 'Forbidden' }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $URI -eq '/rest/api/3/project/TEAM%20OPS/classification-config' } { throw 'Forbidden' }
 
             { Get-JiraProjectClassificationLevel -Project 'TEAM OPS' -ErrorAction Stop } | Should -Throw '*Forbidden*'
         }

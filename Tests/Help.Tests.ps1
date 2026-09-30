@@ -17,13 +17,13 @@ Describe "Help tests" -Tag "Documentation", "Build" {
         }
 
         # Only test public functions (those that have markdown documentation)
-        $script:publicFunctions = (Get-ChildItem "$projectRoot/JiraPS/Public/*.ps1").BaseName
+        $script:publicFunctions = (Get-ChildItem "$projectRoot/JiraPSVII/Public/*.ps1").BaseName
 
         # Help data is fetched lazily per-cmdlet in BeforeAll below instead of
         # eagerly at discovery. Calling Get-Help for all 64 public cmdlets up
         # front cost ~9 s regardless of which tests actually ran, including
         # source-mode runs where every Help/Parameter context is -Skip'd.
-        $script:commands = Get-Command -Module JiraPS -CommandType Cmdlet, Function |
+        $script:commands = Get-Command -Module JiraPSVII -CommandType Cmdlet, Function |
             Where-Object { $_.Name -in $publicFunctions } |
             ForEach-Object { @{
                     Command     = $_
@@ -49,7 +49,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
         )
     }
     BeforeAll {
-        $script:module = Get-Module JiraPS
+        $script:module = Get-Module JiraPSVII
     }
 
     Describe "Public Functions" {
@@ -112,7 +112,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
 
                 It "defines the frontmatter for the homepage" {
                     $markdownFile | Should -Not -BeNullOrEmpty
-                    $markdownFile | Should -FileContentMatch "Module Name: JiraPS"
+                    $markdownFile | Should -FileContentMatch "Module Name: JiraPSVII"
                     $markdownFile | Should -FileContentMatchExactly "layout: documentation"
                     $markdownFile | Should -FileContentMatch "permalink: /docs/JiraPS/commands/$($command.Name)/"
                 }
@@ -166,7 +166,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
                         if ($_.type -and $_.type.name) { ($_.type.name -as [String]).Trim() }
                     }
                     foreach ($n in $inputNames) {
-                        $n | Should -Not -Match '^(System\.)?Object\[\]$' -Because "Object[] / System.Object[] in INPUTS is PlatyPS introspection noise from Object[] parameters tagged with [PSTypeName('JiraPS.X')]; use the JiraPS.<Type> heading instead"
+                        $n | Should -Not -Match '^(System\.)?Object\[\]$' -Because "Object[] / System.Object[] in INPUTS is PlatyPS introspection noise from Object[] parameters tagged with [PSTypeName('JiraPSVII.X')]; use the JiraPSVII.<Type> heading instead"
                     }
                 }
 
@@ -321,7 +321,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
 
             It "defines the frontmatter for the homepage" {
                 $class.FullName | Should -Not -BeNullOrEmpty
-                $class.FullName | Should -FileContentMatch "Module Name: JiraPS"
+                $class.FullName | Should -FileContentMatch "Module Name: JiraPSVII"
                 $class.FullName | Should -FileContentMatchExactly "layout: documentation"
                 $class.FullName | Should -FileContentMatch "permalink: /docs/JiraPS/classes/$($class.BaseName)/"
             }
@@ -331,7 +331,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
 
     Context "Missing classes" {
         It "has a documentation file for every class" {
-            foreach ($class in ([AtlassianPS.ServerData].Assembly.GetTypes() | Where-Object IsClass)) {
+            foreach ($class in ([AtlassianPSVII.ServerData].Assembly.GetTypes() | Where-Object IsClass)) {
                 $classes.BaseName | Should -Contain $class.FullName
             }
         }
@@ -354,7 +354,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
 
             It "defines the frontmatter for the homepage" {
                 $enum.FullName | Should -Not -BeNullOrEmpty
-                $enum.FullName | Should -FileContentMatch "Module Name: JiraPS"
+                $enum.FullName | Should -FileContentMatch "Module Name: JiraPSVII"
                 $enum.FullName | Should -FileContentMatchExactly "layout: documentation"
                 $enum.FullName | Should -FileContentMatch "permalink: /docs/JiraPS/enumerations/$($enum.BaseName)/"
             }
@@ -363,7 +363,7 @@ Describe "Help tests" -Tag "Documentation", "Build" {
 
     Context "Missing enumerations" {
         It "has a documentation file for every enumeration" {
-            foreach ($enum in ([AtlassianPS.ServerData].Assembly.GetTypes() | Where-Object IsEnum)) {
+            foreach ($enum in ([AtlassianPSVII.ServerData].Assembly.GetTypes() | Where-Object IsEnum)) {
                 $enums.BaseName | Should -Contain $enum.FullName
             }
         }

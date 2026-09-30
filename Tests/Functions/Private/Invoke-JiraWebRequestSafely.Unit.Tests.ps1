@@ -6,14 +6,14 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Invoke-JiraWebRequestSafely" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
 
-            if (-not ('JiraPS.Tests.FakeWebRequestException' -as [type])) {
+            if (-not ('JiraPSVII.Tests.FakeWebRequestException' -as [type])) {
                 Add-Type -TypeDefinition @"
-namespace JiraPS.Tests {
+namespace JiraPSVII.Tests {
     public class FakeWebRequestException : System.Exception {
         public object Response { get; private set; }
         public FakeWebRequestException(string message, object response) : base(message) {
@@ -29,7 +29,7 @@ namespace JiraPS.Tests {
             $expectedResponse = [PSCustomObject]@{
                 StatusCode = [System.Net.HttpStatusCode]::OK
             }
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' { $expectedResponse }
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' { $expectedResponse }
 
             $result = Invoke-JiraWebRequestSafely -SplatParameters @{
                 Uri     = 'https://jira.example.com/rest/api/2/myself'
@@ -45,8 +45,8 @@ namespace JiraPS.Tests {
             $fallbackResponse = [PSCustomObject]@{
                 StatusCode = [System.Net.HttpStatusCode]::ServiceUnavailable
             }
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' {
-                throw [JiraPS.Tests.FakeWebRequestException]::new('boom', $fallbackResponse)
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
+                throw [JiraPSVII.Tests.FakeWebRequestException]::new('boom', $fallbackResponse)
             }
 
             $result = Invoke-JiraWebRequestSafely -SplatParameters @{
@@ -61,14 +61,14 @@ namespace JiraPS.Tests {
 
         It "captures session variable name and value when SessionVariable is used" {
             $capturedSession = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
-            Mock Get-Variable -ModuleName 'JiraPS' -ParameterFilter {
+            Mock Get-Variable -ModuleName 'JiraPSVII' -ParameterFilter {
                 $Name -eq 'newSessionVar' -and $Scope -eq 'Local'
             } {
                 [PSCustomObject]@{
                     Value = $capturedSession
                 }
             }
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     StatusCode = [System.Net.HttpStatusCode]::OK
                 }
@@ -86,10 +86,10 @@ namespace JiraPS.Tests {
         }
 
         It "returns null session value when SessionVariable is requested but not available in scope" {
-            Mock Get-Variable -ModuleName 'JiraPS' -ParameterFilter {
+            Mock Get-Variable -ModuleName 'JiraPSVII' -ParameterFilter {
                 $Name -eq 'missingSessionVar' -and $Scope -eq 'Local'
             } { $null }
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     StatusCode = [System.Net.HttpStatusCode]::OK
                 }
@@ -107,7 +107,7 @@ namespace JiraPS.Tests {
         }
 
         It "restores ProgressPreference after successful requests" {
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' { [PSCustomObject]@{ StatusCode = [System.Net.HttpStatusCode]::OK } }
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' { [PSCustomObject]@{ StatusCode = [System.Net.HttpStatusCode]::OK } }
             $previousProgressPreference = $ProgressPreference
             $ProgressPreference = 'Continue'
             try {
@@ -124,8 +124,8 @@ namespace JiraPS.Tests {
         }
 
         It "restores ProgressPreference when request throws" {
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' {
-                throw [JiraPS.Tests.FakeWebRequestException]::new('boom', $null)
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
+                throw [JiraPSVII.Tests.FakeWebRequestException]::new('boom', $null)
             }
             $previousProgressPreference = $ProgressPreference
             $ProgressPreference = 'Continue'

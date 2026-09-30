@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraComponent" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -54,25 +54,25 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/component/$componentId" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/component/$componentId" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultOne
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/project/$projectKey/components" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/project/$projectKey/components" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultAll
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -112,7 +112,7 @@ InModuleScope JiraPS {
                 $components = Get-JiraComponent -Project $projectKey
 
                 $components | Should -HaveCount 2
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -eq "/rest/api/2/project/$projectKey/components" -and
                     -not $Paging
@@ -121,15 +121,15 @@ InModuleScope JiraPS {
 
             Context "Jira Cloud" {
                 BeforeEach {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and $URI -eq "/rest/api/3/component/$componentId"
                     } {
                         ConvertFrom-Json $restResultOne
                     }
 
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/component"
                     } {
                         ConvertFrom-Json $restResultAll
@@ -139,7 +139,7 @@ InModuleScope JiraPS {
                 It "uses REST API v3 for direct component lookup" {
                     Get-JiraComponent -ComponentId $componentId | Should -HaveCount 1
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $URI -eq "/rest/api/3/component/$componentId" -and -not $Paging
                     }
                 }
@@ -148,8 +148,8 @@ InModuleScope JiraPS {
                     $components = Get-JiraComponent -Project $projectKey -PageSize 25
 
                     $components | Should -HaveCount 2
-                    $components[0] | Should -BeOfType [AtlassianPS.JiraPS.Component]
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    $components[0] | Should -BeOfType [AtlassianPSVII.JiraPSVII.Component]
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $URI -eq "/rest/api/3/project/$projectKey/component" -and
                         $Paging -and
                         $GetParameter.maxResults -eq 25
@@ -159,7 +159,7 @@ InModuleScope JiraPS {
                 It "forwards First and Skip to shared paging" {
                     Get-JiraComponent -Project $projectKey -First 1 -Skip 1 | Out-Null
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $URI -eq "/rest/api/3/project/$projectKey/component" -and
                         $Paging -and
                         $First -eq 1 -and
@@ -168,7 +168,7 @@ InModuleScope JiraPS {
                 }
 
                 It "propagates project browse permission failures" {
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and $URI -eq '/rest/api/3/project/FORBIDDEN/component'
                     } {
                         throw [System.UnauthorizedAccessException]::new('Browse projects permission is required.')

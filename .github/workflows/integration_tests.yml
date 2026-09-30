@@ -86,7 +86,7 @@ jobs:
     # extraction + plugin scan + first-time DB init (~5-10 min on cold boot).
     # The full Server-tagged Pester suite (~150 tests across 25+ files, run
     # via `Tests/Invoke-ParallelPester.ps1` with ThrottleLimit=2 — see the
-    # per-step comment below for why it's halved from JiraPS.build.ps1's
+    # per-step comment below for why it's halved from JiraPSVII.build.ps1's
     # default of 4) currently takes ~15-20 min end-to-end against the
     # H2-backed AMPS image; most of that is the per-test issue/version
     # provisioning round-trip latency, which is gated on Lucene reindex
@@ -144,7 +144,7 @@ jobs:
         # with per-file Wait-Job timeouts) before the artifact upload + log
         # capture steps below (gated on `if: always()`) get starved.
         timeout-minutes: 25
-        # ThrottleLimit=2 (vs JiraPS.build.ps1's default of 4): the AMPS
+        # ThrottleLimit=2 (vs JiraPSVII.build.ps1's default of 4): the AMPS
         # standalone image runs Jira against an embedded H2 DB + Lucene
         # IndexCopyService that serializes write commits. Under 4-way
         # parallelism, observed CI run #24939216658 saw the Worklogs

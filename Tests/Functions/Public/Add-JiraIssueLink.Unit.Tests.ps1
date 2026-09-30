@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Add-JiraIssueLink" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1" -Force
@@ -22,12 +22,12 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'POST' -and
                 $URI -eq "/rest/api/2/issueLink"
             } {
@@ -36,7 +36,7 @@ InModuleScope JiraPS {
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -50,7 +50,7 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = "IssueLink"; type = "AtlassianPS.JiraPS.IssueLinkCreateRequest[]" }
+                    @{ parameter = "IssueLink"; type = "AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest[]" }
                     @{ parameter = "Comment"; type = "String" }
                     @{ parameter = "Credential"; type = "System.Management.Automation.PSCredential" }
                 ) {
@@ -79,7 +79,7 @@ InModuleScope JiraPS {
             It 'Adds a new IssueLink' {
                 { Add-JiraIssueLink -IssueLink $issueLink } | Should -Not -Throw
 
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "maps loose object payloads to key-based request JSON" {
@@ -91,7 +91,7 @@ InModuleScope JiraPS {
 
                 Add-JiraIssueLink -IssueLink $linkPayload
 
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     $parsed = $Body | ConvertFrom-Json
                     $parsed.type.name -eq "Composition" -and
                     $parsed.inwardIssue.key -eq "TEST-01" -and
@@ -111,7 +111,7 @@ InModuleScope JiraPS {
 
                 Add-JiraIssueLink -IssueLink $linkPayload
 
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                     $parsed = $Body | ConvertFrom-Json
                     $parsed.type.id -eq "10000" -and
                     $parsed.inwardIssue.id -eq "10002" -and
@@ -131,7 +131,7 @@ InModuleScope JiraPS {
                     $string = "invalid-object"
                     $incompleteObject = [PSCustomObject]@{ type = "foo" }
 
-                    { Add-JiraIssueLink -IssueLink $string -ErrorAction Stop } | Should -Throw -ExpectedMessage "*Cannot convert a string to AtlassianPS.JiraPS.IssueLinkCreateRequest*"
+                    { Add-JiraIssueLink -IssueLink $string -ErrorAction Stop } | Should -Throw -ExpectedMessage "*Cannot convert a string to AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest*"
                     { Add-JiraIssueLink -IssueLink $incompleteObject } | Should -Throw -ErrorId 'ParameterProperties.Incomplete,Add-JiraIssueLink'
                 }
 

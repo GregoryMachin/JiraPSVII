@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueEditMetadata" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -176,14 +176,14 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
                 [PSCustomObject] @{
                     ID      = $issueID
@@ -192,17 +192,17 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock ConvertTo-JiraEditMetaField -ModuleName JiraPS {
+            Mock ConvertTo-JiraEditMetaField -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraEditMetaField' 'InputObject'
                 $InputObject
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "*/rest/api/*/issue/$issueID/editmeta" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -like "*/rest/api/*/issue/$issueID/editmeta" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResult
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -223,17 +223,17 @@ InModuleScope JiraPS {
             Context "Behavior testing" {
                 It "Queries Jira for metadata information about editing an issue" {
                     { Get-JiraIssueEditMetadata -Issue $issueID } | Should -Not -Throw
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
 
                 It "Uses ConvertTo-JiraEditMetaField to output EditMetaField objects if JIRA returns data" {
                     { Get-JiraIssueEditMetadata -Issue $issueID } | Should -Not -Throw
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
 
                     # The editmeta endpoint returns a single envelope { fields: { fieldId: ... } }
                     # which is forwarded to ConvertTo-JiraEditMetaField as one object,
                     # so the converter is invoked exactly once per call.
-                    Should -Invoke ConvertTo-JiraEditMetaField -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke ConvertTo-JiraEditMetaField -ModuleName JiraPSVII -Exactly -Times 1
                 }
 
                 It "Does not write to the error stream on a successful call" {
@@ -248,20 +248,20 @@ InModuleScope JiraPS {
             It "uses v2 for Data Center" {
                 $null = Get-JiraIssueEditMetadata -Issue $issueID
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/2/issue/$issueID/editmeta"
                 }
             }
 
             It "uses v3 for Cloud" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $URI -eq "/rest/api/3/issue/$issueID/editmeta"
                 } { ConvertFrom-Json $restResult }
 
                 $null = Get-JiraIssueEditMetadata -Issue $issueID
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/3/issue/$issueID/editmeta"
                 }
             }
@@ -270,7 +270,7 @@ InModuleScope JiraPS {
         Describe "Error handling" {
             Context "When the API returns no body" {
                 BeforeAll {
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $URI -like "*$issueID/editmeta" } { $null }
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $URI -like "*$issueID/editmeta" } { $null }
                 }
 
                 It "Throws a terminating ObjectNotFound error when no metadata is returned" {

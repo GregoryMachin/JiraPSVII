@@ -33,7 +33,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Issue Watchers" -Tag 'Integration', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -81,7 +81,7 @@ InModuleScope JiraPS {
                     $watchers = Get-JiraIssueWatcher -Issue $fixtures.TestIssue
 
                     if ($watchers) {
-                        $watchers[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+                        $watchers[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
                     }
                 }
 

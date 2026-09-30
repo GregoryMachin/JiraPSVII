@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraGroupMember" -Tag 'Unit' {
 
         BeforeAll {
@@ -21,33 +21,33 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraGroup -ModuleName JiraPS {
+            Mock Get-JiraGroup -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraGroup' 'GroupName'
                 [PSCustomObject]@{
-                    PSTypeName = "JiraPS.Group"
+                    PSTypeName = "JiraPSVII.Group"
                     Name       = $testGroupName
                     Size       = 2
                 }
             }
 
-            Mock Resolve-JiraUser -ModuleName JiraPS {
+            Mock Resolve-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraUser' 'InputObject'
                 if ($InputObject) {
                     $obj = [PSCustomObject]@{
-                        PSTypeName = "AtlassianPS.JiraPS.User"
+                        PSTypeName = "AtlassianPSVII.JiraPSVII.User"
                         Name       = "$InputObject"
                     }
                 }
                 else {
                     $obj = [PSCustomObject]@{
-                        PSTypeName = "AtlassianPS.JiraPS.User"
+                        PSTypeName = "AtlassianPSVII.JiraPSVII.User"
                         Name       = ""
                     }
                 }
@@ -57,15 +57,15 @@ InModuleScope JiraPS {
                 $obj
             }
 
-            Mock Get-JiraGroupMember -ModuleName JiraPS {
+            Mock Get-JiraGroupMember -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraGroupMember' 'Group'
                 [PSCustomObject]@{
-                    PSTypeName = "AtlassianPS.JiraPS.User"
+                    PSTypeName = "AtlassianPSVII.JiraPSVII.User"
                     Name       = $testUsername1
                 }
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
             }
             #endregion Mocks
@@ -78,8 +78,8 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = 'Group'; type = 'AtlassianPS.JiraPS.Group[]' }
-                    @{ parameter = 'User'; type = 'AtlassianPS.JiraPS.User[]' }
+                    @{ parameter = 'Group'; type = 'AtlassianPSVII.JiraPSVII.Group[]' }
+                    @{ parameter = 'User'; type = 'AtlassianPSVII.JiraPSVII.User[]' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'PassThru'; type = 'Switch' }
                     @{ parameter = 'Force'; type = 'Switch' }
@@ -99,13 +99,13 @@ InModuleScope JiraPS {
                 It "Tests to see if a provided user is currently a member of the provided JIRA group before attempting to remove them" {
                     { Remove-JiraGroupMember -Group $testGroupName -User $testUsername1 -Force } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -Exactly -Times 1
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -Exactly -Times 1
                 }
 
                 It "Removes a user from a JIRA group if the user is a member" {
                     { Remove-JiraGroupMember -Group $testGroupName -User $testUsername1 -Force } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -ParameterFilter {
                         $Method -eq 'Delete' -and
                         $URI -eq '/rest/api/2/group/user' -and
                         $GetParameter['groupname'] -eq $testGroupName -and
@@ -115,7 +115,7 @@ InModuleScope JiraPS {
 
                 It "Removes multiple users from a JIRA group if they are passed to the -User parameter" {
                     # Override our previous mock so we have two group members
-                    Mock Get-JiraGroupMember -ModuleName JiraPS {
+                    Mock Get-JiraGroupMember -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraGroupMember' 'Group'
                         @(
                             [PSCustomObject] @{
@@ -130,7 +130,7 @@ InModuleScope JiraPS {
                     # Should use the REST method twice, since at present, you can only delete one group member per API call
                     { Remove-JiraGroupMember -Group $testGroupName -User $testUsername1, $testUsername2 -Force } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -ParameterFilter {
                         $Method -eq 'Delete' -and
                         $URI -eq '/rest/api/2/group/user' -and
                         $GetParameter['groupname'] -eq $testGroupName -and
@@ -145,7 +145,7 @@ InModuleScope JiraPS {
                 It "Accepts a group name as a String to the -Group parameter" {
                     { Remove-JiraGroupMember -Group $testGroupName -User $testUsername1 -Force } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -ParameterFilter {
                         $Method -eq "Delete" -and
                         $URI -eq '/rest/api/2/group/user' -and
                         $GetParameter['groupname'] -eq $testGroupName -and
@@ -153,13 +153,13 @@ InModuleScope JiraPS {
                     } -Exactly -Times 1
                 }
 
-                It "Accepts a JiraPS.Group object to the -Group parameter" {
+                It "Accepts a JiraPSVII.Group object to the -Group parameter" {
                     {
                         $group = Get-JiraGroup -GroupName $testGroupName
                         Remove-JiraGroupMember -Group $group -User $testUsername1 -Force
                     } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -ParameterFilter {
                         $Method -eq "Delete" -and
                         $URI -eq '/rest/api/2/group/user' -and
                         $GetParameter['groupname'] -eq $testGroupName -and
@@ -170,7 +170,7 @@ InModuleScope JiraPS {
                 It "Accepts pipeline input from Get-JiraGroup" {
                     { Get-JiraGroup -GroupName $testGroupName | Remove-JiraGroupMember -User $testUsername1 -Force } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -ParameterFilter {
                         $Method -eq "Delete" -and
                         $URI -eq '/rest/api/2/group/user' -and
                         $GetParameter['groupname'] -eq $testGroupName -and
@@ -178,13 +178,13 @@ InModuleScope JiraPS {
                     } -Exactly -Times 1
                 }
 
-                It "Accepts a AtlassianPS.JiraPS.User as input for -User parameter" {
+                It "Accepts a AtlassianPSVII.JiraPSVII.User as input for -User parameter" {
                     {
                         $user = Resolve-JiraUser -InputObject $testUsername1
                         Remove-JiraGroupMember -Group $testGroupName -User $user -Force
                     } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPS" -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName "JiraPSVII" -ParameterFilter {
                         $Method -eq "Delete" -and
                         $URI -eq '/rest/api/2/group/user' -and
                         $GetParameter['groupname'] -eq $testGroupName -and
@@ -200,15 +200,15 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeAll {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                Mock Resolve-JiraUser -ModuleName JiraPS {
+                Mock Resolve-JiraUser -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Resolve-JiraUser'
                     $object = [PSCustomObject] @{
                         'Name'      = 'testUser'
                         'AccountId' = 'abc123def456'
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                     $object
                 }
             }
@@ -216,7 +216,7 @@ InModuleScope JiraPS {
             It "uses accountId when removing a user on Cloud" {
                 { Remove-JiraGroupMember -Group $testGroupName -User 'testUser' -Force } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Delete' -and
                     $URI -eq '/rest/api/3/group/user' -and
                     $GetParameter['groupname'] -eq $testGroupName -and
@@ -225,13 +225,13 @@ InModuleScope JiraPS {
             }
 
             It "uses groupId when a Cloud group object provides one" {
-                $group = [AtlassianPS.JiraPS.Group]@{
+                $group = [AtlassianPSVII.JiraPSVII.Group]@{
                     Id = 'cloud-group-id'
                 }
 
                 { Remove-JiraGroupMember -Group $group -User 'testUser' -Force } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Delete' -and
                     $URI -eq '/rest/api/3/group/user' -and
                     $GetParameter['groupId'] -eq 'cloud-group-id' -and
@@ -241,8 +241,8 @@ InModuleScope JiraPS {
             }
 
             It "rejects a Cloud membership mutation when accountId is unavailable" {
-                Mock Resolve-JiraUser -ModuleName JiraPS {
-                    [AtlassianPS.JiraPS.User]@{ Name = 'ambiguous-user' }
+                Mock Resolve-JiraUser -ModuleName JiraPSVII {
+                    [AtlassianPSVII.JiraPSVII.User]@{ Name = 'ambiguous-user' }
                 }
 
                 { Remove-JiraGroupMember -Group $testGroupName -User 'ambiguous-user' -Force -ErrorAction Stop } |

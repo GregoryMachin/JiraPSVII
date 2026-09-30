@@ -1,0 +1,93 @@
+﻿function Move-JiraVersion {
+    # .ExternalHelp ..\JiraPSVII-help.xml
+    [CmdletBinding( SupportsShouldProcess, DefaultParameterSetName = 'ByAfter' )]
+    param(
+        [Parameter( Mandatory, ValueFromPipeline )]
+        [ValidateNotNull()]
+        [AtlassianPSVII.JiraPSVII.VersionTransformation()]
+        [AtlassianPSVII.JiraPSVII.Version]
+        $Version,
+
+        [Parameter( Mandatory, ParameterSetName = 'ByPosition' )]
+        [ValidateSet('First', 'Last', 'Earlier', 'Later')]
+        [String]$Position,
+
+        [Parameter( Mandatory, ParameterSetName = 'ByAfter' )]
+        [ValidateNotNull()]
+        [AtlassianPSVII.JiraPSVII.VersionTransformation()]
+        [AtlassianPSVII.JiraPSVII.Version]
+        $After,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        [System.Management.Automation.Credential()]
+        $Credential = [System.Management.Automation.PSCredential]::Empty
+    )
+
+    begin {
+        Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $versionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version/{0}/move' -IsCloud $isCloud
+    }
+
+    process {
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
+
+        if (-not $Version.Id) {
+            $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                ([System.ArgumentException]"Version ID is required"),
+                'ParameterValue.VersionIdRequired',
+                [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                $Version
+            )
+            $errorItem.ErrorDetails = "Move-JiraVersion requires a version ID for -Version. Provide a numeric version ID or an AtlassianPSVII.JiraPSVII.Version object with an ID."
+            ThrowError -ErrorRecord $errorItem
+        }
+
+        $requestBody = @{ }
+        switch ($PsCmdlet.ParameterSetName) {
+            'ByPosition' {
+                $requestBody["position"] = $Position
+            }
+            'ByAfter' {
+                if ($After.RestUrl) {
+                    $afterSelfUri = $After.RestUrl
+                }
+                else {
+                    if (-not $After.Id) {
+                        $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                            ([System.ArgumentException]"Version ID is required"),
+                            'ParameterValue.VersionIdRequired',
+                            [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                            $After
+                        )
+                        $errorItem.ErrorDetails = "Move-JiraVersion requires a version ID or RestUrl for -After. Provide a numeric version ID or an AtlassianPSVII.JiraPSVII.Version object with an ID or RestUrl."
+                        ThrowError -ErrorRecord $errorItem
+                    }
+                    $versionObj = Get-JiraVersion -Id $After.Id -Credential $Credential -ErrorAction Stop
+                    $afterSelfUri = $versionObj.RestUrl
+                }
+
+                $requestBody["after"] = $afterSelfUri
+            }
+        }
+
+        $parameter = @{
+            URI        = $versionResourceUri -f $Version.Id
+            Method     = "POST"
+            Body       = ConvertTo-Json $requestBody
+            Credential = $Credential
+        }
+
+        Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
+        if ($PSCmdlet.ShouldProcess($Version.Id, 'Move Jira version')) {
+            Invoke-JiraMethod @parameter
+        }
+    }
+
+    end {
+        Write-Verbose "[$($MyInvocation.MyCommand.Name)] Complete"
+    }
+}

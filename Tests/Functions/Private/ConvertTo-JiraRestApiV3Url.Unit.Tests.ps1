@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraRestApiV3Url" -Tag 'Unit' {
 
         Context "Jira Server / Data Center" {

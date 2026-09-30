@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraGroupPayload" -Tag 'Unit' {
         Context "Canonical group payloads" {
             It "preserves the canonical group response shape" {

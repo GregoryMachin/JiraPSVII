@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/New-JiraIssue/
 locale: en-US
 layout: documentation
@@ -45,7 +45,7 @@ Jira's create metadata is informative, but the Jira create endpoint remains the 
 Some JIRA instances may require additional custom fields specific to that instance of JIRA.
 In addition to the parameterized fields provided in this function, the Fields parameter accepts a hashtable of field names/IDs and values.
 This allows users to provide custom field data when creating an issue.
-Read more about it in [about_JiraPS_CustomFields](../../about/custom-fields.html)
+Read more about it in [about_JiraPSVII_CustomFields](../../about/custom-fields.html)
 
 On **Jira Cloud**, the `-Description` text is interpreted as Markdown and converted to Atlassian Document Format (ADF) before being sent, so familiar Markdown syntax (headings, bold/italic, lists, fenced code blocks, links, Markdown tables) renders as rich text on the new issue.
 On **Jira Server / Data Center**, the description is sent verbatim and the legacy wiki-markup syntax continues to apply.
@@ -68,7 +68,7 @@ given the project only requires these fields as mandatory.
 
 ```powershell
 Get-JiraIssueCreateMetadata -Project TEST -IssueType Bug | ? {$_.Required -eq $true}
-New-JiraIssue -Project TEST -IssueType Bug -Priority 1 -Summary 'Test issue from PowerShell' -Description 'This is a test issue created from the JiraPS module in PowerShell.' -Fields @{'Custom Field Name 1'=@{"foo" = "bar"};'customfield_10001'=@('baz');}
+New-JiraIssue -Project TEST -IssueType Bug -Priority 1 -Summary 'Test issue from PowerShell' -Description 'This is a test issue created from the JiraPSVII module in PowerShell.' -Fields @{'Custom Field Name 1'=@{"foo" = "bar"};'customfield_10001'=@('baz');}
 ```
 
 This example uses `Get-JiraIssueCreateMetadata` to identify fields required to create an issue in JIRA.
@@ -82,7 +82,7 @@ $parameters = @{
     IssueType = "Bug"
     Priority = 1
     Summary = 'Test issue from PowerShell'
-    Description = 'This is a test issue created from the JiraPS module in PowerShell.'
+    Description = 'This is a test issue created from the JiraPSVII module in PowerShell.'
     Fields = @{
         "Custom Field Name 1" = @{"foo" = "bar"}
         customfield_10001 = @('baz')
@@ -123,7 +123,7 @@ The third call omits both parameters; Jira applies the project's default assigne
 ### -Assignee
 
 User to assign the new issue to.
-Accepts a username (Jira Server / Data Center), an `accountId` (Jira Cloud), or a `AtlassianPS.JiraPS.User` object.
+Accepts a username (Jira Server / Data Center), an `accountId` (Jira Cloud), or a `AtlassianPSVII.JiraPSVII.User` object.
 
 If omitted, Jira will apply the project's default assignee — there is no separate `-UseDefaultAssignee` switch
 on this cmdlet because the create endpoint already does the right thing when the field is missing.
@@ -237,11 +237,11 @@ HelpMessage: ''
 
 Any additional fields.
 
-When you provide field names in `-Fields`, JiraPS first resolves them against create metadata returned by `Get-JiraIssueCreateMetadata` for the target project and issue type.
-If a provided key is not present in that scoped metadata, JiraPS falls back to the global `Get-JiraField` catalogue.
+When you provide field names in `-Fields`, JiraPSVII first resolves them against create metadata returned by `Get-JiraIssueCreateMetadata` for the target project and issue type.
+If a provided key is not present in that scoped metadata, JiraPSVII falls back to the global `Get-JiraField` catalogue.
 Using scoped metadata first avoids ambiguous name matching when duplicate custom-field display names exist across projects.
 
-See: about_JiraPS_CustomFields
+See: about_JiraPSVII_CustomFields
 
 On **Jira Cloud**, string values supplied for rich-text fields (`description`, `environment`, and custom textarea fields with schema type `doc`) are interpreted as Markdown and converted to Atlassian Document Format (ADF) before being sent, matching the behaviour of the explicit `-Description` parameter.
 Plain string fields, numeric fields, dates, etc. are forwarded as-is.
@@ -494,7 +494,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 ## NOTES
 
@@ -504,9 +504,9 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 
 ## RELATED LINKS
 
-[about_JiraPS_CreatingIssues](../../about/creating-issues.html)
+[about_JiraPSVII_CreatingIssues](../../about/creating-issues.html)
 
-[about_JiraPS_CustomFields](../../about/custom-fields.html)
+[about_JiraPSVII_CustomFields](../../about/custom-fields.html)
 
 [Get-JiraIssueCreateMetadata](../Get-JiraIssueCreateMetadata/)
 

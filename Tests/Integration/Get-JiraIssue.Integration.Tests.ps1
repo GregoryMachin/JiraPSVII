@@ -22,7 +22,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssue" -Tag 'Integration', 'Smoke', 'CanaryRead', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -58,7 +58,7 @@ InModuleScope JiraPS {
 
             It "returns the correct type" {
                 $issue = Get-JiraIssue -Key $fixtures["TestIssue"]
-                $issue.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Issue'
+                $issue.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Issue'
             }
 
             It "includes the summary" {
@@ -110,7 +110,7 @@ InModuleScope JiraPS {
         }
 
         Context "Issue Object Input" {
-            It "accepts a AtlassianPS.JiraPS.Issue object via -InputObject" {
+            It "accepts a AtlassianPSVII.JiraPSVII.Issue object via -InputObject" {
                 $firstIssue = Get-JiraIssue -Key $fixtures["TestIssue"]
                 $refreshed = Get-JiraIssue -InputObject $firstIssue
                 $refreshed.Key | Should -Be $fixtures["TestIssue"]

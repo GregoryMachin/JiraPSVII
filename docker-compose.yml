@@ -18,7 +18,7 @@ services:
     # overhead, so allocate at least 6 GiB to Docker Desktop before running
     # locally. CI runners have ~7 GiB and are fine out of the box.
     image: moveworkforward/atlas-run-standalone:${JIRA_IMAGE_TAG:-jira-11}
-    container_name: jiraps-jira-dc
+    container_name: jirapsvii-jira-dc
     ports:
       - "2990:2990"
     # CRITICAL — `tty: true` + `stdin_open: true` (the compose equivalent of

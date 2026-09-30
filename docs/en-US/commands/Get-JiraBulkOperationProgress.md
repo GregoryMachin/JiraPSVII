@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraBulkOperationProgress/
 locale: en-US
 layout: documentation
@@ -71,7 +71,7 @@ HelpMessage: ''
 ### -Credential
 
 Credentials to use to connect to Jira.
-If omitted, the current JiraPS session is used.
+If omitted, the current JiraPSVII session is used.
 
 ```yaml
 Type: PSCredential
@@ -96,7 +96,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.BulkOperationProgress
+### AtlassianPSVII.JiraPSVII.BulkOperationProgress
 
 The permission-scoped status and result details for one bulk operation.
 

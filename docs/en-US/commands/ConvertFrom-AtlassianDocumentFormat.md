@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/ConvertFrom-AtlassianDocumentFormat/
 locale: en-US
 layout: documentation
@@ -101,7 +101,7 @@ A Markdown representation of the ADF input, or the original string if the input 
 
 ## NOTES
 
-This function is public because JiraPS's read commands (`Get-JiraIssue`, `Get-JiraIssueComment`)
+This function is public because JiraPSVII's read commands (`Get-JiraIssue`, `Get-JiraIssueComment`)
 only convert ADF automatically when they use API v3 internally.
 Users who call `Invoke-JiraMethod`
 directly against Jira Cloud v3 endpoints receive raw ADF objects that need manual conversion.

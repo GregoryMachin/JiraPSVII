@@ -1,6 +1,6 @@
-# JiraPS Testing Guide
+# JiraPSVII Testing Guide
 
-This guide explains how to write, run, and debug tests for JiraPS.
+This guide explains how to write, run, and debug tests for JiraPSVII.
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@ This guide explains how to write, run, and debug tests for JiraPS.
 
 ## Test Structure
 
-JiraPS uses [Pester v5.7+](https://pester.dev/) for unit testing. All test files follow one of two standardized templates based on the function type being tested.
+JiraPSVII uses [Pester v5.7+](https://pester.dev/) for unit testing. All test files follow one of two standardized templates based on the function type being tested.
 
 ### Directory Organization
 
@@ -39,7 +39,7 @@ Tests are organized to mirror the module structure:
 
 ## Test Templates
 
-JiraPS uses two primary test templates based on function type:
+JiraPSVII uses two primary test templates based on function type:
 
 ### CRUD Functions (Get/Set/Remove/New/Add)
 
@@ -62,7 +62,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Add-JiraFilterPermission" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -74,12 +74,12 @@ InModuleScope JiraPS {
             #endregion
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 # Mock implementation
             }
@@ -157,7 +157,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraAttachment" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -192,8 +192,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds the custom type name 'JiraPS.YourType'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'JiraPS.YourType'
+                It "adds the custom type name 'JiraPSVII.YourType'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'JiraPSVII.YourType'
                 }
             }
 
@@ -222,7 +222,7 @@ InModuleScope JiraPS {
                 }
 
                 It "converts nested objects to proper types" {
-                    $result.author.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+                    $result.author.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
                 }
             }
 
@@ -273,13 +273,13 @@ The `Tests/Helpers/TestTools.ps1` module provides reusable functions for test se
 
 **`Initialize-TestEnvironment`**
 
-- Ensures the JiraPS module is loaded at the current on-disk version and returns the manifest path used.
+- Ensures the JiraPSVII module is loaded at the current on-disk version and returns the manifest path used.
 - Must be called in `BeforeDiscovery`; assign its return value to `$script:moduleToTest`.
-- Idempotent: short-circuits when the loaded module already matches the on-disk source. The next test file in a Pester run skips the Remove-Module / Import-Module churn entirely; the cache invalidates automatically when a source file (or `Release/JiraPS/JiraPS.psm1`) is touched.
+- Idempotent: short-circuits when the loaded module already matches the on-disk source. The next test file in a Pester run skips the Remove-Module / Import-Module churn entirely; the cache invalidates automatically when a source file (or `Release/JiraPSVII/JiraPSVII.psm1`) is touched.
 
 **`Resolve-ModuleSource`**
 
-- Returns the path to the JiraPS module manifest (`.psd1`).
+- Returns the path to the JiraPSVII module manifest (`.psd1`).
 - Automatically detects source vs. Release build.
 - You normally don't call this directly — `Initialize-TestEnvironment` already returns it.
 
@@ -304,13 +304,13 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment   # imports + returns manifest path
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "YourFunction" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
             # $VerbosePreference = 'Continue'  # Uncomment to debug mocks
 
-            Mock Get-JiraFilter -ModuleName JiraPS {
+            Mock Get-JiraFilter -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraFilter' 'Id'  # Shows: Id = 123
                 # mock logic
             }
@@ -386,7 +386,7 @@ Context "Type Validation - Negative Cases" {
 Mock external dependencies in `BeforeAll`:
 
 ```powershell
-Mock Invoke-JiraMethod -ModuleName JiraPS {
+Mock Invoke-JiraMethod -ModuleName JiraPSVII {
     Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
     ConvertFrom-Json @'
     {
@@ -423,12 +423,12 @@ BeforeAll {
 In your mock definitions, call `Write-MockDebugInfo` with the function name and parameter names:
 
 ```powershell
-Mock Invoke-JiraMethod -ModuleName JiraPS {
+Mock Invoke-JiraMethod -ModuleName JiraPSVII {
     Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
     # ... mock implementation
 }
 
-Mock Get-JiraFilter -ModuleName JiraPS {
+Mock Get-JiraFilter -ModuleName JiraPSVII {
     Write-MockDebugInfo 'Get-JiraFilter' 'Id', 'Name'
     # ... mock implementation
 }
@@ -480,7 +480,7 @@ The `-Verbose` parameter on `Invoke-Pester` only affects Pester's own internal l
 If you need interactive debugging, use breakpoints:
 
 ```powershell
-Mock Invoke-JiraMethod -ModuleName JiraPS {
+Mock Invoke-JiraMethod -ModuleName JiraPSVII {
     $Method | Set-PSBreakpoint  # Set breakpoint
     # ... mock implementation
 }
@@ -531,9 +531,9 @@ See [`Tests/Functions/Add-JiraFilterPermission.Unit.Tests.ps1`](Functions/Add-Ji
 
 ### Mocks Not Working
 
-- Confirm `InModuleScope JiraPS` wraps Describe block
-- Check `-ModuleName JiraPS` is specified in Mock
-- Verify function is exported from module (check `JiraPS.psd1`)
+- Confirm `InModuleScope JiraPSVII` wraps Describe block
+- Check `-ModuleName JiraPSVII` is specified in Mock
+- Verify function is exported from module (check `JiraPSVII.psd1`)
 
 ### Debug Output Not Showing
 
@@ -549,7 +549,7 @@ See [`Tests/Functions/Add-JiraFilterPermission.Unit.Tests.ps1`](Functions/Add-Ji
 
 ## Integration Tests
 
-In addition to unit tests, JiraPS includes integration tests that run against a live Jira Cloud instance.
+In addition to unit tests, JiraPSVII includes integration tests that run against a live Jira Cloud instance.
 
 ### Overview
 
@@ -605,10 +605,10 @@ Required GitHub Secrets:
 - `JIRA_TEST_PROJECT`
 - `JIRA_TEST_ISSUE`
 
-When the workflow runs, the `TestIntegration` task in `JiraPS.build.ps1` validates that all required environment variables are set and **fails early** with a clear error if any are missing — so a misconfigured secret surfaces as a red CI run rather than a green run with all tests skipped.
+When the workflow runs, the `TestIntegration` task in `JiraPSVII.build.ps1` validates that all required environment variables are set and **fails early** with a clear error if any are missing — so a misconfigured secret surfaces as a red CI run rather than a green run with all tests skipped.
 
 ## Resources
 
 - [Pester Documentation](https://pester.dev/docs/quick-start)
-- [JiraPS Documentation](https://atlassianps.org/docs/JiraPS/)
-- [AtlassianPS Contributing Guide](https://atlassianps.org/docs/Contributing/)
+- [JiraPSVII Documentation](https://atlassianps.org/docs/JiraPS/)
+- [AtlassianPSVII Contributing Guide](https://atlassianps.org/docs/Contributing/)

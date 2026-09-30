@@ -36,7 +36,7 @@
 
 ### Cloud / Data Center Compatibility
 
-<!-- JiraPS targets both Jira Cloud and Data Center. If your change touches API endpoints, -->
+<!-- JiraPSVII targets both Jira Cloud and Data Center. If your change touches API endpoints, -->
 <!-- request bodies, or response handling, verify it works for both deployment types. -->
 
 - [ ] This change does **not** affect API endpoints or REST calls (skip items below)

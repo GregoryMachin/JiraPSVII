@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraIssueLink/
 locale: en-US
 layout: documentation
@@ -77,7 +77,7 @@ HelpMessage: ''
 
 The IssueLink ID to search.
 
-Accepts input from pipeline when the object is of type `JiraPS.IssueLink`
+Accepts input from pipeline when the object is of type `JiraPSVII.IssueLink`
 
 ```yaml
 Type: Int32[]
@@ -110,7 +110,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### JiraPS.IssueLink
+### JiraPSVII.IssueLink
 
 ## NOTES
 

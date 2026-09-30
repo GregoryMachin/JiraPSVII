@@ -99,7 +99,7 @@ if (-not $canParallel) {
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 
-$tempResultsDir = Join-Path ([System.IO.Path]::GetTempPath()) "JiraPS-TestResults-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$tempResultsDir = Join-Path ([System.IO.Path]::GetTempPath()) "JiraPSVII-TestResults-$(Get-Date -Format 'yyyyMMddHHmmss')"
 if ($OutputPath) {
     if ($PSCmdlet.ShouldProcess($tempResultsDir, "Create temporary results directory")) {
         $null = New-Item -ItemType Directory -Path $tempResultsDir -Force
@@ -442,7 +442,7 @@ if ($OutputPath -and (Test-Path $tempResultsDir)) {
             $mergedDoc = [xml]'<?xml version="1.0" encoding="utf-8"?><test-results></test-results>'
             $root = $mergedDoc.DocumentElement
 
-            $root.SetAttribute('name', 'JiraPS Integration Tests')
+            $root.SetAttribute('name', 'JiraPSVII Integration Tests')
             $root.SetAttribute('total', ($totalPassed + $totalFailed + $totalSkipped).ToString())
             $root.SetAttribute('errors', '0')
             $root.SetAttribute('failures', $totalFailed.ToString())
@@ -470,7 +470,7 @@ if ($OutputPath -and (Test-Path $tempResultsDir)) {
 
             $mainSuite = $mergedDoc.CreateElement('test-suite')
             $mainSuite.SetAttribute('type', 'Assembly')
-            $mainSuite.SetAttribute('name', 'JiraPS.Integration.Tests')
+            $mainSuite.SetAttribute('name', 'JiraPSVII.Integration.Tests')
             $mainSuite.SetAttribute('executed', 'True')
             $mainSuite.SetAttribute('result', $(if ($totalFailed -eq 0) { 'Success' } else { 'Failure' }))
             $mainSuite.SetAttribute('success', $(if ($totalFailed -eq 0) { 'True' } else { 'False' }))

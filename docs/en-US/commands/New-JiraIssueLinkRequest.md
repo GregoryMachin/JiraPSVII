@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/New-JiraIssueLinkRequest/
 locale: en-US
 layout: documentation
@@ -20,7 +20,7 @@ New-JiraIssueLinkRequest [-LinkType] <IssueLinkType> [-FromIssue] <Issue> [-ToIs
 
 ## DESCRIPTION
 
-Builds an `AtlassianPS.JiraPS.IssueLinkCreateRequest` object that can be passed to `Add-JiraIssueLink`.
+Builds an `AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest` object that can be passed to `Add-JiraIssueLink`.
 Use this helper when you want a simple `-Type`, `-FromIssue`, and `-ToIssue` authoring experience instead of manually composing nested request objects.
 
 ## EXAMPLES
@@ -62,7 +62,7 @@ HelpMessage: ''
 
 The issue-link type reference.
 Simple string input maps to the link-type name.
-For id-based requests, pass an `AtlassianPS.JiraPS.IssueLinkType` object with `Id` populated.
+For id-based requests, pass an `AtlassianPSVII.JiraPSVII.IssueLinkType` object with `Id` populated.
 
 ```yaml
 Type: IssueLinkType
@@ -113,17 +113,17 @@ For more information, see [about_CommonParameters](https://go.microsoft.com/fwli
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.IssueLinkType
+### AtlassianPSVII.JiraPSVII.IssueLinkType
 
 The issue-link type reference that identifies the Jira link relationship.
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 The issues that should be used as source and destination link references.
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.IssueLinkCreateRequest
+### AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest
 
 A typed request payload suitable for `Add-JiraIssueLink`.
 

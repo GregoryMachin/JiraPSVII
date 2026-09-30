@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraIssueEditMetadata/
 locale: en-US
 layout: documentation
@@ -102,7 +102,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### JiraPS.Field
+### JiraPSVII.Field
 
 ## NOTES
 
@@ -112,7 +112,7 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 
 ## RELATED LINKS
 
-[about_JiraPS_UpdatingIssues](../../about/updating-issues.html)
+[about_JiraPSVII_UpdatingIssues](../../about/updating-issues.html)
 
 [Get-JiraField](../Get-JiraField/)
 

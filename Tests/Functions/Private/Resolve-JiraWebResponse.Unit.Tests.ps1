@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraWebResponse" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -37,16 +37,16 @@ InModuleScope JiraPS {
         }
 
         It "delegates HTTP errors to Resolve-ErrorWebResponse" {
-            Mock Resolve-ErrorWebResponse -ModuleName 'JiraPS' {}
+            Mock Resolve-ErrorWebResponse -ModuleName 'JiraPSVII' {}
 
             $response = New-FakeWebResponse -StatusCode 400
             $null = Invoke-ResolveJiraWebResponse -Remaining @{ WebResponse = $response; Exception = [System.Exception]::new('boom') }
 
-            Should -Invoke -CommandName Resolve-ErrorWebResponse -ModuleName 'JiraPS' -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Resolve-ErrorWebResponse -ModuleName 'JiraPSVII' -Exactly -Times 1 -Scope It
         }
 
         It "falls back to Exception.Response.StatusCode when direct status code is unavailable" {
-            Mock Resolve-ErrorWebResponse -ModuleName 'JiraPS' {}
+            Mock Resolve-ErrorWebResponse -ModuleName 'JiraPSVII' {}
             $bytes = [System.Text.Encoding]::UTF8.GetBytes('{}')
             $response = [PSCustomObject]@{
                 StatusCode       = $null
@@ -64,7 +64,7 @@ InModuleScope JiraPS {
                 Exception   = [System.Exception]::new('fallback-error')
             }
 
-            Should -Invoke -CommandName Resolve-ErrorWebResponse -ModuleName 'JiraPS' -Exactly -Times 1 -Scope It -ParameterFilter {
+            Should -Invoke -CommandName Resolve-ErrorWebResponse -ModuleName 'JiraPSVII' -Exactly -Times 1 -Scope It -ParameterFilter {
                 $StatusCode -eq [System.Net.HttpStatusCode]::BadRequest
             }
         }
@@ -76,7 +76,7 @@ InModuleScope JiraPS {
 
         It "returns transformed session when -StoreSession is set" {
             $script:JiraServerMetadata = @{}
-            Mock ConvertTo-JiraSession -ModuleName 'JiraPS' {
+            Mock ConvertTo-JiraSession -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     Username = $Username
                 }
@@ -105,7 +105,7 @@ InModuleScope JiraPS {
                 AuthenticationType = 'OAuth'
                 CloudId            = '00000000-0000-0000-0000-000000000000'
             }
-            Mock ConvertTo-JiraSession -ModuleName 'JiraPS' {
+            Mock ConvertTo-JiraSession -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     Username           = $Username
                     DeploymentType     = $DeploymentType
@@ -129,7 +129,7 @@ InModuleScope JiraPS {
         }
 
         It "stores cache entries for GET responses when CacheKey is provided" {
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://jira.example.com' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'https://jira.example.com' }
             $script:JiraCache = @{}
 
             $response = New-FakeWebResponse -StatusCode 200 -Json '{"name":"field"}'
@@ -145,7 +145,7 @@ InModuleScope JiraPS {
         }
 
         It "does not create a cache entry for non-GET responses" {
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://jira.example.com' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'https://jira.example.com' }
             $script:JiraCache = @{}
 
             $response = New-FakeWebResponse -StatusCode 200 -Json '{"name":"field"}'
@@ -159,7 +159,7 @@ InModuleScope JiraPS {
         }
 
         It "returns nothing and does not throw when response body is an empty JSON array" {
-            Mock Set-JiraCachedResponse -ModuleName 'JiraPS' {}
+            Mock Set-JiraCachedResponse -ModuleName 'JiraPSVII' {}
 
             $bytes = [System.Text.Encoding]::UTF8.GetBytes('[]')
             $emptyArrayResponse = [PSCustomObject]@{
@@ -177,7 +177,7 @@ InModuleScope JiraPS {
 
             # Result may be $null (PS7+) or @() (PS5.1), but should be empty in any case
             @($script:result).Count | Should -Be 0
-            Should -Invoke -CommandName Set-JiraCachedResponse -ModuleName 'JiraPS' -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Set-JiraCachedResponse -ModuleName 'JiraPSVII' -Exactly -Times 0 -Scope It
         }
 
         It "returns nothing when successful response has no content" {
@@ -196,7 +196,7 @@ InModuleScope JiraPS {
         }
 
         It "returns parsed response for successful non-paging requests" {
-            Mock Invoke-PaginatedRequest -ModuleName 'JiraPS' { throw 'Should not be called for non-paging response.' }
+            Mock Invoke-PaginatedRequest -ModuleName 'JiraPSVII' { throw 'Should not be called for non-paging response.' }
 
             $response = New-FakeWebResponse -StatusCode 200 -Json '{"id":42,"name":"ok"}'
             $result = Invoke-ResolveJiraWebResponse -Remaining @{
@@ -206,11 +206,11 @@ InModuleScope JiraPS {
 
             $result.id | Should -Be 42
             $result.name | Should -Be 'ok'
-            Should -Invoke -CommandName Invoke-PaginatedRequest -ModuleName 'JiraPS' -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Invoke-PaginatedRequest -ModuleName 'JiraPSVII' -Exactly -Times 0 -Scope It
         }
 
         It "delegates paging results to Invoke-PaginatedRequest when -Paging is set" {
-            Mock Invoke-PaginatedRequest -ModuleName 'JiraPS' { @('paged') }
+            Mock Invoke-PaginatedRequest -ModuleName 'JiraPSVII' { @('paged') }
 
             $response = New-FakeWebResponse -StatusCode 200 -Json '{"issues":[{"id":1}],"startAt":0,"maxResults":1,"total":1}'
             $result = Invoke-ResolveJiraWebResponse -Remaining @{
@@ -220,7 +220,7 @@ InModuleScope JiraPS {
             }
 
             $result | Should -Be @('paged')
-            Should -Invoke -CommandName Invoke-PaginatedRequest -ModuleName 'JiraPS' -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Invoke-PaginatedRequest -ModuleName 'JiraPSVII' -Exactly -Times 1 -Scope It
         }
     }
 }

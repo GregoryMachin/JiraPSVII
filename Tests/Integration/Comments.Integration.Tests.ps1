@@ -13,7 +13,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Issue Comments" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -58,7 +58,7 @@ InModuleScope JiraPS {
                     $comments = Get-JiraIssueComment -Issue $fixtures.TestIssue
 
                     if ($comments) {
-                        $comments[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Comment'
+                        $comments[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Comment'
                     }
                 }
 
@@ -150,7 +150,7 @@ InModuleScope JiraPS {
 
                     $result = Add-JiraIssueComment -Issue $tempIssue.Key -Comment $commentBody
 
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Comment'
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Comment'
                 }
 
                 It "accepts issue object via pipeline" {

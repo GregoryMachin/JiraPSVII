@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraRemoteLink" -Tag 'Unit' {
 
         BeforeAll {
@@ -41,23 +41,23 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
             Mock Get-JiraIssue {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
-                $object = [AtlassianPS.JiraPS.Issue]@{
+                $object = [AtlassianPSVII.JiraPSVII.Issue]@{
                     RestURL = 'https://jira.example.com/rest/api/2/issue/12345'
                     Key     = $testIssueKey
                 }
                 return $object
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
@@ -65,17 +65,17 @@ InModuleScope JiraPS {
             Mock Get-JiraRemoteLink {
                 Write-MockDebugInfo 'Get-JiraRemoteLink' 'Issue'
                 $object = ConvertFrom-Json $testLink
-                $object.PSObject.TypeNames.Insert(0, 'JiraPS.IssueLinkType')
+                $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.IssueLinkType')
                 return $object
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'DELETE' } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'DELETE' } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 # This REST method should produce no output
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -89,7 +89,7 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = 'Issue'; type = 'AtlassianPS.JiraPS.Issue' }
+                    @{ parameter = 'Issue'; type = 'AtlassianPSVII.JiraPSVII.Issue' }
                     @{ parameter = 'LinkId'; type = 'Int32[]' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'Force'; type = 'Switch' }
@@ -111,7 +111,7 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
 
-                It "Accepts a AtlassianPS.JiraPS.Issue object to the -Issue parameter" {
+                It "Accepts a AtlassianPSVII.JiraPSVII.Issue object to the -Issue parameter" {
                     $Issue = Get-JiraIssue $testIssueKey
                     { Remove-JiraRemoteLink -Issue $Issue -LinkId 10000 -Force } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
@@ -123,7 +123,7 @@ InModuleScope JiraPS {
                 }
 
                 It "Accepts the output of Get-JiraRemoteLink" {
-                    $issue = [AtlassianPS.JiraPS.Issue]@{ Key = $testIssueKey }
+                    $issue = [AtlassianPSVII.JiraPSVII.Issue]@{ Key = $testIssueKey }
                     $remoteLink = Get-JiraRemoteLink $issue
                     { Remove-JiraRemoteLink -Issue $issue -LinkId $remoteLink.id -Force } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
@@ -154,20 +154,20 @@ InModuleScope JiraPS {
             It "retains the Data Center REST API v2 route" {
                 Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -Force
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Delete' -and $URI -eq "/rest/api/2/issue/$testIssueKey/remotelink/10000"
                 }
             }
 
             Context "Jira Cloud" {
                 BeforeEach {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
                 }
 
                 It "uses the REST API v3 route" {
                     Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -Force
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Method -eq 'Delete' -and $URI -eq "/rest/api/3/issue/$testIssueKey/remotelink/10000"
                     }
                 }
@@ -175,11 +175,11 @@ InModuleScope JiraPS {
                 It "does not send a delete request with WhatIf" {
                     Remove-JiraRemoteLink -Issue $testIssueKey -LinkId 10000 -WhatIf
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0
                 }
 
                 It "propagates permission failures" {
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Delete' -and $URI -eq "/rest/api/3/issue/$testIssueKey/remotelink/10000"
                     } { throw 'Forbidden' }
 

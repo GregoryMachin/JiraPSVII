@@ -8,7 +8,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Add-JiraIssueAttachment" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -50,32 +50,32 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock ConvertTo-JiraAttachment -ModuleName JiraPS {
+            Mock ConvertTo-JiraAttachment -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraAttachment' 'InputObject'
                 $InputObject
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
-                $Issue = [AtlassianPS.JiraPS.Issue]@{
+                $Issue = [AtlassianPSVII.JiraPSVII.Issue]@{
                     Key     = $issueKey
                     RestURL = "$jiraServer/rest/api/2/issue/$issueKey"
                 }
                 $Issue
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueKey/attachments" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Post' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueKey/attachments" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json -InputObject $attachmentJson
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -98,7 +98,7 @@ InModuleScope JiraPS {
                     $command | Should -HaveParameter $parameter
 
                     #ToDo:CustomClass
-                    # can't use -Type as long we are using `PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Filter')`
+                    # can't use -Type as long we are using `PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Filter')`
                     (Get-Member -InputObject $command.Parameters.Item($parameter)).Attributes | Should -Contain $typeName
                 }
             }
@@ -125,16 +125,16 @@ InModuleScope JiraPS {
             It "calls all necessary functions under the hood" {
                 $null = Add-JiraIssueAttachment -Issue (Get-JiraIssue $issueKey) -FilePath $filePath
 
-                Should -Invoke 'Get-JiraIssue' -ModuleName JiraPS -Exactly -Times 2
-                Should -Invoke 'Resolve-JiraIssueObject' -ModuleName JiraPS -Exactly -Times 1
-                Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' } -Exactly -Times 1
-                Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -ne 'Post' } -Exactly -Times 0
+                Should -Invoke 'Get-JiraIssue' -ModuleName JiraPSVII -Exactly -Times 2
+                Should -Invoke 'Resolve-JiraIssueObject' -ModuleName JiraPSVII -Exactly -Times 1
+                Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Post' } -Exactly -Times 1
+                Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -ne 'Post' } -Exactly -Times 0
             }
 
             It 'uploads attachments via Invoke-JiraMethod -InFile' {
                 $null = Add-JiraIssueAttachment -Issue $issueKey -FilePath $filePath
 
-                Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -eq "$jiraServer/rest/api/2/issue/$issueKey/attachments" -and
                     $InFile -eq $filePath -and
@@ -191,11 +191,11 @@ InModuleScope JiraPS {
                 }
 
                 It "issue must be an Issue or a String" {
-                    { Add-JiraIssueAttachment -Issue (Get-Date) -FilePath $filePath -Verbose } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
+                    { Add-JiraIssueAttachment -Issue (Get-Date) -FilePath $filePath -Verbose } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
                 }
 
                 It "issue can't be an array passed directly (use the pipeline instead)" {
-                    { Add-JiraIssueAttachment -Issue $issueKey, $issueKey -FilePath $filePath } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
+                    { Add-JiraIssueAttachment -Issue $issueKey, $issueKey -FilePath $filePath } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
                 }
 
                 It "file must exist" {

@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraAuditRecord/
 locale: en-US
 layout: documentation
@@ -32,7 +32,7 @@ By default the query is limited to the preceding 24 hours to avoid unintentional
 Use `-From` and `-To` to select a UTC time range, `-PageSize` to control each Jira request, and the common `-First` and `-Skip` parameters to bound output.
 
 Audit records can contain account identifiers, IP addresses, project names, configuration changes, and other operationally sensitive information.
-JiraPS keeps the result only in the pipeline and does not log request or response contents.
+JiraPSVII keeps the result only in the pipeline and does not log request or response contents.
 The command supports the `/rest/api/2/auditing/record` route on Jira Cloud and Data Center, but Jira still enforces its deployment-specific administrator permission.
 
 ## EXAMPLES
@@ -229,7 +229,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.AuditRecord
+### AtlassianPSVII.JiraPSVII.AuditRecord
 
 One administrative audit record, including the event metadata Jira makes visible to the caller.
 

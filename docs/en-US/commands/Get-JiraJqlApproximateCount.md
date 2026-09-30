@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraJqlApproximateCount/
 locale: en-US
 layout: documentation
@@ -49,7 +49,7 @@ Returns a count result for the valid query and a result containing validation er
 
 ### -Credential
 
-Credentials to use to connect to Jira. If omitted, the current JiraPS session or anonymous access is used.
+Credentials to use to connect to Jira. If omitted, the current JiraPSVII session or anonymous access is used.
 
 ```yaml
 Type: PSCredential
@@ -103,7 +103,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.JqlApproximateCountResult
+### AtlassianPSVII.JiraPSVII.JqlApproximateCountResult
 
 ## NOTES
 

@@ -1,6 +1,6 @@
 ﻿#requires -modules @{ ModuleName = "Pester"; ModuleVersion = "5.7"; MaximumVersion = "5.999" }
 
-Describe 'AtlassianPS.Standards version consistency' -Tag Unit {
+Describe 'AtlassianPSVII.Standards version consistency' -Tag Unit {
     It 'keeps workflow Standards action pins aligned with build.requirements' {
         $projectRoot = if (
             $env:BHProjectPath -and
@@ -28,7 +28,7 @@ Describe 'AtlassianPS.Standards version consistency' -Tag Unit {
         $buildRequirementsPath = Join-Path -Path $projectRoot -ChildPath 'Tools/build.requirements.psd1'
         $buildRequirements = Import-PowerShellDataFile -Path $buildRequirementsPath
         $standardsRequirement = $buildRequirements |
-            Where-Object { $_.ModuleName -eq 'AtlassianPS.Standards' } |
+            Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
             Select-Object -First 1
         $standardsVersion = [string] $standardsRequirement.RequiredVersion
 
@@ -108,21 +108,21 @@ Describe 'AtlassianPS.Standards version consistency' -Tag Unit {
             $candidate
         }
 
-        $buildScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'JiraPS.build.ps1') -Raw
+        $buildScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'JiraPSVII.build.ps1') -Raw
 
-        $buildScriptContent | Should -Not -Match 'function\s+Get-JiraPSReleaseNotesFromChangelog'
-        $buildScriptContent | Should -Match 'Get-AtlassianPSReleaseNotesFromChangelog[\s\S]+CHANGELOG\.md'
-        $buildScriptContent | Should -Match 'Set-AtlassianPSModuleManifestVersion[\s\S]+-ReleaseNotes\s+\$releaseNotes'
-        $buildScriptContent | Should -Not -Match 'ConvertTo-JiraPSModuleVersion'
+        $buildScriptContent | Should -Not -Match 'function\s+Get-JiraPSVIIReleaseNotesFromChangelog'
+        $buildScriptContent | Should -Match 'Get-AtlassianPSVIIReleaseNotesFromChangelog[\s\S]+CHANGELOG\.md'
+        $buildScriptContent | Should -Match 'Set-AtlassianPSVIIModuleManifestVersion[\s\S]+-ReleaseNotes\s+\$releaseNotes'
+        $buildScriptContent | Should -Not -Match 'ConvertTo-JiraPSVIIModuleVersion'
 
         $releaseWorkflowContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath '.github/workflows/release.yml') -Raw
         $releaseWorkflowContent | Should -Match 'AtlassianPS/AtlassianPS\.Standards/\.github/actions/build-release-notes@[0-9a-f]{40}'
         $releaseWorkflowContent | Should -Match 'body_path:\s+\$\{\{\s*steps\.release_notes\.outputs\.release_notes_path\s*\}\}'
         $releaseWorkflowContent | Should -Match 'build-release-notes[\s\S]+Publish module'
-        $releaseWorkflowContent | Should -Not -Match 'changelog-to-release|changelog\.configuration\.json|steps\.changelog\.outputs\.body|Get-AtlassianPSReleaseNotesFromChangelog[\s\S]+Set-Content'
+        $releaseWorkflowContent | Should -Not -Match 'changelog-to-release|changelog\.configuration\.json|steps\.changelog\.outputs\.body|Get-AtlassianPSVIIReleaseNotesFromChangelog[\s\S]+Set-Content'
     }
 
-    It 'reads AtlassianPS.Standards version from build.requirements in tool scripts' {
+    It 'reads AtlassianPSVII.Standards version from build.requirements in tool scripts' {
         $projectRoot = if (
             $env:BHProjectPath -and
             (Test-Path -LiteralPath (Join-Path -Path $env:BHProjectPath -ChildPath 'CODEOWNERS'))
@@ -148,7 +148,7 @@ Describe 'AtlassianPS.Standards version consistency' -Tag Unit {
 
         $setupScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'Tools/setup.ps1') -Raw
         $updateScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'Tools/update.dependencies.ps1') -Raw
-        $buildScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'JiraPS.build.ps1') -Raw
+        $buildScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'JiraPSVII.build.ps1') -Raw
         $testToolsContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'Tests/Helpers/TestTools.ps1') -Raw
 
         $setupScriptContent | Should -Match '\$buildRequirements\s*=\s*Import-PowerShellDataFile'
@@ -162,10 +162,10 @@ Describe 'AtlassianPS.Standards version consistency' -Tag Unit {
 
         $buildScriptContent | Should -Match '\$buildRequirements\s*=\s*Import-PowerShellDataFile'
         $buildScriptContent | Should -Match '-RequiredVersion\s+\$standardsRequirement\.RequiredVersion'
-        $buildScriptContent | Should -Not -Match "AtlassianPS\.Standards.*RequiredVersion\s+'[0-9]+\.[0-9]+\.[0-9]+'"
+        $buildScriptContent | Should -Not -Match "AtlassianPSVII\.Standards.*RequiredVersion\s+'[0-9]+\.[0-9]+\.[0-9]+'"
 
         $testToolsContent | Should -Match '\$script:_BuildRequirements\s*=\s*Import-PowerShellDataFile'
         $testToolsContent | Should -Match '-RequiredVersion\s+\$script:_StandardsRequirement\.RequiredVersion'
-        $testToolsContent | Should -Not -Match "AtlassianPS\.Standards.*RequiredVersion\s+'[0-9]+\.[0-9]+\.[0-9]+'"
+        $testToolsContent | Should -Not -Match "AtlassianPSVII\.Standards.*RequiredVersion\s+'[0-9]+\.[0-9]+\.[0-9]+'"
     }
 }

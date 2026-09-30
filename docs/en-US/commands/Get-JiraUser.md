@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraUser/
 locale: en-US
 layout: documentation
@@ -121,7 +121,7 @@ This pattern is useful when migrating scripts from Data Center to Cloud.
 Get-JiraUser -UserName user1 | Get-JiraUser
 ```
 
-Refreshes user objects by piping existing `AtlassianPS.JiraPS.User` output back through `Get-JiraUser`.
+Refreshes user objects by piping existing `AtlassianPSVII.JiraPSVII.User` output back through `Get-JiraUser`.
 Use `-UserName` / `-AccountId` for string-based lookups, and `-InputObject` when requerying existing user objects.
 
 ## PARAMETERS
@@ -227,7 +227,7 @@ HelpMessage: ''
 ### -InputObject
 
 User object(s) to refresh from Jira.
-Use this parameter when you already have `AtlassianPS.JiraPS.User` objects and want to requery the latest data.
+Use this parameter when you already have `AtlassianPSVII.JiraPSVII.User` objects and want to requery the latest data.
 For string-based lookup, use `-UserName` (Data Center / generic) or `-AccountId` (Cloud).
 
 ```yaml
@@ -341,13 +341,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 Username, name, or e-mail address
 
-### AtlassianPS.JiraPS.User[]
+### AtlassianPSVII.JiraPSVII.User[]
 
 Existing user object(s) to refresh from Jira via `-InputObject`.
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.User
+### AtlassianPSVII.JiraPSVII.User
 
 ## NOTES
 

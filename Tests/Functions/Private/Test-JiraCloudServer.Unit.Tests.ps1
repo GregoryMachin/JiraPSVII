@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Test-JiraCloudServer" -Tag 'Unit' {
         BeforeEach {
             $script:JiraServerMetadata = @{}
@@ -14,31 +14,31 @@ InModuleScope JiraPS {
 
         It "uses explicit Cloud metadata without auto-detection" {
             $script:JiraServerMetadata = @{ DeploymentType = 'Cloud' }
-            Mock Get-JiraServerInformation -ModuleName JiraPS { throw 'auto-detection should not run' }
+            Mock Get-JiraServerInformation -ModuleName JiraPSVII { throw 'auto-detection should not run' }
 
             Test-JiraCloudServer | Should -BeTrue
-            Should -Invoke -CommandName Get-JiraServerInformation -ModuleName JiraPS -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Get-JiraServerInformation -ModuleName JiraPSVII -Exactly -Times 0 -Scope It
         }
 
         It "uses explicit Data Center metadata without auto-detection" {
             $script:JiraServerMetadata = @{ DeploymentType = 'DataCenter' }
-            Mock Get-JiraServerInformation -ModuleName JiraPS { throw 'auto-detection should not run' }
+            Mock Get-JiraServerInformation -ModuleName JiraPSVII { throw 'auto-detection should not run' }
 
             Test-JiraCloudServer | Should -BeFalse
-            Should -Invoke -CommandName Get-JiraServerInformation -ModuleName JiraPS -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Get-JiraServerInformation -ModuleName JiraPSVII -Exactly -Times 0 -Scope It
         }
 
         It "preserves legacy auto-detection when no metadata is configured" {
-            Mock Get-JiraServerInformation -ModuleName JiraPS {
-                [AtlassianPS.JiraPS.ServerInfo]@{ DeploymentType = 'Cloud' }
+            Mock Get-JiraServerInformation -ModuleName JiraPSVII {
+                [AtlassianPSVII.JiraPSVII.ServerInfo]@{ DeploymentType = 'Cloud' }
             }
 
             Test-JiraCloudServer | Should -BeTrue
-            Should -Invoke -CommandName Get-JiraServerInformation -ModuleName JiraPS -Exactly -Times 1 -Scope It
+            Should -Invoke -CommandName Get-JiraServerInformation -ModuleName JiraPSVII -Exactly -Times 1 -Scope It
         }
 
         It "surfaces auto-detection failures instead of assuming Server" {
-            Mock Get-JiraServerInformation -ModuleName JiraPS {
+            Mock Get-JiraServerInformation -ModuleName JiraPSVII {
                 throw 'Unable to determine Jira deployment type from /rest/api/2/serverInfo.'
             }
 

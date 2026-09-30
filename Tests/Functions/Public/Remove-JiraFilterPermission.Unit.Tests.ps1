@@ -6,19 +6,19 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraFilterPermission" -Tag 'Unit' {
 
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
             # $VerbosePreference = 'Continue'
 
             #region Definitions
             $script:jiraServer = "https://jira.example.com"
 
             $script:filterPermission1 = New-Object -TypeName PSCustomObject -Property @{ Id = 1111 }
-            $filterPermission1.PSObject.TypeNames.Insert(0, 'JiraPS.FilterPermission')
+            $filterPermission1.PSObject.TypeNames.Insert(0, 'JiraPSVII.FilterPermission')
             $script:filterPermission2 = New-Object -TypeName PSCustomObject -Property @{ Id = 2222 }
             $filterPermission2.Id = 2222
             $script:fullFilter = New-Object -TypeName PSCustomObject -Property @{
@@ -29,35 +29,35 @@ InModuleScope JiraPS {
                     $filterPermission2
                 )
             }
-            $fullFilter.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Filter')
+            $fullFilter.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Filter')
             $script:basicFilter = New-Object -TypeName PSCustomObject -Property @{
                 Id      = 23456
                 RestUrl = "$jiraServer/rest/api/2/filter/23456"
             }
-            $basicFilter.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Filter')
+            $basicFilter.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Filter')
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraFilter -ModuleName JiraPS {
+            Mock Get-JiraFilter -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraFilter' 'Id'
                 $basicFilter
             }
 
-            Mock Get-JiraFilterPermission -ModuleName JiraPS {
+            Mock Get-JiraFilterPermission -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraFilterPermission' 'Id'
                 $fullFilter
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/*/filter/*/permission*" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/*/filter/*/permission*" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -93,11 +93,11 @@ InModuleScope JiraPS {
                         Get-JiraFilterPermission -Id 1 | Remove-JiraFilterPermission
                     } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'Delete' -and
                         $URI -like '*/rest/api/*/filter/12345/permission/1111'
                     }
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'Delete' -and
                         $URI -like '*/rest/api/*/filter/12345/permission/2222'
                     }
@@ -108,11 +108,11 @@ InModuleScope JiraPS {
                         Remove-JiraFilterPermission -FilterId 1 -PermissionId 3333, 4444
                     } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'Delete' -and
                         $URI -like '*/rest/api/*/filter/23456/permission/3333'
                     }
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'Delete' -and
                         $URI -like '*/rest/api/*/filter/23456/permission/4444'
                     }
@@ -125,7 +125,7 @@ InModuleScope JiraPS {
                 It "finds the filter by FilterId" {
                     { Remove-JiraFilterPermission -FilterId 1 -PermissionId 1111 } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Get-JiraFilter -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke -CommandName Get-JiraFilter -ModuleName JiraPSVII -Exactly -Times 1
                 }
 
                 It "can process multiple PermissionIds" {
@@ -139,12 +139,12 @@ InModuleScope JiraPS {
                 It "resolves positional parameters" {
                     { Remove-JiraFilterPermission 12345 1111 } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
 
                     $filter = Get-JiraFilterPermission -Id 1
                     { Remove-JiraFilterPermission $filter } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 3
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 3
                 }
             }
 
@@ -178,16 +178,16 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeEach {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
             }
 
             It "uses an ID-derived REST API v3 route for permission deletion" {
                 Remove-JiraFilterPermission -Filter $fullFilter
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Delete' -and $URI -eq '/rest/api/3/filter/12345/permission/1111'
                 }
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Delete' -and $URI -eq '/rest/api/3/filter/12345/permission/2222'
                 }
             }
@@ -195,7 +195,7 @@ InModuleScope JiraPS {
             It "does not delete permissions with WhatIf" {
                 Remove-JiraFilterPermission -Filter $fullFilter -WhatIf
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0 -ParameterFilter {
                     $Method -eq 'Delete'
                 }
             }

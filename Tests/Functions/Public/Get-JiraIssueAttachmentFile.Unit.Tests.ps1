@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueAttachmentFile" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -17,11 +17,11 @@ InModuleScope JiraPS {
             $script:issueKey = 'IT-3676'
 
             $script:attachmentFixtures = @(
-                [AtlassianPS.JiraPS.Attachment]@{
+                [AtlassianPSVII.JiraPSVII.Attachment]@{
                     ID       = '10013'
                     Self     = [uri]"$jiraServer/rest/api/2/attachment/10013"
                     FileName = 'foo.pdf'
-                    Author   = [AtlassianPS.JiraPS.User]@{
+                    Author   = [AtlassianPSVII.JiraPSVII.User]@{
                         Name         = 'admin'
                         Key          = 'admin'
                         AccountId    = '000000:000000-0000-0000-0000-ab899c878d00'
@@ -35,11 +35,11 @@ InModuleScope JiraPS {
                     MimeType = 'application/pdf'
                     Content  = [uri]"$jiraServer/secure/attachment/10013/foo.pdf"
                 }
-                [AtlassianPS.JiraPS.Attachment]@{
+                [AtlassianPSVII.JiraPSVII.Attachment]@{
                     ID       = '10010'
                     Self     = [uri]"$jiraServer/rest/api/2/attachment/10010"
                     FileName = 'bar.pdf'
-                    Author   = [AtlassianPS.JiraPS.User]@{
+                    Author   = [AtlassianPSVII.JiraPSVII.User]@{
                         Name         = 'admin'
                         Key          = 'admin'
                         AccountId    = '000000:000000-0000-0000-0000-ab899c878d00'
@@ -57,14 +57,14 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS { $jiraServer }
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII { $jiraServer }
 
-            Mock Get-JiraIssueAttachment -ModuleName JiraPS {
+            Mock Get-JiraIssueAttachment -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssueAttachment'
                 $script:attachmentFixtures
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Get' -and
                 $URI -like "$jiraServer/secure/attachment/*"
             } {
@@ -72,7 +72,7 @@ InModuleScope JiraPS {
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -83,12 +83,12 @@ InModuleScope JiraPS {
             BeforeAll {
                 # Pester 5 strips ArgumentTransformationAttribute from mocked
                 # parameter signatures, so feeding the upstream mock a bare
-                # issue-key string trips the [AtlassianPS.JiraPS.Issue] cast.
+                # issue-key string trips the [AtlassianPSVII.JiraPSVII.Issue] cast.
                 # Build a real Issue instance once and reuse it.
-                $script:fooIssue = [AtlassianPS.JiraPS.Issue]@{ Key = 'Foo' }
+                $script:fooIssue = [AtlassianPSVII.JiraPSVII.Issue]@{ Key = 'Foo' }
             }
 
-            It 'only accepts AtlassianPS.JiraPS.Attachment as input' {
+            It 'only accepts AtlassianPSVII.JiraPSVII.Attachment as input' {
                 { Get-JiraIssueAttachmentFile -Attachment (Get-Date) } | Should -Throw -ExpectedMessage "*'Attachment'*"
                 { Get-JiraIssueAttachmentFile -Attachment (Get-ChildItem) } | Should -Throw -ExpectedMessage "*'Attachment'*"
                 { Get-JiraIssueAttachmentFile -Attachment @('foo', 'bar') } | Should -Throw -ExpectedMessage "*'Attachment'*"
@@ -102,10 +102,10 @@ InModuleScope JiraPS {
 
         Describe "Signature" {
             Context "Parameter Types" {
-                It 'types the Attachment parameter as AtlassianPS.JiraPS.Attachment[]' {
+                It 'types the Attachment parameter as AtlassianPSVII.JiraPSVII.Attachment[]' {
                     $command = Get-Command -Name Get-JiraIssueAttachmentFile
 
-                    $command.Parameters['Attachment'].ParameterType.FullName | Should -Be 'AtlassianPS.JiraPS.Attachment[]'
+                    $command.Parameters['Attachment'].ParameterType.FullName | Should -Be 'AtlassianPSVII.JiraPSVII.Attachment[]'
                 }
             }
 
@@ -116,26 +116,26 @@ InModuleScope JiraPS {
 
         Describe "Behavior" {
             It 'uses Invoke-JiraMethod for saving to disk' {
-                $fooIssue = [AtlassianPS.JiraPS.Issue]@{ Key = 'Foo' }
+                $fooIssue = [AtlassianPSVII.JiraPSVII.Issue]@{ Key = 'Foo' }
 
                 Get-JiraIssueAttachment -Issue $fooIssue | Get-JiraIssueAttachmentFile
                 Get-JiraIssueAttachment -Issue $fooIssue | Get-JiraIssueAttachmentFile -Path "../"
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $OutFile -in @("foo.pdf", "bar.pdf")
                 } -Exactly 2
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $OutFile -like "..*.pdf"
                 } -Exactly 2
             }
 
             It 'does not force an Accept header for attachment downloads' {
-                $fooIssue = [AtlassianPS.JiraPS.Issue]@{ Key = 'Foo' }
+                $fooIssue = [AtlassianPSVII.JiraPSVII.Issue]@{ Key = 'Foo' }
 
                 Get-JiraIssueAttachment -Issue $fooIssue | Get-JiraIssueAttachmentFile
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     -not $PSBoundParameters.ContainsKey('Headers')
                 } -Exactly 2
             }
@@ -149,7 +149,7 @@ InModuleScope JiraPS {
             ) {
                 param($FileName)
 
-                $attachment = [AtlassianPS.JiraPS.Attachment]@{
+                $attachment = [AtlassianPSVII.JiraPSVII.Attachment]@{
                     ID       = '99999'
                     FileName = $FileName
                     Content  = [uri]"$jiraServer/secure/attachment/99999/file.txt"
@@ -157,7 +157,7 @@ InModuleScope JiraPS {
 
                 { Get-JiraIssueAttachmentFile -Attachment $attachment } |
                     Should -Throw -ErrorId 'AttachmentFileName.InvalidPath,Get-JiraIssueAttachmentFile'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0 -ParameterFilter {
                     $URI -eq $attachment.Content
                 }
             }
@@ -170,7 +170,7 @@ InModuleScope JiraPS {
             }
 
             It "rejects cross-origin attachment content URLs before credentials or session state can be sent" {
-                $attachment = [AtlassianPS.JiraPS.Attachment]@{
+                $attachment = [AtlassianPSVII.JiraPSVII.Attachment]@{
                     ID       = '99999'
                     FileName = 'safe.txt'
                     Content  = [uri]'https://malicious.example.net/attachment.txt'
@@ -178,14 +178,14 @@ InModuleScope JiraPS {
 
                 { Get-JiraIssueAttachmentFile -Attachment $attachment } |
                     Should -Throw -ErrorId 'AttachmentContentUri.UntrustedHost,Get-JiraIssueAttachmentFile'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0 -ParameterFilter {
                     $URI -eq $attachment.Content
                 }
             }
 
             It "rejects a scheme downgrade on the configured Jira host" {
-                Mock Get-JiraConfigServer -ModuleName JiraPS { 'https://jiraserver.example.com' }
-                $attachment = [AtlassianPS.JiraPS.Attachment]@{
+                Mock Get-JiraConfigServer -ModuleName JiraPSVII { 'https://jiraserver.example.com' }
+                $attachment = [AtlassianPSVII.JiraPSVII.Attachment]@{
                     ID       = '99999'
                     FileName = 'safe.txt'
                     Content  = [uri]'http://jiraserver.example.com/attachment.txt'

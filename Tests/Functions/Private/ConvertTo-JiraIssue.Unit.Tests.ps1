@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraIssue" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -890,8 +890,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Issue'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Issue'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Issue'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Issue'
                 }
             }
 
@@ -939,28 +939,28 @@ InModuleScope JiraPS {
                     }
                 }
 
-                It "converts user fields to AtlassianPS.JiraPS.User objects" {
+                It "converts user fields to AtlassianPSVII.JiraPSVII.User objects" {
                     $userFields = @('Creator', 'Reporter') # Again, Assignee is another user field, but in this example it's unassigned
                     foreach ($f in $userFields) {
                         $value = $result.$f
                         $value | Should -Not -BeNullOrEmpty
-                        $value.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+                        $value.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
                     }
                 }
 
-                It "converts project field to AtlassianPS.JiraPS.Project object" {
+                It "converts project field to AtlassianPSVII.JiraPSVII.Project object" {
                     $result.Project | Should -Not -BeNullOrEmpty
-                    $result.Project.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Project'
+                    $result.Project.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Project'
                 }
 
-                It "converts transitions to AtlassianPS.JiraPS.Transition objects" {
+                It "converts transitions to AtlassianPSVII.JiraPSVII.Transition objects" {
                     $result.Transition | Should -Not -BeNullOrEmpty
-                    $result.Transition[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Transition'
+                    $result.Transition[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Transition'
                 }
 
-                It "converts attachments to AtlassianPS.JiraPS.Attachment objects" {
+                It "converts attachments to AtlassianPSVII.JiraPSVII.Attachment objects" {
                     $result.Attachment | Should -Not -BeNullOrEmpty
-                    $result.Attachment[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Attachment'
+                    $result.Attachment[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Attachment'
                 }
 
                 It "attaches unmapped customfield_* keys as PSObject NoteProperties" {
@@ -968,7 +968,7 @@ InModuleScope JiraPS {
                     # of the populated ones to assert the historical
                     # 'every API field is accessible by name' contract holds
                     # alongside the new strong .NET typing.
-                    $result.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.Issue'
+                    $result.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.Issue'
                     $result.customfield_12531 | Should -Be 'Not Started'
 
                     $noteProp = $result.PSObject.Properties['customfield_12531']
@@ -976,9 +976,9 @@ InModuleScope JiraPS {
                     $noteProp.MemberType | Should -Be 'NoteProperty'
                 }
 
-                It "converts status field to an AtlassianPS.JiraPS.Status object" {
+                It "converts status field to an AtlassianPSVII.JiraPSVII.Status object" {
                     $result.Status | Should -Not -BeNullOrEmpty
-                    $result.Status.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Status'
+                    $result.Status.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Status'
                     $result.Status.Name | Should -Be 'Open'
                     $result.Status.Id | Should -Be 1
                 }
@@ -1012,7 +1012,7 @@ InModuleScope JiraPS {
                     $converted.PSObject.Properties.Name | Should -Contain 'History'
                     ($converted.History -is [Object[]]) | Should -BeTrue
                     @($converted.History) | Should -HaveCount 1
-                    @($converted.History)[0].PSObject.TypeNames[0] | Should -Be 'JiraPS.IssueHistoryEntry'
+                    @($converted.History)[0].PSObject.TypeNames[0] | Should -Be 'JiraPSVII.IssueHistoryEntry'
                 }
 
                 It "adds History as an array when changelog contains multiple entries" {

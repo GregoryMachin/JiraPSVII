@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraProjectRole" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -53,9 +53,9 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "returns AtlassianPS.JiraPS.ProjectRole" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.ProjectRole'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.ProjectRole]
+                It "returns AtlassianPSVII.JiraPSVII.ProjectRole" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.ProjectRole'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.ProjectRole]
                 }
             }
 

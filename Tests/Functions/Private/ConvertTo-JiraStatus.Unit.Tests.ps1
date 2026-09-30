@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraStatus" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -50,9 +50,9 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "returns AtlassianPS.JiraPS.Status" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Status'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.Status]
+                It "returns AtlassianPSVII.JiraPSVII.Status" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Status'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.Status]
                 }
             }
 
@@ -81,8 +81,8 @@ InModuleScope JiraPS {
                     $result.RestUrl | Should -Be "$jiraServer/rest/api/2/status/$statusId"
                 }
 
-                It "converts statusCategory to AtlassianPS.JiraPS.StatusCategory" {
-                    $result.StatusCategory | Should -BeOfType [AtlassianPS.JiraPS.StatusCategory]
+                It "converts statusCategory to AtlassianPSVII.JiraPSVII.StatusCategory" {
+                    $result.StatusCategory | Should -BeOfType [AtlassianPSVII.JiraPSVII.StatusCategory]
                     $result.StatusCategory.Key | Should -Be 'indeterminate'
                 }
             }

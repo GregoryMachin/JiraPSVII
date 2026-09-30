@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Invoke-PaginatedRequest" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -35,7 +35,7 @@ InModuleScope JiraPS {
 
                 # Mock Invoke-JiraMethod to return null on second call (simulating failure)
                 $script:callCount = 0
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     $script:callCount++
                     if ($script:callCount -eq 1) {
                         return $null  # Simulates auth failure or server error
@@ -75,7 +75,7 @@ InModuleScope JiraPS {
             It "stops pagination and returns collected results" {
                 # First page has 2 issues, second call returns null
                 $script:pageCallCount = 0
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     $script:pageCallCount++
                     if ($script:pageCallCount -gt 1) {
                         return $null
@@ -113,7 +113,7 @@ InModuleScope JiraPS {
             }
 
             It "paginates token responses using configurable item and token property names" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     $script:capturedGetParameters += $GetParameter.Clone()
                     [PSCustomObject]@{
                         values        = @([PSCustomObject]@{ id = 2 })
@@ -135,7 +135,7 @@ InModuleScope JiraPS {
             }
 
             It "continues past empty token pages when a continuation token is present" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     $script:pageIndex++
                     if ($script:pageIndex -eq 1) {
                         return [PSCustomObject]@{
@@ -155,11 +155,11 @@ InModuleScope JiraPS {
                 $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/example" -Response $response -ItemPropertyName values
 
                 $result.id | Should -Be 2
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It
             }
 
             It "stops on repeated token values" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     [PSCustomObject]@{
                         values        = @([PSCustomObject]@{ id = 2 })
                         nextPageToken = 'same-token'
@@ -180,7 +180,7 @@ InModuleScope JiraPS {
             }
 
             It "stops immediately when completion property is true even if a token exists" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     throw 'should not request another page'
                 }
 
@@ -193,11 +193,11 @@ InModuleScope JiraPS {
                 $result = Invoke-PaginatedRequest -Uri "$jiraServer/rest/api/3/search" -Response $response
 
                 $result.key | Should -Be 'TEST-1'
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -Scope It
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0 -Scope It
             }
 
             It "honors -First across token pages" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     [PSCustomObject]@{
                         values        = @([PSCustomObject]@{ id = 3 }, [PSCustomObject]@{ id = 4 })
                         nextPageToken = 'unused'
@@ -217,7 +217,7 @@ InModuleScope JiraPS {
             }
 
             It "honors -Skip across token pages" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     [PSCustomObject]@{
                         values        = @([PSCustomObject]@{ id = 3 }, [PSCustomObject]@{ id = 4 })
                         nextPageToken = $null
@@ -237,7 +237,7 @@ InModuleScope JiraPS {
             }
 
             It "preserves offset pagination for total-less responses" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                     $script:capturedGetParameters += $GetParameter.Clone()
                     [PSCustomObject]@{
                         issues     = @([PSCustomObject]@{ key = 'TEST-3' })

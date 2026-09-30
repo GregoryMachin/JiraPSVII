@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraOAuthResource" -Tag 'Unit' {
         It "converts validated accessible-resource metadata to a typed object" {
             $result = [PSCustomObject]@{
@@ -16,7 +16,7 @@ InModuleScope JiraPS {
                 avatarUrl = 'https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/site.png'
             } | ConvertTo-JiraOAuthResource
 
-            $result | Should -BeOfType [AtlassianPS.JiraPS.OAuthResource]
+            $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.OAuthResource]
             $result.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
             $result.Url.AbsoluteUri | Should -Be 'https://example.atlassian.net/'
             $result.Scopes | Should -Be @('read:jira-work', 'read:jira-user')

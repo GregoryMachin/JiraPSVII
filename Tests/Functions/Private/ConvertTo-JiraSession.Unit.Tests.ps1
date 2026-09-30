@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraSession" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -30,8 +30,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Session'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Session'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Session'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Session'
                 }
             }
 

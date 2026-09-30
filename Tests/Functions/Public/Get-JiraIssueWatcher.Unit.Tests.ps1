@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueWatcher" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -37,16 +37,16 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue'
-                $object = [AtlassianPS.JiraPS.Issue]@{
+                $object = [AtlassianPSVII.JiraPSVII.Issue]@{
                     ID      = $issueID
                     Key     = $issueKey
                     RestUrl = "$jiraServer/rest/api/2/issue/$issueID"
@@ -54,19 +54,19 @@ InModuleScope JiraPS {
                 return $object
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
             # Obtaining watchers from an issue...this is IT-3676 in the test environment
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/watchers" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/watchers" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json -InputObject $restResult
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Uri', 'Method'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -93,11 +93,11 @@ InModuleScope JiraPS {
                 $watchers.RestUrl | Should -Be "$jiraServer/jira/rest/api/2/user?username=fred"
 
                 # Get-JiraIssue should be called to identify the -Issue parameter
-                Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly 1
+                Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly 1
 
                 # Normally, this would be called once in Get-JiraIssue and a second time in Get-JiraIssueWatcher, but
                 # since we've mocked Get-JiraIssue out, it will only be called once.
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
             }
 
             It "Obtains all Jira watchers from a Jira issue if the Jira object is provided" {
@@ -105,14 +105,14 @@ InModuleScope JiraPS {
                 $watchers = Get-JiraIssueWatcher -Issue $issue
                 $watchers | Should -Not -BeNullOrEmpty
                 $watchers.name | Should -Be "fred"
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
             }
 
             It "Handles pipeline input from Get-JiraIssue" {
                 $watchers = Get-JiraIssue -Key $issueKey | Get-JiraIssueWatcher
                 $watchers | Should -Not -BeNullOrEmpty
                 $watchers.name | Should -Be "fred"
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
             }
         }
 

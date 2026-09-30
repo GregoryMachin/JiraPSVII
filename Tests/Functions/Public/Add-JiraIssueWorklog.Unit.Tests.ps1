@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Add-JiraIssueWorklog" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -61,14 +61,14 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
-                $result = [AtlassianPS.JiraPS.Issue]@{
+                $result = [AtlassianPSVII.JiraPSVII.Issue]@{
                     ID      = $issueID
                     Key     = $issueKey
                     RestUrl = "$jiraServer/rest/api/2/issue/$issueID"
@@ -76,12 +76,12 @@ InModuleScope JiraPS {
                 Write-Output $result
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'POST' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 ConvertFrom-Json $restResponse
             }
@@ -89,18 +89,18 @@ InModuleScope JiraPS {
             # Cloud equivalent: when Test-JiraCloudServer returns $true the
             # cmdlet hits the v3 endpoint (so the API accepts ADF). The
             # mocked response is the same — only the URI changes.
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'POST' -and $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 ConvertFrom-Json $restResponse
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { return $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { return $false }
             #endregion Mocks
         }
 
@@ -121,7 +121,7 @@ InModuleScope JiraPS {
                     $command | Should -HaveParameter $parameter
 
                     #ToDo:CustomClass
-                    # can't use -Type as long we are using `PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Filter')`
+                    # can't use -Type as long we are using `PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Filter')`
                     (Get-Member -InputObject $command.Parameters.Item($parameter)).Attributes | Should -Contain $typeName
                 }
             }
@@ -154,10 +154,10 @@ InModuleScope JiraPS {
                 $commentResult | Should -Not -BeNullOrEmpty
 
                 # Get-JiraIssue should be used to identify the issue parameter
-                Should -Invoke -CommandName Get-JiraIssue -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke -CommandName Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 1
 
                 # Invoke-JiraMethod should be used to add the comment
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "formats DateStarted independently of the input" {
@@ -165,29 +165,29 @@ InModuleScope JiraPS {
                 Add-JiraIssueWorklog -Comment 'This is a test worklog entry from Pester.' -Issue $issueKey -TimeSpent "00:10:00" -DateStarted (Get-Date)
                 Add-JiraIssueWorklog -Comment 'This is a test worklog entry from Pester.' -Issue $issueKey -TimeSpent "00:10:00" -DateStarted (Get-Date -Date "01.01.2000")
 
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Body -match '"started":\s*"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}[\+\-]\d{4}"'
                 } -Exactly -Times 3
             }
 
             Context "Cloud vs Data Center comment shape" {
                 It "sends a plain-string comment on Server / Data Center" {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { return $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { return $false }
 
                     Add-JiraIssueWorklog -Comment 'Spent on *fix*' -Issue $issueKey -TimeSpent "00:10:00" -DateStarted "2018-01-01" | Out-Null
 
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter {
                         $payload = $Body | ConvertFrom-Json
                         $payload.comment -is [string] -and $payload.comment -eq 'Spent on *fix*'
                     }
                 }
 
                 It "wraps the comment in an Atlassian Document Format document on Cloud" {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { return $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { return $true }
 
                     Add-JiraIssueWorklog -Comment 'Spent on the fix' -Issue $issueKey -TimeSpent "00:10:00" -DateStarted "2018-01-01" | Out-Null
 
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter {
                         $payload = $Body | ConvertFrom-Json
                         $payload.comment.type -eq 'doc' -and
                         $payload.comment.version -eq 1 -and
@@ -197,21 +197,21 @@ InModuleScope JiraPS {
                 }
 
                 It "targets the v3 worklog endpoint on Cloud" {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { return $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { return $true }
 
                     Add-JiraIssueWorklog -Comment 'Spent on the fix' -Issue $issueKey -TimeSpent "00:10:00" -DateStarted "2018-01-01" | Out-Null
 
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'POST' -and $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog"
                     }
                 }
 
                 It "targets the v2 worklog endpoint on Server / DC" {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { return $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { return $false }
 
                     Add-JiraIssueWorklog -Comment 'Spent on the fix' -Issue $issueKey -TimeSpent "00:10:00" -DateStarted "2018-01-01" | Out-Null
 
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'POST' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog"
                     }
                 }
@@ -225,8 +225,8 @@ InModuleScope JiraPS {
                     $commentResult | Should -Not -BeNullOrEmpty
 
                     # Get-JiraIssue should be called once here to fetch the initial test issue
-                    Should -Invoke -CommandName Get-JiraIssue -ModuleName JiraPS -Exactly -Times 2
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke -CommandName Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 2
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
             }
 

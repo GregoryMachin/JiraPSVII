@@ -14,10 +14,10 @@ $ErrorActionPreference = 'Stop'
 
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path -Path $PSScriptRoot -ChildPath '..')).ProviderPath
 $buildRequirementsPath = Join-Path -Path $projectRoot -ChildPath 'Tools/build.requirements.psd1'
-$manifestPath = Join-Path -Path $projectRoot -ChildPath 'JiraPS/JiraPS.psd1'
+$manifestPath = Join-Path -Path $projectRoot -ChildPath 'JiraPSVII/JiraPSVII.psd1'
 
 # A sibling, git-ignored ".local-modules" directory (outside every repo, never committed)
-# holds AtlassianPS.Standards builds that have not been published to the real PowerShell
+# holds AtlassianPSVII.Standards builds that have not been published to the real PowerShell
 # Gallery -- consumed directly per the project's own direction, without ever installing
 # into (or colliding with) the machine's real, shared module path. Prepending it here is
 # scoped to this process only; it is never written to $PROFILE or a persistent
@@ -29,11 +29,11 @@ if ((Test-Path -LiteralPath $localModulesPath -PathType Container) -and ($env:PS
 
 $buildRequirements = Import-PowerShellDataFile -Path $buildRequirementsPath
 $standardsRequirement = $buildRequirements |
-    Where-Object { $_.ModuleName -eq 'AtlassianPS.Standards' } |
+    Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
     Select-Object -First 1
 
 if (-not $standardsRequirement -or -not $standardsRequirement.RequiredVersion) {
-    throw "Could not resolve AtlassianPS.Standards required version from '$buildRequirementsPath'."
+    throw "Could not resolve AtlassianPSVII.Standards required version from '$buildRequirementsPath'."
 }
 
 $standardsVersion = [string] $standardsRequirement.RequiredVersion
@@ -75,16 +75,16 @@ if ($isWindowsPowerShell -and ($ForceDesktopBootstrapRemediation -or $psGalleryR
 }
 
 # Skip the network install when the exact pinned version is already available locally
-# (for example a locally built, not-yet-published AtlassianPS.Standards release installed
-# directly into a module path) -- matching the idempotency Install-AtlassianPSDependencyRequirement
+# (for example a locally built, not-yet-published AtlassianPSVII.Standards release installed
+# directly into a module path) -- matching the idempotency Install-AtlassianPSVIIDependencyRequirement
 # already applies to every other dependency, rather than unconditionally forcing a Gallery
 # fetch that would fail outright for a version PSGallery does not have yet.
-$existingStandards = Get-Module -Name 'AtlassianPS.Standards' -ListAvailable |
+$existingStandards = Get-Module -Name 'AtlassianPSVII.Standards' -ListAvailable |
     Where-Object { $_.Version.ToString() -eq $standardsVersion } |
     Select-Object -First 1
 
 if (-not $existingStandards) {
-    Install-Module -Name 'AtlassianPS.Standards' `
+    Install-Module -Name 'AtlassianPSVII.Standards' `
         -RequiredVersion $standardsVersion `
         -Scope CurrentUser `
         -Repository 'PSGallery' `
@@ -93,9 +93,9 @@ if (-not $existingStandards) {
         -ErrorAction Stop
 }
 
-Import-Module -Name 'AtlassianPS.Standards' -RequiredVersion $standardsVersion -Force -ErrorAction Stop
+Import-Module -Name 'AtlassianPSVII.Standards' -RequiredVersion $standardsVersion -Force -ErrorAction Stop
 
-$null = Install-AtlassianPSDependencyRequirement `
+$null = Install-AtlassianPSVIIDependencyRequirement `
     -BuildRequirementsPath $buildRequirementsPath `
     -ManifestPath $manifestPath `
     -ErrorAction Stop

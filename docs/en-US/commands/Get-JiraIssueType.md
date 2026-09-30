@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraIssueType/
 locale: en-US
 layout: documentation
@@ -28,7 +28,7 @@ Get-JiraIssueType [-IssueType] <string[]> [-Force] [-Credential <pscredential>] 
 
 ## DESCRIPTION
 
-This function retrieves all the available IssueType on the JIRA server an returns them as `JiraPS.IssueType`.
+This function retrieves all the available IssueType on the JIRA server an returns them as `JiraPSVII.IssueType`.
 
 This function can restrict the output to a subset of the available IssueTypes if told so.
 
@@ -141,7 +141,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### JiraPS.IssueType
+### JiraPSVII.IssueType
 
 ## NOTES
 

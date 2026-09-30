@@ -13,7 +13,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraIssue" -Tag 'Integration', 'Smoke', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -80,7 +80,7 @@ InModuleScope JiraPS {
                     return
                 }
                 $summary = New-TestResourceName -Type "IssueDesc"
-                $description = "This is a test description created by JiraPS integration tests."
+                $description = "This is a test description created by JiraPSVII integration tests."
                 $extras = Get-MinimumValidIssueParameter -Fixtures $fixtures -SkipFieldId @('description')
                 $params = @{ Project = $fixtures.TestProject; IssueType = 'Task'; Summary = $summary; Description = $description }
                 if ($extras.Reporter) { $params.Reporter = $extras.Reporter }
@@ -107,7 +107,7 @@ InModuleScope JiraPS {
                 $issue = New-JiraIssue @params
                 $null = $script:createdIssues.Add($issue.Key)
 
-                $issue.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Issue'
+                $issue.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Issue'
             }
         }
 
@@ -241,7 +241,7 @@ InModuleScope JiraPS {
                 }
 
                 # This is the behavior change under test:
-                # no local CreateMetaFailure preflight. JiraPS either succeeds
+                # no local CreateMetaFailure preflight. JiraPSVII either succeeds
                 # (if Jira accepts the payload) or returns Jira's server-side
                 # validation response.
                 if ($thrown) {

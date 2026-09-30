@@ -9,11 +9,11 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraSession" -Tag 'Unit' {
         AfterEach {
             try {
-                (Get-Module JiraPS).PrivateData.Remove("Session")
+                (Get-Module JiraPSVII).PrivateData.Remove("Session")
             }
             catch { $null }
             $script:JiraServerMetadata = @{}
@@ -30,15 +30,15 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock ConvertTo-JiraSession -ModuleName JiraPS {
+            Mock ConvertTo-JiraSession -ModuleName JiraPSVII {
                 param($Session, $DeploymentType, $AuthenticationType, $CloudId)
                 Write-MockDebugInfo 'ConvertTo-JiraSession'
-                # Return a AtlassianPS.JiraPS.Session object to simulate successful conversion
+                # Return a AtlassianPSVII.JiraPSVII.Session object to simulate successful conversion
                 $session = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSession
                 if ($null -ne $Session) {
                     $session = $Session
@@ -48,27 +48,27 @@ InModuleScope JiraPS {
                     'AuthenticationType' = $AuthenticationType
                     'CloudId'            = $CloudId
                 }
-                $result.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Session')
+                $result.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Session')
                 $result
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $Uri -like "*/rest/api/*/myself" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $Uri -like "*/rest/api/*/myself" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 # When StoreSession is true, Invoke-JiraMethod returns the result of ConvertTo-JiraSession
-                # So we need to return a AtlassianPS.JiraPS.Session object, not a WebRequestSession
+                # So we need to return a AtlassianPSVII.JiraPSVII.Session object, not a WebRequestSession
                 $session = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSession
                 $result = New-Object -TypeName PSObject -Property @{
                     'WebSession' = $session
                 }
-                $result.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Session')
+                $result.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Session')
                 $result
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
-            Mock Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS {
+            Mock Request-JiraOAuthClientCredentialsToken -ModuleName JiraPSVII {
                 [PSCustomObject]@{
                     AccessToken = ConvertTo-SecureString 'oauth-client-token' -AsPlainText -Force
                     ExpiresAt   = [DateTimeOffset]::UtcNow.AddHours(1)
@@ -77,8 +77,8 @@ InModuleScope JiraPS {
                     Scopes      = @('read:jira-work', 'write:jira-work')
                 }
             }
-            Mock Get-JiraOAuthResource -ModuleName JiraPS {
-                [AtlassianPS.JiraPS.OAuthResource]@{
+            Mock Get-JiraOAuthResource -ModuleName JiraPSVII {
+                [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                     CloudId = '11223344-a1b2-3b33-c444-def123456789'
                     Name    = 'One'
                     Url     = [Uri]'https://one.atlassian.net'
@@ -183,7 +183,7 @@ InModuleScope JiraPS {
             It "uses Basic Authentication to generate a session" {
                 { New-JiraSession -Credential $testCredential } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Credential -eq $testCredential
                 } -Exactly -Times 1
             }
@@ -191,7 +191,7 @@ InModuleScope JiraPS {
             It "can influence the Headers used in the request" {
                 { New-JiraSession -Credential $testCredential -Headers @{ "X-Header" = $true } } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers.ContainsKey("X-Header")
                 } -Exactly -Times 1
             }
@@ -200,7 +200,7 @@ InModuleScope JiraPS {
             # The session storage works correctly but the test fails due to module instance differences
             # It "stores the session variable in the module's PrivateData" {
             #     # Store the module reference before calling New-JiraSession
-            #     $module = Get-Module JiraPS
+            #     $module = Get-Module JiraPSVII
             #     $module.PrivateData.Session | Should -BeNullOrEmpty
 
             #     New-JiraSession -Credential $testCredential
@@ -218,7 +218,7 @@ InModuleScope JiraPS {
             It "uses Bearer token authentication with -PersonalAccessToken" {
                 { New-JiraSession -PersonalAccessToken $testToken } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers.ContainsKey("Authorization") -and $Headers["Authorization"] -like "Bearer *"
                 } -Exactly -Times 1
             }
@@ -226,7 +226,7 @@ InModuleScope JiraPS {
             It "supports -BearerToken alias for -PersonalAccessToken" {
                 { New-JiraSession -BearerToken $testToken } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers.ContainsKey("Authorization") -and $Headers["Authorization"] -like "Bearer *"
                 } -Exactly -Times 1
             }
@@ -234,7 +234,7 @@ InModuleScope JiraPS {
             It "supports -PAT alias for -PersonalAccessToken" {
                 { New-JiraSession -PAT $testToken } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers.ContainsKey("Authorization") -and $Headers["Authorization"] -like "Bearer *"
                 } -Exactly -Times 1
             }
@@ -242,7 +242,7 @@ InModuleScope JiraPS {
             It "uses API token authentication with -ApiToken and -EmailAddress" {
                 { New-JiraSession -ApiToken $testToken -EmailAddress $testEmail } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers.ContainsKey("Authorization") -and $Headers["Authorization"] -like "Basic *"
                 } -Exactly -Times 1
             }
@@ -252,7 +252,7 @@ InModuleScope JiraPS {
 
                 $expectedAuth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${testEmail}:test-token-12345"))
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers["Authorization"] -eq "Basic $expectedAuth"
                 } -Exactly -Times 1
             }
@@ -263,7 +263,7 @@ InModuleScope JiraPS {
                 $script:JiraServerMetadata.DeploymentType | Should -Be 'Cloud'
                 $script:JiraServerMetadata.AuthenticationType | Should -Be 'ApiToken'
                 $script:JiraServerMetadata.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Uri -eq '/rest/api/3/myself' -and
                     $Headers.ContainsKey('Authorization') -and
                     $Headers['Authorization'] -like 'Basic *'
@@ -273,7 +273,7 @@ InModuleScope JiraPS {
             It "can combine token auth with custom headers" {
                 { New-JiraSession -PersonalAccessToken $testToken -Headers @{ "X-Custom" = "value" } } | Should -Not -Throw
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers.ContainsKey("Authorization") -and $Headers.ContainsKey("X-Custom")
                 } -Exactly -Times 1
             }
@@ -281,7 +281,7 @@ InModuleScope JiraPS {
             It "uses a caller-supplied OAuth access token on the explicit Cloud ID route" {
                 New-JiraSession -OAuthAccessToken $testToken -CloudId '11223344-a1b2-3b33-c444-def123456789'
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Uri -eq '/rest/api/3/myself' -and
                     $Headers['Authorization'] -eq 'Bearer test-token-12345'
                 } -Exactly -Times 1
@@ -295,7 +295,7 @@ InModuleScope JiraPS {
                     -CloudId '11223344-a1b2-3b33-c444-def123456789' `
                     -Headers @{ Authorization = 'Bearer caller-value'; 'X-Custom' = 'value' }
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Headers['Authorization'] -eq 'Bearer test-token-12345' -and
                     $Headers['X-Custom'] -eq 'value'
                 } -Exactly -Times 1
@@ -305,12 +305,12 @@ InModuleScope JiraPS {
                 { New-JiraSession -OAuthAccessToken $testToken -CloudId '../attacker' } |
                     Should -Throw '*CloudId must be a UUID*'
 
-                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPS' -Exactly -Times 0
+                Should -Invoke -CommandName 'Invoke-JiraMethod' -ModuleName 'JiraPSVII' -Exactly -Times 0
             }
 
             It "restores prior server metadata when OAuth validation fails" {
                 $script:JiraServerMetadata = @{ DeploymentType = 'DataCenter' }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Uri -eq '/rest/api/3/myself' } { throw 'Unauthorized' }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Uri -eq '/rest/api/3/myself' } { throw 'Unauthorized' }
 
                 { New-JiraSession -OAuthAccessToken $testToken -CloudId '11223344-a1b2-3b33-c444-def123456789' } |
                     Should -Throw '*Unauthorized*'
@@ -342,27 +342,27 @@ InModuleScope JiraPS {
                 $script:JiraOAuthClientCredentials.ClientId | Should -Be 'client-id'
                 ($script:JiraOAuthClientCredentials | ConvertTo-Json -Depth 5) | Should -Not -Match 'oauth-client-token|test-token-12345'
                 $script:JiraOAuthClientCredentials.AccessToken | Should -BeOfType [SecureString]
-                Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS -Exactly 1
-                Should -Invoke Get-JiraOAuthResource -ModuleName JiraPS -Exactly 1
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Uri -like '*/myself' } -Exactly 0
+                Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPSVII -Exactly 1
+                Should -Invoke Get-JiraOAuthResource -ModuleName JiraPSVII -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Uri -like '*/myself' } -Exactly 0
             }
 
             It "selects an OAuth client-credentials resource by Cloud ID" {
                 $null = New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthCloudId '11223344-a1b2-3b33-c444-def123456789'
 
-                Should -Invoke Get-JiraOAuthResource -ModuleName JiraPS -Exactly 1
+                Should -Invoke Get-JiraOAuthResource -ModuleName JiraPSVII -Exactly 1
                 $script:JiraOAuthClientCredentials.CloudId | Should -Be '11223344-a1b2-3b33-c444-def123456789'
             }
 
             It "selects the Jira resource when Atlassian returns product-specific resources for the same site" {
-                Mock Get-JiraOAuthResource -ModuleName JiraPS {
-                    [AtlassianPS.JiraPS.OAuthResource]@{
+                Mock Get-JiraOAuthResource -ModuleName JiraPSVII {
+                    [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                         CloudId = '11223344-a1b2-3b33-c444-def123456789'
                         Name    = 'One'
                         Url     = [Uri]'https://one.atlassian.net'
                         Scopes  = @('read:confluence-content.all')
                     }
-                    [AtlassianPS.JiraPS.OAuthResource]@{
+                    [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                         CloudId = '11223344-a1b2-3b33-c444-def123456789'
                         Name    = 'One'
                         Url     = [Uri]'https://one.atlassian.net'
@@ -380,12 +380,12 @@ InModuleScope JiraPS {
                 { New-JiraSession -OAuthClientId 'client-id' -OAuthClientSecret $testToken -OAuthCloudId '11223344-a1b2-3b33-c444-def123456789' -OAuthSiteName 'One' } |
                     Should -Throw '*Specify only one OAuth resource selector*'
 
-                Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS -Exactly 0
+                Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPSVII -Exactly 0
             }
 
             It "rejects a selected OAuth resource without Jira scopes" {
-                Mock Get-JiraOAuthResource -ModuleName JiraPS {
-                    [AtlassianPS.JiraPS.OAuthResource]@{
+                Mock Get-JiraOAuthResource -ModuleName JiraPSVII {
+                    [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                         CloudId = '11223344-a1b2-3b33-c444-def123456789'
                         Name    = 'One'
                         Url     = [Uri]'https://one.atlassian.net'

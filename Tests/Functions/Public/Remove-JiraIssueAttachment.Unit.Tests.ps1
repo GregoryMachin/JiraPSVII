@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraIssueAttachment" -Tag 'Unit' {
 
         BeforeAll {
@@ -23,60 +23,60 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraIssueAttachment -ModuleName JiraPS {
+            Mock Get-JiraIssueAttachment -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssueAttachment' 'Issue'
                 $all = @()
                 $Attachment = [PSCustomObject]@{
                     id       = $attachmentId1
                     fileName = $attachmentFile1
                 }
-                $Attachment.PSObject.TypeNames.Insert(0, 'JiraPS.Attachment')
+                $Attachment.PSObject.TypeNames.Insert(0, 'JiraPSVII.Attachment')
                 $all += $Attachment
 
                 $Attachment = [PSCustomObject]@{
                     id       = $attachmentId2
                     fileName = $attachmentFile2
                 }
-                $Attachment.PSObject.TypeNames.Insert(0, 'JiraPS.Attachment')
+                $Attachment.PSObject.TypeNames.Insert(0, 'JiraPSVII.Attachment')
                 $all += $Attachment
                 $all
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
                 $Attachment = [PSCustomObject]@{
                     id       = $attachmentId1
                     fileName = $attachmentFile1
                 }
-                $Attachment.PSObject.TypeNames.Insert(0, 'JiraPS.Attachment')
+                $Attachment.PSObject.TypeNames.Insert(0, 'JiraPSVII.Attachment')
 
-                $IssueObj = [AtlassianPS.JiraPS.Issue]@{
+                $IssueObj = [AtlassianPSVII.JiraPSVII.Issue]@{
                     Key        = $issueKey
                     attachment = $Attachment
                 }
                 $IssueObj
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -eq "/rest/api/2/attachment/$attachmentId1" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' -and $URI -eq "/rest/api/2/attachment/$attachmentId1" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -eq "/rest/api/2/attachment/$attachmentId2" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' -and $URI -eq "/rest/api/2/attachment/$attachmentId2" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -91,7 +91,7 @@ InModuleScope JiraPS {
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
                     @{ parameter = 'AttachmentId'; type = 'Int32[]' }
-                    @{ parameter = 'Issue'; type = 'AtlassianPS.JiraPS.Issue' }
+                    @{ parameter = 'Issue'; type = 'AtlassianPSVII.JiraPSVII.Issue' }
                     @{ parameter = 'FileName'; type = 'String[]' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'Force'; type = 'Switch' }
@@ -116,9 +116,9 @@ InModuleScope JiraPS {
                     # AttachmentId must be an Int
                     { Remove-JiraIssueAttachment -AttachmentId "a" -Force } | Should -Throw -ExpectedMessage "*'AttachmentId'*"
                     # Issue must be an Issue or a String
-                    { Remove-JiraIssueAttachment -Issue (Get-Date) -Force } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
+                    { Remove-JiraIssueAttachment -Issue (Get-Date) -Force } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
                     # Issue can't be an array passed directly (use the pipeline instead)
-                    { Remove-JiraIssueAttachment -Issue $issueKey, $issueKey -Force } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
+                    { Remove-JiraIssueAttachment -Issue $issueKey, $issueKey -Force } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
 
                     # All Parameters for DefaultParameterSet
                     { Remove-JiraIssueAttachment -AttachmentId $attachmentId1 -Force } | Should -Not -Throw
@@ -128,12 +128,12 @@ InModuleScope JiraPS {
                     { Remove-JiraIssueAttachment -Issue $issueKey -FileName $attachmentFile1, $attachmentFile2 -Force } | Should -Not -Throw
 
                     # ensure the calls under the hood
-                    Should -Invoke 'Get-JiraIssue' -ModuleName JiraPS -Exactly -Times 4
-                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPS -Exactly -Times 3
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 8
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/2/attachment/$attachmentId1" } -Exactly -Times 5
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/2/attachment/$attachmentId2" } -Exactly -Times 3
+                    Should -Invoke 'Get-JiraIssue' -ModuleName JiraPSVII -Exactly -Times 4
+                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPSVII -Exactly -Times 3
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 8
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/2/attachment/$attachmentId1" } -Exactly -Times 5
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/2/attachment/$attachmentId2" } -Exactly -Times 3
                 }
 
                 It 'accepts positional parameters' {
@@ -142,9 +142,9 @@ InModuleScope JiraPS {
                     { Remove-JiraIssueAttachment $issueKey -Force } | Should -Not -Throw
 
                     # ensure the calls under the hood
-                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPS -Exactly -Times 1
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 5
+                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPSVII -Exactly -Times 1
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 5
                 }
 
                 It 'has no output' {
@@ -152,19 +152,19 @@ InModuleScope JiraPS {
                     $result | Should -BeNullOrEmpty
 
                     # ensure the calls under the hood
-                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPS -Exactly -Times 1
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 2
+                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPSVII -Exactly -Times 1
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 2
                 }
 
                 It 'accepts input over the pipeline' {
-                    $issue = [AtlassianPS.JiraPS.Issue]@{ Key = $issueKey }
+                    $issue = [AtlassianPSVII.JiraPSVII.Issue]@{ Key = $issueKey }
                     { Get-JiraIssueAttachment $issue | Remove-JiraIssueAttachment -Force } | Should -Not -Throw
 
                     # ensure the calls under the hood
-                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPS -Exactly -Times 1
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
-                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 2
+                    Should -Invoke 'Get-JiraIssueAttachment' -ModuleName JiraPSVII -Exactly -Times 1
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -ne 'Delete' } -Exactly -Times 0
+                    Should -Invoke 'Invoke-JiraMethod' -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' } -Exactly -Times 2
                 }
             }
         }

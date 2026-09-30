@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraVersion" -Tag 'Unit' {
 
         BeforeAll {
@@ -92,54 +92,54 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraProject -ModuleName JiraPS {
+            Mock Get-JiraProject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraProject'
                 $json = ConvertFrom-Json $JiraProjectData
                 $object = $json | Where-Object { $_.Key -in $Project }
-                $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Project')
+                $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Project')
                 return $object
             }
 
-            Mock ConvertTo-JiraVersion -ModuleName JiraPS {
+            Mock ConvertTo-JiraVersion -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraVersion'
                 $result = New-Object -TypeName PSObject -Property @{
                     Id      = $InputObject.Id
                     Name    = $InputObject.name
                     Project = $InputObject.projectId
                 }
-                $result.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Version')
+                $result.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Version')
                 $result
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/2/version/$versionId1" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/2/version/$versionId1" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJson1
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/version/$versionId2" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/version/$versionId2" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJson2
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/version" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/version" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJsonAll
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/project/*/version" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/project/*/version" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Paging'
                 ConvertFrom-Json $testJsonAll
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -163,12 +163,12 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/version/$versionID1"
                 } -Exactly 1
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 1
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 1
             }
 
             It "gets a Version using multiple IDs" {
@@ -176,17 +176,17 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/version/$versionID1"
                 } -Exactly 1
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/version/$versionID2"
                 } -Exactly 1
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 2
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 2
             }
 
             It "gets a Version using the pipeline from another Version" {
@@ -198,19 +198,19 @@ InModuleScope JiraPS {
                 $results1 | Should -Not -BeNullOrEmpty
                 $results2 | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/version/$versionID2"
                 } -Exactly 2
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 4
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 4
             }
 
             It "rejects a name-only Version stub where an ID is required" {
-                { [AtlassianPS.JiraPS.Version]::new('My Version') | Get-JiraVersion -ErrorAction Stop } |
+                { [AtlassianPSVII.JiraPSVII.Version]::new('My Version') | Get-JiraVersion -ErrorAction Stop } |
                     Should -Throw '*version ID*'
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 0 -ParameterFilter {
                     $Method -eq 'Get' -and $URI -like '*/rest/api/*/version/*'
                 }
             }
@@ -220,15 +220,15 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/project/$projectKey/version" -and
                     $Paging -eq $true
                 } -Exactly 1
 
-                Should -Invoke Get-JiraProject -ModuleName JiraPS -Exactly 1
+                Should -Invoke Get-JiraProject -ModuleName JiraPSVII -Exactly 1
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 0
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 0
             }
 
             It "gets all Versions using Project as pipe input" {
@@ -236,7 +236,7 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/project/$projectKey/version" -and
                     $Paging -eq $true
@@ -244,9 +244,9 @@ InModuleScope JiraPS {
 
                 # Get-JiraProject is called once in the It block
                 # and once in the `Get-JiraVersion`
-                Should -Invoke Get-JiraProject -ModuleName JiraPS -Exactly 2
+                Should -Invoke Get-JiraProject -ModuleName JiraPSVII -Exactly 2
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 0
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 0
             }
 
             It "gets all Versions from multiple Projects" {
@@ -254,15 +254,15 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/project/*/version" -and
                     $Paging -eq $true
                 } -Exactly 2
 
-                Should -Invoke Get-JiraProject -ModuleName JiraPS -Exactly 2
+                Should -Invoke Get-JiraProject -ModuleName JiraPSVII -Exactly 2
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 0
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 0
             }
 
             It "filters the Versions from a Project by Name" {
@@ -270,15 +270,15 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/project/*/version" -and
                     $Paging -eq $true
                 } -Exactly 1
 
-                Should -Invoke Get-JiraProject -ModuleName JiraPS -Exactly 1
+                Should -Invoke Get-JiraProject -ModuleName JiraPSVII -Exactly 1
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 0
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 0
             }
 
             It "filters the Versions from a Project by multiple Names" {
@@ -286,21 +286,21 @@ InModuleScope JiraPS {
 
                 $results | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*/rest/api/*/project/*/version" -and
                     $Paging -eq $true
                 } -Exactly 1
 
-                Should -Invoke Get-JiraProject -ModuleName JiraPS -Exactly 1
+                Should -Invoke Get-JiraProject -ModuleName JiraPSVII -Exactly 1
 
-                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPS -Exactly 0
+                Should -Invoke ConvertTo-JiraVersion -ModuleName JiraPSVII -Exactly 0
             }
 
             It "Supports the -Skip parameters to page through search results" {
                 { Get-JiraVersion -Project $projectKey -Skip 10 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like '*/rest/api/*/project/*/version' -and
                     $Paging -eq $true -and
@@ -311,7 +311,7 @@ InModuleScope JiraPS {
             It "Supports the -First parameters to page through search results" {
                 { Get-JiraVersion -Project $projectKey -First 50 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like '*/rest/api/*/project/*/version' -and
                     $Paging -eq $true -and
@@ -326,15 +326,15 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeEach {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -eq "/rest/api/3/version/$versionId1"
                 } {
                     ConvertFrom-Json $testJson1
                 }
 
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/version"
                 } {
                     ConvertFrom-Json $testJsonAll
@@ -344,7 +344,7 @@ InModuleScope JiraPS {
             It "uses REST API v3 for direct version lookup" {
                 Get-JiraVersion -Id $versionId1 | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/3/version/$versionId1" -and -not $Paging
                 }
             }
@@ -352,7 +352,7 @@ InModuleScope JiraPS {
             It "uses the paged REST API v3 project version route" {
                 Get-JiraVersion -Project $projectKey -PageSize 10 | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/3/project/$projectKey/version" -and
                     $Paging -and
                     $GetParameter.maxResults -eq 10
@@ -360,7 +360,7 @@ InModuleScope JiraPS {
             }
 
             It "propagates project version permission failures" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/version"
                 } {
                     throw [System.UnauthorizedAccessException]::new('Browse projects permission is required.')

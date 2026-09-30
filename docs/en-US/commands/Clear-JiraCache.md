@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Clear-JiraCache/
 locale: en-US
 layout: documentation
@@ -10,7 +10,7 @@ permalink: /docs/JiraPS/commands/Clear-JiraCache/
 
 ## SYNOPSIS
 
-Clears cached data stored by JiraPS.
+Clears cached data stored by JiraPSVII.
 
 ## SYNTAX
 
@@ -20,7 +20,7 @@ Clear-JiraCache [[-Type] <string>] [<CommonParameters>]
 
 ## DESCRIPTION
 
-JiraPS caches certain API responses to improve performance and reduce API calls.
+JiraPSVII caches certain API responses to improve performance and reduce API calls.
 This function clears the cached data, either entirely or for a specific type of data.
 
 Cached data includes fields, issue types, OAuth resource metadata, priorities, statuses, and server information.

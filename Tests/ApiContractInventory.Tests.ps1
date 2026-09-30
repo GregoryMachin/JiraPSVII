@@ -29,10 +29,10 @@ Describe "API contract inventory" -Tag Unit {
         )
 
         $script:exportedFunctionNames = @(
-            (Get-Module "JiraPS").ExportedFunctions.Keys | Sort-Object
+            (Get-Module "JiraPSVII").ExportedFunctions.Keys | Sort-Object
         )
 
-        $referencePattern = '\[[^\]]+\]\((?<Path>\.\./(?:JiraPS|Tests)/[^)]+)\)'
+        $referencePattern = '\[[^\]]+\]\((?<Path>\.\./(?:JiraPSVII|Tests)/[^)]+)\)'
         $script:referencedFiles = @(
             [regex]::Matches($inventoryContent, $referencePattern) |
                 ForEach-Object { $_.Groups["Path"].Value } |
@@ -44,7 +44,7 @@ Describe "API contract inventory" -Tag Unit {
         $inventoryPath | Should -Exist
     }
 
-    It "contains exactly one row for every exported JiraPS function" {
+    It "contains exactly one row for every exported JiraPSVII function" {
         $inventoryEntries.Count | Should -Be $exportedFunctionNames.Count
         @($inventoryEntries.Name | Sort-Object -Unique).Count | Should -Be $inventoryEntries.Count
         @($inventoryEntries.Name | Sort-Object) | Should -Be $exportedFunctionNames
@@ -56,7 +56,7 @@ Describe "API contract inventory" -Tag Unit {
         }
 
         It "references its public source file" {
-            $inventoryEntry.Source | Should -Be "../JiraPS/Public/$($inventoryEntry.Name).ps1"
+            $inventoryEntry.Source | Should -Be "../JiraPSVII/Public/$($inventoryEntry.Name).ps1"
         }
 
         It "references its unit test file" {

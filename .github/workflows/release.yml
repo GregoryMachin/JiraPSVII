@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           body_path: ${{ steps.release_notes.outputs.release_notes_path }}
-          files: ./Release/JiraPS.zip
+          files: ./Release/JiraPSVII.zip
           fail_on_unmatched_files: true
           draft: false
           tag_name: ${{ steps.release_ref.outputs.release_tag }}

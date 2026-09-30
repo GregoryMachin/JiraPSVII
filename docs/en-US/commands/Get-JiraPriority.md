@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraPriority/
 locale: en-US
 layout: documentation
@@ -28,7 +28,7 @@ Get-JiraPriority [-Id] <int[]> [-Force] [-Credential <pscredential>] [<CommonPar
 
 ## DESCRIPTION
 
-This function retrieves all the available Priorities on the JIRA server an returns them as `JiraPS.Priority`.
+This function retrieves all the available Priorities on the JIRA server an returns them as `JiraPSVII.Priority`.
 
 This function can restrict the output to a subset of the available IssueTypes if told so.
 
@@ -130,7 +130,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### JiraPS.Priority
+### JiraPSVII.Priority
 
 ## NOTES
 

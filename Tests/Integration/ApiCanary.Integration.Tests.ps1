@@ -15,7 +15,7 @@
     Tagged 'CanaryWrite' (not 'Smoke'): the scheduled canary workflow selects
     this tag on a slower, off-peak cadence separate from the per-PR Smoke gate
     and the nightly full integration suite, and publishes a machine-readable
-    result via AtlassianPS.Standards' ConvertTo-ApiCanaryResult for each step.
+    result via AtlassianPSVII.Standards' ConvertTo-ApiCanaryResult for each step.
 
     Cloud-only by design: Data Center is pinned, versioned software with no
     "surprise contract change" risk the way a continuously deployed Cloud API
@@ -36,7 +36,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Api Canary - Issue Lifecycle" -Tag 'Integration', 'CanaryWrite', 'Cloud' -Skip:($Skip -or $SkipWrite) {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"

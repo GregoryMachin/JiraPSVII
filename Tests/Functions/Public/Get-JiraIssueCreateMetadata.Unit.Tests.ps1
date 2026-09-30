@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueCreateMetadata" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -79,28 +79,28 @@ InModuleScope JiraPS {
 "@
             #endregion Definitions
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraProject -ModuleName JiraPS {
+            Mock Get-JiraProject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraProject'
                 $issueObject = [PSCustomObject] @{
                     ID   = 2
                     Name = 'Test Issue Type'
                 }
-                $issueObject.PSObject.TypeNames.Insert(0, 'JiraPS.IssueType')
+                $issueObject.PSObject.TypeNames.Insert(0, 'JiraPSVII.IssueType')
                 $object = [PSCustomObject] @{
                     ID   = 10003
                     Name = 'Test Project'
                 }
                 Add-Member -InputObject $object -MemberType NoteProperty -Name "IssueTypes" -Value $issueObject
-                $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Project')
+                $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Project')
                 return $object
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS {
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Test-JiraCloudServer'
                 $false
             }
@@ -129,12 +129,12 @@ InModuleScope JiraPS {
                 BeforeAll {
                     # Default mock: Invoke-JiraMethod -Paging would yield the
                     # expanded field items, so the mock returns values directly.
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/issue/createmeta/*/issuetypes/*" } {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -like "/rest/api/*/issue/createmeta/*/issuetypes/*" } {
                         Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                         (ConvertFrom-Json $restResult).values
                     }
 
-                    Mock Invoke-JiraMethod -ModuleName JiraPS {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                         throw "Unidentified call to Invoke-JiraMethod"
                     }
@@ -143,7 +143,7 @@ InModuleScope JiraPS {
                 It "Queries Jira for metadata information about creating an issue" {
                     { Get-JiraIssueCreateMetadata -Project 10003 -IssueType 2 } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like "/rest/api/*/issue/createmeta/*/issuetypes/*" -and
                         $Paging -eq $true
@@ -154,27 +154,27 @@ InModuleScope JiraPS {
                     # Test-JiraCloudServer is already mocked to $false in BeforeAll.
                     { Get-JiraIssueCreateMetadata -Project 10003 -IssueType 2 } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and $URI -like "/rest/api/2/issue/createmeta/*"
                     } -Exactly -Times 1
                 }
 
                 It "Uses the REST API v3 endpoint on Jira Cloud" {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
                     { Get-JiraIssueCreateMetadata -Project 10003 -IssueType 2 } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and $URI -like "/rest/api/3/issue/createmeta/*"
                     } -Exactly -Times 1
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and $URI -like "/rest/api/2/issue/createmeta/*"
                     } -Exactly -Times 0
                 }
 
                 It "Streams each field through ConvertTo-JiraCreateMetaField" {
-                    Mock ConvertTo-JiraCreateMetaField -ModuleName JiraPS {
+                    Mock ConvertTo-JiraCreateMetaField -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'ConvertTo-JiraCreateMetaField' 'InputObject'
                         $InputObject
                     }
@@ -184,15 +184,15 @@ InModuleScope JiraPS {
                     $result | Should -HaveCount 3
 
                     # With pagination the converter is invoked once per streamed item.
-                    Should -Invoke ConvertTo-JiraCreateMetaField -ModuleName JiraPS -Exactly -Times 3
+                    Should -Invoke ConvertTo-JiraCreateMetaField -ModuleName JiraPSVII -Exactly -Times 3
                 }
 
-                It "Emits AtlassianPS.JiraPS.CreateMetaField objects with mapped properties" {
+                It "Emits AtlassianPSVII.JiraPSVII.CreateMetaField objects with mapped properties" {
                     $result = Get-JiraIssueCreateMetadata -Project 10003 -IssueType 2
 
                     $result | Should -HaveCount 3
                     foreach ($field in $result) {
-                        $field.PSObject.TypeNames | Should -Contain 'AtlassianPS.JiraPS.CreateMetaField'
+                        $field.PSObject.TypeNames | Should -Contain 'AtlassianPSVII.JiraPSVII.CreateMetaField'
                     }
 
                     $summary = $result | Where-Object { $_.Id -eq 'summary' }
@@ -211,16 +211,16 @@ InModuleScope JiraPS {
                     # Mock the HTTP layer only so that Invoke-JiraMethod (and
                     # Invoke-PaginatedRequest) actually runs end-to-end and the
                     # second page is fetched.
-                    Mock Resolve-DefaultParameterValue -ModuleName JiraPS { @{ } }
-                    Mock Set-TlsLevel -ModuleName JiraPS { }
-                    Mock Test-ServerResponse -ModuleName JiraPS { }
-                    Mock Get-JiraSession -ModuleName JiraPS {
+                    Mock Resolve-DefaultParameterValue -ModuleName JiraPSVII { @{ } }
+                    Mock Set-TlsLevel -ModuleName JiraPSVII { }
+                    Mock Test-ServerResponse -ModuleName JiraPSVII { }
+                    Mock Get-JiraSession -ModuleName JiraPSVII {
                         [PSCustomObject]@{
                             WebSession = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSession
                         }
                     }
 
-                    Mock Invoke-WebRequest -ModuleName JiraPS {
+                    Mock Invoke-WebRequest -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Invoke-WebRequest' -Params 'Uri', 'Method'
 
                         $response = $pagedResponse1
@@ -247,10 +247,10 @@ InModuleScope JiraPS {
 
                     $result | Should -HaveCount 4
 
-                    Should -Invoke Invoke-WebRequest -ModuleName JiraPS -Exactly -Times 2 -Scope It
+                    Should -Invoke Invoke-WebRequest -ModuleName JiraPSVII -Exactly -Times 2 -Scope It
 
                     # startAt=2 query should be issued for the second page request.
-                    Should -Invoke Invoke-WebRequest -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-WebRequest -ModuleName JiraPSVII -ParameterFilter {
                         "$Uri" -match 'startAt=2'
                     } -Exactly -Times 1 -Scope It
                 }

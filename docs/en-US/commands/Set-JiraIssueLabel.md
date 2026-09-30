@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Set-JiraIssueLabel/
 locale: en-US
 layout: documentation
@@ -164,7 +164,7 @@ HelpMessage: ''
 
 Issue of which the labels should be manipulated.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -283,12 +283,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 If the `-PassThru` parameter is provided, this function will provide a reference
 to the JIRA issue modified.

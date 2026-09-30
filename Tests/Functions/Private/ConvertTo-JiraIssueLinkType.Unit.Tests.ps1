@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraIssueLinkType" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -65,9 +65,9 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "returns AtlassianPS.JiraPS.IssueLinkType" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.IssueLinkType'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.IssueLinkType]
+                It "returns AtlassianPSVII.JiraPSVII.IssueLinkType" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.IssueLinkType'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.IssueLinkType]
                 }
             }
 

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraWorklogitem" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -78,9 +78,9 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "returns AtlassianPS.JiraPS.Worklogitem" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Worklogitem'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.Worklogitem]
+                It "returns AtlassianPSVII.JiraPSVII.Worklogitem" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Worklogitem'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.Worklogitem]
                 }
             }
 

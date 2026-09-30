@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraConfigServer/
 locale: en-US
 layout: documentation
@@ -20,7 +20,7 @@ Get-JiraConfigServer [<CommonParameters>]
 
 ## DESCRIPTION
 
-This function returns the configured URL for the JIRA server that JiraPS should manipulate.
+This function returns the configured URL for the JIRA server that JiraPSVII should manipulate.
 
 ## EXAMPLES
 
@@ -30,7 +30,7 @@ This function returns the configured URL for the JIRA server that JiraPS should 
 Get-JiraConfigServer
 ```
 
-Returns the server URL of the JIRA server configured for the JiraPS module.
+Returns the server URL of the JIRA server configured for the JiraPSVII module.
 
 ## PARAMETERS
 
@@ -56,4 +56,4 @@ Support for multiple configuration files is limited at this point in time, but e
 
 ## RELATED LINKS
 
-[about_JiraPS_Authentication](../../about/authentication.html)
+[about_JiraPSVII_Authentication](../../about/authentication.html)

@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Set-JiraIssueProperty/
 locale: en-US
 layout: documentation
@@ -28,7 +28,7 @@ This cmdlet has no aliases.
 
 ## DESCRIPTION
 
-Sets a JSON-safe property value on a Jira issue. JiraPS validates property keys and JSON values before sending requests.
+Sets a JSON-safe property value on a Jira issue. JiraPSVII validates property keys and JSON values before sending requests.
 
 ## EXAMPLES
 
@@ -180,15 +180,15 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
-Sets a JSON-safe property value on a Jira issue. JiraPS validates property keys and JSON values before sending requests.
+Sets a JSON-safe property value on a Jira issue. JiraPSVII validates property keys and JSON values before sending requests.
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.EntityProperty
+### AtlassianPSVII.JiraPSVII.EntityProperty
 
-Sets a JSON-safe property value on a Jira issue. JiraPS validates property keys and JSON values before sending requests.
+Sets a JSON-safe property value on a Jira issue. JiraPSVII validates property keys and JSON values before sending requests.
 
 ## NOTES
 
@@ -196,4 +196,4 @@ Property values may be visible to users or integrations with access to the entit
 
 ## RELATED LINKS
 
-[JiraPS commands](../)
+[JiraPSVII commands](../)

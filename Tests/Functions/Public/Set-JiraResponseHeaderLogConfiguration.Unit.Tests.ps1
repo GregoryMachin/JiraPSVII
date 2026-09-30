@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Set-JiraResponseHeaderLogConfiguration" -Tag 'Unit' {
         BeforeEach {
             $script:JiraResponseHeaderLogConfiguration = $null

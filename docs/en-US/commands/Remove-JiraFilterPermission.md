@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Remove-JiraFilterPermission/
 locale: en-US
 layout: documentation
@@ -101,7 +101,7 @@ HelpMessage: ''
 Object of the Filter from which to remove a permission.
 
 ```yaml
-Type: AtlassianPS.JiraPS.Filter
+Type: AtlassianPSVII.JiraPSVII.Filter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -192,9 +192,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Filter
+### AtlassianPSVII.JiraPSVII.Filter
 
-Pipe a AtlassianPS.JiraPS.Filter to remove all of its share permissions.
+Pipe a AtlassianPSVII.JiraPSVII.Filter to remove all of its share permissions.
 
 ## OUTPUTS
 

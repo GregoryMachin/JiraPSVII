@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraRemoteLink/
 locale: en-US
 layout: documentation
@@ -72,7 +72,7 @@ HelpMessage: ''
 
 The Issue to search for link.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -122,11 +122,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue / String
+### AtlassianPSVII.JiraPSVII.Issue / String
 
 ## OUTPUTS
 
-### JiraPS.Link
+### JiraPSVII.Link
 
 ## NOTES
 

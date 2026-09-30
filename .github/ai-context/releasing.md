@@ -1,6 +1,6 @@
-# Releasing JiraPS
+# Releasing JiraPSVII
 
-This document covers the release process for JiraPS.
+This document covers the release process for JiraPSVII.
 The release workflow is tag based and promotes the CI artifact from the exact commit that was tagged.
 Release notes are extracted once from `CHANGELOG.md` and reused for both the GitHub release body and the PSGallery manifest `PrivateData.PSData.ReleaseNotes`.
 
@@ -12,7 +12,7 @@ Release notes are extracted once from `CHANGELOG.md` and reused for both the Git
 | File | What to Change |
 |------|----------------|
 | `CHANGELOG.md` | Add release entry matching the tag: `## vX.Y.Z - YYYY-MM-DD` |
-| `JiraPS/JiraPS.psd1` | Update `ModuleVersion` (e.g., `'X.Y.Z'`) |
+| `JiraPSVII/JiraPSVII.psd1` | Update `ModuleVersion` (e.g., `'X.Y.Z'`) |
 
 ## Changelog Format
 
@@ -42,12 +42,12 @@ Invoke-Build -Task Build, SetVersion -VersionToPublish vX.Y.Z
 ```powershell
 git checkout master && git pull origin master
 
-# Edit CHANGELOG.md (add release section) and JiraPS/JiraPS.psd1 (update ModuleVersion)
+# Edit CHANGELOG.md (add release section) and JiraPSVII/JiraPSVII.psd1 (update ModuleVersion)
 
 Invoke-Build -Task Build, Test
 Invoke-Build -Task Build, SetVersion -VersionToPublish vX.Y.Z
 
-git add CHANGELOG.md JiraPS/JiraPS.psd1
+git add CHANGELOG.md JiraPSVII/JiraPSVII.psd1
 git commit -m "Release vX.Y.Z"
 
 # Tags use the v prefix and trigger release.yml
@@ -68,8 +68,8 @@ git push origin master --tags
 - **Release workflow triggers on**: `v*` annotated tags
 - **Release workflow verifies**: the tag is annotated and points to a commit reachable from `origin/master`
 - **Release workflow downloads**: the `Release` artifact built by CI for the tagged commit
-- **Release workflow writes**: GitHub release notes with `AtlassianPS.Standards/.github/actions/build-release-notes`
-- **Publish task writes**: PSGallery manifest release notes with `Get-AtlassianPSReleaseNotesFromChangelog`
+- **Release workflow writes**: GitHub release notes with `AtlassianPSVII.Standards/.github/actions/build-release-notes`
+- **Publish task writes**: PSGallery manifest release notes with `Get-AtlassianPSVIIReleaseNotesFromChangelog`
 
 ## Common Mistakes
 

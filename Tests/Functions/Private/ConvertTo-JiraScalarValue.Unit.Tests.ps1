@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Jira scalar conversion helpers" -Tag 'Unit' {
         Context "ConvertTo-JiraNullableInt64" {
             It "returns null for null or whitespace input" {

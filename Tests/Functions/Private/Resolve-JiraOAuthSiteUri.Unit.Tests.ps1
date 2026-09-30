@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraOAuthSiteUri" -Tag 'Unit' {
         It "normalizes a trusted Atlassian Cloud site URL" {
             (Resolve-JiraOAuthSiteUri -SiteUrl 'https://Example.atlassian.net').AbsoluteUri |

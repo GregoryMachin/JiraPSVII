@@ -1,5 +1,5 @@
 name: Backlog idea
-description: File a refactor / cleanup / follow-up that should live on the JiraPS Backlog board.
+description: File a refactor / cleanup / follow-up that should live on the JiraPSVII Backlog board.
 title: "[Backlog] "
 labels: ["Backlog"]
 projects: ["AtlassianPS/2"]
@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Use this template for ideas that come out of a chat, code review, or audit and that should be tracked on the **JiraPS Backlog** project board so they don't get lost between worktrees.
+        Use this template for ideas that come out of a chat, code review, or audit and that should be tracked on the **JiraPSVII Backlog** project board so they don't get lost between worktrees.
         Active bugs go to *Bug report*; new user-facing features go to *Feature request*.
   - type: textarea
     id: context

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraIssueLink" -Tag 'Unit' {
 
         BeforeAll {
@@ -19,49 +19,49 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraIssueLink -ModuleName JiraPS {
+            Mock Get-JiraIssueLink -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssueLink' 'Id'
-                [AtlassianPS.JiraPS.IssueLink]@{
+                [AtlassianPSVII.JiraPSVII.IssueLink]@{
                     Id = $issueLinkId
                 }
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS -ParameterFilter { $Key -eq "TEST-01" } {
+            Mock Get-JiraIssue -ModuleName JiraPSVII -ParameterFilter { $Key -eq "TEST-01" } {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
                 # We don't care about the content of any field except for the id of the issuelinks
-                $issue = [AtlassianPS.JiraPS.Issue]@{
+                $issue = [AtlassianPSVII.JiraPSVII.Issue]@{
                     Key        = 'TEST-01'
-                    IssueLinks = [AtlassianPS.JiraPS.IssueLink[]]@(
-                        [AtlassianPS.JiraPS.IssueLink]::new('1234')
+                    IssueLinks = [AtlassianPSVII.JiraPSVII.IssueLink[]]@(
+                        [AtlassianPSVII.JiraPSVII.IssueLink]::new('1234')
                     )
                 }
                 return $issue
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 if ($InputObject.Key -eq 'TEST-01') {
-                    return [AtlassianPS.JiraPS.Issue]@{
+                    return [AtlassianPSVII.JiraPSVII.Issue]@{
                         Key        = 'TEST-01'
-                        IssueLinks = [AtlassianPS.JiraPS.IssueLink[]]@(
-                            [AtlassianPS.JiraPS.IssueLink]::new('1234')
+                        IssueLinks = [AtlassianPSVII.JiraPSVII.IssueLink[]]@(
+                            [AtlassianPSVII.JiraPSVII.IssueLink]::new('1234')
                         )
                     }
                 }
                 $InputObject
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/*/issueLink/1234" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Delete' -and $URI -like "/rest/api/*/issueLink/1234" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -75,8 +75,8 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = 'IssueLink'; type = 'AtlassianPS.JiraPS.IssueLink[]' }
-                    @{ parameter = 'Issue'; type = 'AtlassianPS.JiraPS.Issue[]' }
+                    @{ parameter = 'IssueLink'; type = 'AtlassianPSVII.JiraPSVII.IssueLink[]' }
+                    @{ parameter = 'Issue'; type = 'AtlassianPSVII.JiraPSVII.Issue[]' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                 ) {
                     param($parameter, $type)
@@ -99,7 +99,7 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 2
                 }
 
-                It "Accepts a AtlassianPS.JiraPS.Issue object over the pipeline" {
+                It "Accepts a AtlassianPSVII.JiraPSVII.Issue object over the pipeline" {
                     { Get-JiraIssue -Key TEST-01 | Remove-JiraIssueLink } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
@@ -110,7 +110,7 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
 
-                It "Accepts an AtlassianPS.JiraPS.IssueLink over the pipeline" {
+                It "Accepts an AtlassianPSVII.JiraPSVII.IssueLink over the pipeline" {
                     { Get-JiraIssueLink -Id 1234 | Remove-JiraIssueLink } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }

@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraProjectRole/
 locale: en-US
 layout: documentation
@@ -51,13 +51,13 @@ Returns role `10360` for project `TEST`, excluding inactive user actors.
 Get-JiraProject TEST | Get-JiraProjectRole
 ```
 
-Accepts a typed JiraPS project object from the pipeline.
+Accepts a typed JiraPSVII project object from the pipeline.
 
 ## PARAMETERS
 
 ### -Credential
 
-Credentials to use to connect to Jira. If omitted, the current JiraPS session or anonymous access is used.
+Credentials to use to connect to Jira. If omitted, the current JiraPSVII session or anonymous access is used.
 
 ```yaml
 Type: PSCredential
@@ -99,7 +99,7 @@ HelpMessage: ''
 
 ### -Project
 
-One or more project keys, IDs, or typed JiraPS project objects.
+One or more project keys, IDs, or typed JiraPSVII project objects.
 
 ```yaml
 Type: Project[]
@@ -149,11 +149,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Project
+### AtlassianPSVII.JiraPSVII.Project
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.ProjectRole
+### AtlassianPSVII.JiraPSVII.ProjectRole
 
 ## NOTES
 

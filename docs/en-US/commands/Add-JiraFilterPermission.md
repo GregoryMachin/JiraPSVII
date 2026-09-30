@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraFilterPermission/
 locale: en-US
 layout: documentation
@@ -113,7 +113,7 @@ HelpMessage: ''
 Filter object to which the permission should be applied
 
 ```yaml
-Type: AtlassianPS.JiraPS.Filter
+Type: AtlassianPSVII.JiraPSVII.Filter
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -242,12 +242,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Filter
+### AtlassianPSVII.JiraPSVII.Filter
 
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Filter
+### AtlassianPSVII.JiraPSVII.Filter
 
 ## NOTES
 

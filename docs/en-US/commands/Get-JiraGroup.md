@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraGroup/
 locale: en-US
 layout: documentation
@@ -114,7 +114,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### JiraPS.Group
+### JiraPSVII.Group
 
 Returned group objects may include an `Id` property when Jira provides one.
 Jira Data Center responses do not expose a canonical group `Id`, so the property may be empty on that track.

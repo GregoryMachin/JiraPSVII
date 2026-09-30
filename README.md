@@ -1,17 +1,17 @@
 ---
 layout: module
-permalink: /module/JiraPS/
+permalink: /module/JiraPSVII/
 ---
-# [JiraPS](https://atlassianps.org/module/JiraPS)
+# [JiraPSVII](https://atlassianps.org/module/JiraPS)
 
 [![GitHub release](https://img.shields.io/github/release/AtlassianPS/JiraPS.svg?style=for-the-badge)](https://github.com/AtlassianPS/JiraPS/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/AtlassianPS/JiraPS/ci.yml?style=for-the-badge)](https://github.com/AtlassianPS/JiraPS/actions/workflows/ci.yml)
 [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/JiraPS.svg?style=for-the-badge)](https://www.powershellgallery.com/packages/JiraPS)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)
 
-JiraPS is a Windows PowerShell module to interact with Atlassian [JIRA] via a REST API, while maintaining a consistent PowerShell look and feel.
+JiraPSVII is a Windows PowerShell module to interact with Atlassian [JIRA] via a REST API, while maintaining a consistent PowerShell look and feel.
 
-Join the conversation on [![SlackLogo][] AtlassianPS.Slack.com](https://atlassianps.org/slack)
+Join the conversation on [![SlackLogo][] AtlassianPSVII.Slack.com](https://atlassianps.org/slack)
 
 [SlackLogo]: https://atlassianps.org/assets/img/Slack_Mark_Web_28x28.png
 <!--more-->
@@ -22,21 +22,21 @@ Join the conversation on [![SlackLogo][] AtlassianPS.Slack.com](https://atlassia
 
 ### Installation
 
-Install JiraPS from the [PowerShell Gallery]! `Install-Module` requires PowerShellGet (included in PS v5, or download for v3/v4 via the gallery link)
+Install JiraPSVII from the [PowerShell Gallery]! `Install-Module` requires PowerShellGet (included in PS v5, or download for v3/v4 via the gallery link)
 
 ```powershell
 # One time only install:
-Install-Module JiraPS -Scope CurrentUser
+Install-Module JiraPSVII -Scope CurrentUser
 
 # Check for updates occasionally:
-Update-Module JiraPS
+Update-Module JiraPSVII
 ```
 
 ### Usage
 
 ```powershell
 # To use each session:
-Import-Module JiraPS
+Import-Module JiraPSVII
 Set-JiraConfigServer 'https://YourCloud.atlassian.net'
 New-JiraSession -Credential $cred
 ```
@@ -45,16 +45,16 @@ You can find the full documentation on our [homepage](https://atlassianps.org/do
 
 ```powershell
 # Review the help at any time!
-Get-Help about_JiraPS
-Get-Command -Module JiraPS
+Get-Help about_JiraPSVII
+Get-Command -Module JiraPSVII
 Get-Help Get-JiraIssue -Full # or any other command
 ```
 
-For more information on how to use JiraPS, check out the [Documentation](https://atlassianps.org/docs/JiraPS/).
+For more information on how to use JiraPSVII, check out the [Documentation](https://atlassianps.org/docs/JiraPS/).
 
 ### Contribute
 
-Want to contribute to AtlassianPS? Great!
+Want to contribute to AtlassianPSVII? Great!
 We appreciate [everyone](https://atlassianps.org/#people) who invests their time to make our modules the best they can be.
 
 Check out our guidelines on [Contributing] to our modules and documentation.

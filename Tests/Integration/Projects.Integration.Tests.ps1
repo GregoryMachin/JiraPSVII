@@ -9,7 +9,7 @@ BeforeDiscovery {
     $script:Skip = Skip-IntegrationTest
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Projects" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -34,7 +34,7 @@ InModuleScope JiraPS {
                 It "returns project objects with correct type" {
                     $projects = Get-JiraProject
 
-                    @($projects)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Project'
+                    @($projects)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Project'
                 }
             }
 
@@ -83,7 +83,7 @@ InModuleScope JiraPS {
                     { Get-JiraComponent -Project $fixtures.TestProject } | Should -Not -Throw
 
                     if ($components) {
-                        @($components)[0] | Should -BeOfType [AtlassianPS.JiraPS.Component]
+                        @($components)[0] | Should -BeOfType [AtlassianPSVII.JiraPSVII.Component]
                     }
                 }
 
@@ -92,7 +92,7 @@ InModuleScope JiraPS {
                         Set-ItResult -Skipped -Because "No components exist in test project"
                         return
                     }
-                    @($components)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Component'
+                    @($components)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Component'
                 }
             }
         }

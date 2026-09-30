@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraStatus/
 locale: en-US
 layout: documentation
@@ -121,7 +121,7 @@ Values passed to `-Status` can be provided through the pipeline.
 
 ## OUTPUTS
 
-### JiraPS.Status
+### JiraPSVII.Status
 
 ## NOTES
 

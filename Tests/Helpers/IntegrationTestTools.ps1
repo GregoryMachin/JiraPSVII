@@ -1,6 +1,6 @@
 ﻿. "$PSScriptRoot/TestTools.ps1"
 
-$script:TestResourcePrefix = 'JiraPS-IntTest-'
+$script:TestResourcePrefix = 'JiraPSVII-IntTest-'
 $script:_CachedIntegrationEnv = $null
 $script:_EnvLoaded = $false
 $script:_CleanupInProgress = $false
@@ -30,7 +30,7 @@ function Read-DotEnvFile {
         Loads KEY=value pairs from a .env file into the current process environment.
 
     .DESCRIPTION
-        JiraPS compatibility wrapper around the shared Standards .env loader.
+        JiraPSVII compatibility wrapper around the shared Standards .env loader.
 
     .PARAMETER Path
         Path to the .env file.
@@ -48,7 +48,7 @@ function Read-DotEnvFile {
         [string[]]$ExcludeName = @()
     )
 
-    Import-AtlassianPSDotEnvFile -Path $Path -ExcludeName $ExcludeName
+    Import-AtlassianPSVIIDotEnvFile -Path $Path -ExcludeName $ExcludeName
 }
 
 function Initialize-IntegrationEnvironment {
@@ -81,7 +81,7 @@ function Initialize-IntegrationEnvironment {
         Returns $null if required environment variables are missing, allowing tests
         to be skipped gracefully when not configured.
 
-        Uses a global variable (`$global:_JiraPSIntegrationEnvWarned`) to ensure
+        Uses a global variable (`$global:_JiraPSVIIIntegrationEnvWarned`) to ensure
         the "missing env vars" warning fires at most once per PowerShell process.
         A script-scoped flag would not work because Pester dot-sources this file
         in every integration test's BeforeDiscovery block, resetting any
@@ -150,7 +150,7 @@ function Initialize-IntegrationEnvironment {
         # test's BeforeDiscovery), so a script-scoped guard would still spam
         # the warning N times. A process-wide global flag stays set across
         # every dot-source within the same runspace.
-        if (-not $global:_JiraPSIntegrationEnvWarned) {
+        if (-not $global:_JiraPSVIIIntegrationEnvWarned) {
             Write-Warning "Integration tests ($deploymentType track) require the following environment variables: $($missing -join ', ')"
             if ($deploymentType -eq 'Server') {
                 Write-Warning "Set CI_JIRA_TYPE=Server and the CI_JIRA_* vars (defaults match the moveworkforward/atlas-run-standalone Docker image). See .env.example."
@@ -158,7 +158,7 @@ function Initialize-IntegrationEnvironment {
             else {
                 Write-Warning "Copy .env.example to .env and configure your Jira Cloud connection."
             }
-            $global:_JiraPSIntegrationEnvWarned = $true
+            $global:_JiraPSVIIIntegrationEnvWarned = $true
         }
         $script:_EnvLoaded = $true
         $script:_CachedIntegrationEnv = $null
@@ -237,7 +237,7 @@ function Connect-JiraTestServer {
         Establishes an authenticated session with the test Jira instance.
 
     .DESCRIPTION
-        Configures the JiraPS module to connect to the test Jira instance (Cloud or
+        Configures the JiraPSVII module to connect to the test Jira instance (Cloud or
         Data Center, depending on `$Environment.IsCloud`) and creates an authenticated
         session using the credentials from the environment configuration.
 
@@ -300,7 +300,7 @@ function Connect-JiraTestServer {
         # (it sends the first request unauthenticated and only retries with credentials
         # if the server responds with `WWW-Authenticate: Basic`). Atlassian Seraph on
         # /rest/api/2/myself does not always advertise Basic in its 401, so the retry
-        # never happens and the JiraPS session never gets established. Sending the
+        # never happens and the JiraPSVII session never gets established. Sending the
         # header up-front bypasses the handshake entirely and matches what
         # Wait-JiraServer.ps1 does successfully against the same image.
         $authPair = "$($Environment.Username):$($Environment.Password)"
@@ -443,7 +443,7 @@ function New-TemporaryTestIssue {
 
     .PARAMETER Summary
         The summary/title for the test issue. Defaults to a prefixed
-        `JiraPS-IntTest-Issue-<timestamp>-<guid>` name so the cleanup
+        `JiraPSVII-IntTest-Issue-<timestamp>-<guid>` name so the cleanup
         sweeper can discover it.
 
     .PARAMETER Fixtures
@@ -502,7 +502,7 @@ function New-TemporaryTestIssue {
         Project     = $Fixtures.TestProject
         IssueType   = $IssueType
         Summary     = $Summary
-        Description = "Temporary test issue created by JiraPS integration tests. Safe to delete."
+        Description = "Temporary test issue created by JiraPSVII integration tests. Safe to delete."
     }
 
     $extras = Get-MinimumValidIssueParameter -Fixtures $Fixtures -IssueType $IssueType -SkipFieldId @('description')
@@ -648,7 +648,7 @@ function Get-MinimumValidIssueParameter {
         }
 
         switch ($field.Schema.type) {
-            'string' { $result.Fields[$field.Id] = "JiraPS-IntTest default for $($field.Name)"; break }
+            'string' { $result.Fields[$field.Id] = "JiraPSVII-IntTest default for $($field.Name)"; break }
             'number' { $result.Fields[$field.Id] = 0; break }
             'array' { $result.Fields[$field.Id] = @(); break }
             'user' {
@@ -709,7 +709,7 @@ function Remove-StaleTestResource {
 
     .NOTES
         This function is idempotent and safe to call multiple times.
-        It only removes resources with the JiraPS-IntTest- prefix.
+        It only removes resources with the JiraPSVII-IntTest- prefix.
         "Already deleted" errors from parallel runners are silently ignored.
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Test helper for cleanup does not require confirmation')]
@@ -746,7 +746,7 @@ function Remove-StaleTestResource {
 
     try {
         # Quote the prefix as a phrase so Jira's text search does not tokenize on '-'
-        # (which would match any of "JiraPS", "IntTest" individually).
+        # (which would match any of "JiraPSVII", "IntTest" individually).
         $jql = "project = $($Fixtures.TestProject) AND summary ~ ""\""$prefix\"""" ORDER BY created ASC"
         $staleIssues = Get-JiraIssue -Query $jql -ErrorAction SilentlyContinue
         foreach ($issue in $staleIssues) {
@@ -816,7 +816,7 @@ function New-TestResourceName {
         Generates a unique name for a test resource with the standard prefix.
 
     .DESCRIPTION
-        Creates a name like "JiraPS-IntTest-Issue-20260412233045-a1b2c3" that is
+        Creates a name like "JiraPSVII-IntTest-Issue-20260412233045-a1b2c3" that is
         easily identifiable as a test resource and unique per invocation.
 
         Includes a short GUID suffix to ensure uniqueness when multiple parallel
@@ -830,7 +830,7 @@ function New-TestResourceName {
 
     .EXAMPLE
         $summary = New-TestResourceName -Type "Issue"
-        # Returns: "JiraPS-IntTest-Issue-20260412233045-a1b2c3"
+        # Returns: "JiraPSVII-IntTest-Issue-20260412233045-a1b2c3"
     #>
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Function only generates a string, does not modify state')]
     [CmdletBinding()]

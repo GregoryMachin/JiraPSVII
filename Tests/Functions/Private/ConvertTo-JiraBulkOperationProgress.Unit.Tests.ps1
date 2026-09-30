@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe 'ConvertTo-JiraBulkOperationProgress' -Tag 'Unit' {
         It 'converts complete operations including structured partial failures' {
             $input = [PSCustomObject]@{
@@ -24,9 +24,9 @@ InModuleScope JiraPS {
 
             $result = ConvertTo-JiraBulkOperationProgress -InputObject $input
 
-            $result | Should -BeOfType 'AtlassianPS.JiraPS.BulkOperationProgress'
+            $result | Should -BeOfType 'AtlassianPSVII.JiraPSVII.BulkOperationProgress'
             $result.TaskId | Should -Be '10641'
-            $result.Status | Should -Be ([AtlassianPS.JiraPS.BulkOperationStatus]::COMPLETE)
+            $result.Status | Should -Be ([AtlassianPSVII.JiraPSVII.BulkOperationStatus]::COMPLETE)
             $result.ProcessedAccessibleIssues | Should -Be @(10001, 10002)
             $result.FailedAccessibleIssues['10003'] | Should -Be @('The issue is locked.', 'A required field is missing.')
             $result.InvalidOrInaccessibleIssueCount | Should -Be 1

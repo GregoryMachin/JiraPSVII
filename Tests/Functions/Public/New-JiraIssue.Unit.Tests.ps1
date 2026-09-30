@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraIssue" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -29,52 +29,52 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
             # If we don't override this in a context or test, we don't want it to
             # actually try to query a JIRA instance
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 @{ Key = "TEST-01" }
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue'
                 [PSCustomObject] @{ Key = "TEST-01" }
             }
 
-            Mock Get-JiraProject -ModuleName JiraPS {
+            Mock Get-JiraProject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraProject'
                 $issueObject = [PSCustomObject] @{
                     ID   = $issueTypeTest
                     Name = 'Test Issue Type'
                 }
-                $issueObject.PSObject.TypeNames.Insert(0, 'JiraPS.IssueType')
+                $issueObject.PSObject.TypeNames.Insert(0, 'JiraPSVII.IssueType')
                 $object = [PSCustomObject] @{
                     'ID'  = $Project
                     'Key' = "TEST"
                 }
                 Add-Member -InputObject $object -MemberType NoteProperty -Name "IssueTypes" -Value $issueObject
-                $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Project')
+                $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Project')
                 return $object
             }
 
-            Mock Get-JiraUser -ModuleName JiraPS {
+            Mock Get-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraUser'
                 $object = [PSCustomObject] @{
                     'Name' = $UserName
                 }
-                $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                 return $object
             }
 
             # This one needs to be able to output multiple objects
-            Mock Get-JiraField -ModuleName JiraPS {
+            Mock Get-JiraField -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraField'
                 $(if ($null -eq $Field) {
                         @(
@@ -93,12 +93,12 @@ InModuleScope JiraPS {
                     $object = [PSCustomObject] @{
                         'Id' = $_
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                    $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                     $object
                 }
             }
 
-            Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+            Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssueCreateMetadata'
                 @(
                     @{Name = 'Project'; ID = 'Project'; Required = $true }
@@ -148,20 +148,20 @@ InModuleScope JiraPS {
                 # The String in the ParameterFilter is made from the keywords
                 # we should expect to see in the JSON that should be sent,
                 # including the summary provided in the test call above.
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/*/issue" }
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/*/issue" }
             }
 
             It "defers required-field validation to Jira instead of client-side createmeta checks" {
                 { New-JiraIssue @newParams } | Should -Not -Throw
 
-                Should -Invoke -CommandName Get-JiraIssueCreateMetadata -ModuleName JiraPS -Times 0
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Times 1
+                Should -Invoke -CommandName Get-JiraIssueCreateMetadata -ModuleName JiraPSVII -Times 0
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Times 1
             }
 
             It "populates components in the request body when -Components is supplied" {
                 { New-JiraIssue @newParams -Components '10001', '10002' } | Should -Not -Throw
 
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $Body -match '"components"' -and
                     $Body -match '10001' -and
@@ -172,7 +172,7 @@ InModuleScope JiraPS {
             It "populates components in the request body when the -Component short form is supplied" {
                 { New-JiraIssue @newParams -Component '10003', '10004' } | Should -Not -Throw
 
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $Body -match '"components"' -and
                     $Body -match '10003' -and
@@ -184,13 +184,13 @@ InModuleScope JiraPS {
                 # The String in the ParameterFilter is made from the keywords
                 # we should expect to see in the JSON that should be sent,
                 # including the summary provided in the test call above.
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/*/issue" }
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/*/issue" }
             }
 
             Context "New-JiraIssue handles duplicate fields" {
                 BeforeAll {
                     # Intentionally output multiple objects of different IDs but with the same name
-                    Mock Get-JiraField -ModuleName JiraPS {
+                    Mock Get-JiraField -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraField'
                         $Field | ForEach-Object {
                             $name = $_
@@ -200,7 +200,7 @@ InModuleScope JiraPS {
                                     $object = [PSCustomObject] @{
                                         'Id' = "$fieldname"
                                     }
-                                    $object.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                                    $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                                     $object
                                 }
                             }
@@ -208,7 +208,7 @@ InModuleScope JiraPS {
                                 $object = [PSCustomObject] @{
                                     'Id' = "$name"
                                 }
-                                $object.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                                $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                                 $object
                             }
                         }
@@ -216,7 +216,7 @@ InModuleScope JiraPS {
                 }
 
                 It "finds the right field which has a matching name and id" {
-                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraIssueCreateMetadata'
                         @(
                             @{Name = 'Project'; ID = 'Project'; Required = $true }
@@ -233,7 +233,7 @@ InModuleScope JiraPS {
                 }
 
                 It "does not let mismatched createmeta reporter IDs block issue creation" {
-                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraIssueCreateMetadata'
                         @(
                             @{Name = 'Project'; ID = 'Project'; Required = $true }
@@ -254,7 +254,7 @@ InModuleScope JiraPS {
         Describe "Input Validation" {
             Context "Positive cases" {
                 It "Accepts custom fields via -Fields parameter" {
-                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraIssueCreateMetadata'
                         @(
                             @{Name = 'Project'; ID = 'Project'; Required = $true }
@@ -272,7 +272,7 @@ InModuleScope JiraPS {
             }
             Context "Negative cases" {
                 It "does not reject a create when createmeta marks an omitted field as required" {
-                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                    Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraIssueCreateMetadata'
                         @(
                             @{Name = 'Project'; ID = 'Project'; Required = $true }
@@ -286,21 +286,21 @@ InModuleScope JiraPS {
                     }
 
                     { New-JiraIssue @newParams } | Should -Not -Throw
-                    Should -Invoke -CommandName Get-JiraIssueCreateMetadata -ModuleName JiraPS -Times 0
+                    Should -Invoke -CommandName Get-JiraIssueCreateMetadata -ModuleName JiraPSVII -Times 0
                 }
             }
         }
 
         Describe "Cloud Deployment" {
             BeforeAll {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                Mock Resolve-JiraUser -ModuleName JiraPS {
+                Mock Resolve-JiraUser -ModuleName JiraPSVII {
                     $object = [PSCustomObject]@{
                         'Name'      = 'testUsername'
                         'AccountId' = '5b10ac8d82e05b22cc7d4ef5'
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                     return $object
                 }
             }
@@ -308,7 +308,7 @@ InModuleScope JiraPS {
             It "uses accountId for reporter on Cloud" {
                 { New-JiraIssue @newParams } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $Body -match 'accountId'
                 }
@@ -317,7 +317,7 @@ InModuleScope JiraPS {
             It "wraps -Description into an Atlassian Document Format document on Cloud" {
                 { New-JiraIssue @newParams } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $payload = $Body | ConvertFrom-Json
                     $payload.fields.description.type -eq 'doc' -and
                     $payload.fields.description.version -eq 1 -and
@@ -329,7 +329,7 @@ InModuleScope JiraPS {
             It "targets the v3 create-issue endpoint on Cloud" {
                 { New-JiraIssue @newParams } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and $URI -eq '/rest/api/3/issue'
                 }
             }
@@ -340,17 +340,17 @@ InModuleScope JiraPS {
                 # use the field's schema (via Test-JiraRichTextField) to
                 # wrap the value in ADF, matching the behaviour of the
                 # explicit -Description parameter.
-                Mock Get-JiraField -ModuleName JiraPS {
+                Mock Get-JiraField -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Get-JiraField'
                     $object = [PSCustomObject]@{
                         Id     = 'description'
                         Schema = [PSCustomObject]@{ type = 'string'; system = 'description' }
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                    $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                     $object
                 }
 
-                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                     @(
                         @{Name = 'Project'; ID = 'Project'; Required = $true }
                         @{Name = 'IssueType'; ID = 'IssueType'; Required = $true }
@@ -367,7 +367,7 @@ InModuleScope JiraPS {
                 { New-JiraIssue @paramsWithoutDescription -Fields @{ description = 'Hello via Fields' } } |
                     Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $payload = $Body | ConvertFrom-Json
                     $payload.fields.description.type -eq 'doc' -and
                     $payload.fields.description.content[0].content[0].text -eq 'Hello via Fields'
@@ -377,7 +377,7 @@ InModuleScope JiraPS {
             It "leaves a non-rich-text field passed via -Fields verbatim on Cloud" {
                 # Single-line / numeric / etc. fields still go to v3 as
                 # their native value — wrapping would be incorrect there.
-                Mock Get-JiraField -ModuleName JiraPS {
+                Mock Get-JiraField -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Get-JiraField'
                     $object = [PSCustomObject]@{
                         Id     = 'CustomField'
@@ -386,11 +386,11 @@ InModuleScope JiraPS {
                             custom = 'com.atlassian.jira.plugin.system.customfieldtypes:textfield'
                         }
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                    $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                     $object
                 }
 
-                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                     @(
                         @{Name = 'Project'; ID = 'Project'; Required = $true }
                         @{Name = 'IssueType'; ID = 'IssueType'; Required = $true }
@@ -405,7 +405,7 @@ InModuleScope JiraPS {
                 { New-JiraIssue @newParams -Fields @{ CustomField = 'plain' } } |
                     Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $payload = $Body | ConvertFrom-Json
                     $payload.fields.CustomField -is [string] -and
                     $payload.fields.CustomField -eq 'plain'
@@ -415,13 +415,13 @@ InModuleScope JiraPS {
 
         Describe "Description on Server / Data Center" {
             BeforeAll {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
             }
 
             It "sends -Description verbatim as a plain string" {
                 { New-JiraIssue @newParams } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $payload = $Body | ConvertFrom-Json
                     $payload.fields.description -is [string] -and
                     $payload.fields.description -eq 'Test description'
@@ -431,7 +431,7 @@ InModuleScope JiraPS {
             It "targets the v2 create-issue endpoint on Server / DC" {
                 { New-JiraIssue @newParams } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and $URI -eq '/rest/api/2/issue'
                 }
             }
@@ -440,11 +440,11 @@ InModuleScope JiraPS {
         Describe "Reporter resolution" {
             Context "Server / Data Center" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-                    Mock Resolve-JiraUser -ModuleName JiraPS {
+                    Mock Resolve-JiraUser -ModuleName JiraPSVII {
                         $object = [PSCustomObject]@{ 'Name' = 'testUsername' }
-                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                         return $object
                     }
                 }
@@ -454,7 +454,7 @@ InModuleScope JiraPS {
                     # which silently accepted typos until the API rejected them.
                     { New-JiraIssue @newParams } | Should -Not -Throw
 
-                    Should -Invoke Resolve-JiraUser -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Resolve-JiraUser -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $InputObject.Name -eq 'testUsername'
                     }
                 }
@@ -462,7 +462,7 @@ InModuleScope JiraPS {
                 It "uses the 'name' field (not 'accountId') for the reporter on Server" {
                     { New-JiraIssue @newParams } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $Body -match '"name"\s*:\s*"testUsername"' -and
                         $Body -notmatch 'accountId'
@@ -472,7 +472,7 @@ InModuleScope JiraPS {
 
             Context "Validation" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
                     # $newParams already contains Reporter='testUsername', so
                     # splatting it AND passing -Reporter explicitly trips the
@@ -500,7 +500,7 @@ InModuleScope JiraPS {
                 }
 
                 It "throws a friendly error when Resolve-JiraUser returns nothing" {
-                    Mock Resolve-JiraUser -ModuleName JiraPS { $null }
+                    Mock Resolve-JiraUser -ModuleName JiraPSVII { $null }
 
                     { New-JiraIssue @newParams } | Should -Throw
                 }
@@ -511,7 +511,7 @@ InModuleScope JiraPS {
             BeforeAll {
                 # Createmeta without Assignee; tests assert assignee shape
                 # without forcing the required-field check to fire.
-                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                     @(
                         @{Name = 'Project'; ID = 'Project'; Required = $true }
                         @{Name = 'IssueType'; ID = 'IssueType'; Required = $true }
@@ -525,12 +525,12 @@ InModuleScope JiraPS {
 
             Context "Server / Data Center" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-                    Mock Resolve-JiraUser -ModuleName JiraPS {
-                        $name = if ($InputObject -is [AtlassianPS.JiraPS.User]) { $InputObject.Name } else { [string]$InputObject }
+                    Mock Resolve-JiraUser -ModuleName JiraPSVII {
+                        $name = if ($InputObject -is [AtlassianPSVII.JiraPSVII.User]) { $InputObject.Name } else { [string]$InputObject }
                         $object = [PSCustomObject]@{ 'Name' = $name }
-                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                         return $object
                     }
                 }
@@ -538,7 +538,7 @@ InModuleScope JiraPS {
                 It "sends the assignee 'name' field on Server when -Assignee is used" {
                     { New-JiraIssue @newParams -Assignee 'alice' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $Body -match '"assignee"\s*:\s*\{\s*"name"\s*:\s*"alice"\s*\}'
                     }
@@ -549,7 +549,7 @@ InModuleScope JiraPS {
                     # the helper takes care of the dispatch, this asserts the wire shape.
                     { New-JiraIssue @newParams -Unassign } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $Body -match '"assignee"\s*:\s*\{\s*"name"\s*:\s*null\s*\}'
                     }
@@ -558,15 +558,15 @@ InModuleScope JiraPS {
 
             Context "Cloud" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                    Mock Resolve-JiraUser -ModuleName JiraPS {
-                        $name = if ($InputObject -is [AtlassianPS.JiraPS.User]) { $InputObject.Name } else { [string]$InputObject }
+                    Mock Resolve-JiraUser -ModuleName JiraPSVII {
+                        $name = if ($InputObject -is [AtlassianPSVII.JiraPSVII.User]) { $InputObject.Name } else { [string]$InputObject }
                         $object = [PSCustomObject]@{
                             'Name'      = $name
                             'AccountId' = '5b10ac8d82e05b22cc7d4ef5'
                         }
-                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                         return $object
                     }
                 }
@@ -574,7 +574,7 @@ InModuleScope JiraPS {
                 It "sends the 'accountId' field on Cloud when -Assignee is used" {
                     { New-JiraIssue @newParams -Assignee 'alice' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         # Anchor the assignee object to its braces so we can
                         # prove the payload is exactly {accountId: "..."}
                         # with no other properties (e.g. a stray "name").
@@ -587,7 +587,7 @@ InModuleScope JiraPS {
                 It "sends 'accountId: null' on Cloud when -Unassign is used" {
                     { New-JiraIssue @newParams -Unassign } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $Body -match '"assignee"\s*:\s*\{\s*"accountId"\s*:\s*null\s*\}' -and
                         $Body -notmatch '"assignee"\s*:\s*\{[^}]*"name"'
@@ -597,7 +597,7 @@ InModuleScope JiraPS {
 
             Context "Default behavior (no assignee parameters)" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
                 }
 
                 It "omits the assignee field entirely when neither -Assignee nor -Unassign is provided" {
@@ -606,7 +606,7 @@ InModuleScope JiraPS {
                     # expose a -UseDefaultAssignee switch on New-JiraIssue.
                     { New-JiraIssue @newParams } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $Body -notmatch '"assignee"'
                     }
@@ -615,7 +615,7 @@ InModuleScope JiraPS {
 
             Context "Validation" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
                 }
 
                 It "rejects -Assignee + -Unassign at parameter binding (mutually exclusive)" {
@@ -632,39 +632,39 @@ InModuleScope JiraPS {
                 }
 
                 It "throws when Resolve-JiraUser returns nothing for -Assignee" {
-                    Mock Resolve-JiraUser -ModuleName JiraPS { $null }
+                    Mock Resolve-JiraUser -ModuleName JiraPSVII { $null }
 
                     { New-JiraIssue @newParams -Assignee 'ghost' } | Should -Throw
                 }
             }
 
-            Context "Accepts AtlassianPS.JiraPS.User objects via -Assignee" {
+            Context "Accepts AtlassianPSVII.JiraPSVII.User objects via -Assignee" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                    # Resolve-JiraUser will pass a AtlassianPS.JiraPS.User-typed input through
+                    # Resolve-JiraUser will pass a AtlassianPSVII.JiraPSVII.User-typed input through
                     # unchanged; this mock returns a known object so the helper
                     # has a stable AccountId to dispatch on.
-                    Mock Resolve-JiraUser -ModuleName JiraPS {
+                    Mock Resolve-JiraUser -ModuleName JiraPSVII {
                         $object = [PSCustomObject]@{
                             'Name'      = 'alice'
                             'AccountId' = 'aaaa-bbbb-cccc'
                         }
-                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                         return $object
                     }
                 }
 
-                It "accepts a AtlassianPS.JiraPS.User object via -Assignee and extracts its AccountId" {
+                It "accepts a AtlassianPSVII.JiraPSVII.User object via -Assignee and extracts its AccountId" {
                     $user = [PSCustomObject]@{
                         'Name'      = 'alice'
                         'AccountId' = 'aaaa-bbbb-cccc'
                     }
-                    $user.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                    $user.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
 
                     { New-JiraIssue @newParams -Assignee $user } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                         $Body -match '"accountId"\s*:\s*"aaaa-bbbb-cccc"'
                     }
                 }
@@ -673,9 +673,9 @@ InModuleScope JiraPS {
 
         Describe "Field Resolution" {
             BeforeAll {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPS {
+                Mock Get-JiraIssueCreateMetadata -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Get-JiraIssueCreateMetadata'
                     @(
                         [PSCustomObject]@{ Id = 'Project'; Name = 'Project'; Required = $true }
@@ -691,7 +691,7 @@ InModuleScope JiraPS {
                             Schema   = [PSCustomObject]@{ type = 'string' }
                         }
                     ) | ForEach-Object {
-                        $_.PSObject.TypeNames.Insert(0, 'JiraPS.CreateMetaField')
+                        $_.PSObject.TypeNames.Insert(0, 'JiraPSVII.CreateMetaField')
                         $_
                     }
                 }
@@ -701,8 +701,8 @@ InModuleScope JiraPS {
                 { New-JiraIssue @newParams -Fields @{ customfield_10001 = 'scoped value' } } |
                     Should -Not -Throw
 
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 0
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Body -match '"customfield_10001"'
                 }
             }
@@ -711,8 +711,8 @@ InModuleScope JiraPS {
                 { New-JiraIssue @newParams -Fields @{ 'My Custom Field' = 'named value' } } |
                     Should -Not -Throw
 
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 0
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Body -match '"customfield_10001"'
                 }
             }
@@ -723,16 +723,16 @@ InModuleScope JiraPS {
                 { New-JiraIssue @newParams -Fields @{ 'CustomField' = 'fallback value' } } |
                     Should -Not -Throw
 
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "fetches the global field list at most once when multiple unscoped keys are present" {
-                Mock Get-JiraField -ModuleName JiraPS {
+                Mock Get-JiraField -ModuleName JiraPSVII {
                     @(
                         [PSCustomObject]@{ Id = 'CustomField' }
                         [PSCustomObject]@{ Id = 'AnotherCustomField' }
                     ) | ForEach-Object {
-                        $_.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                        $_.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                         $_
                     }
                 }
@@ -742,7 +742,7 @@ InModuleScope JiraPS {
                     'AnotherCustomField' = 'b'
                 }
 
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "throws when a field cannot be resolved from create metadata or the global list" {

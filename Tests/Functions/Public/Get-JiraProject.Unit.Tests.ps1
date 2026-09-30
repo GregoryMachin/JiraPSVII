@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraProject" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -69,28 +69,28 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS {
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Test-JiraCloudServer'
                 $false
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/2/project" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/2/project" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultAll
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -in @("/rest/api/2/project/$projectKey", "/rest/api/2/project/$projectId") } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and "$URI" -in @("/rest/api/2/project/$projectKey", "/rest/api/2/project/$projectId") } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultOne
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -121,7 +121,7 @@ InModuleScope JiraPS {
                 $allResults | Should -Not -BeNullOrEmpty
                 @($allResults).Count | Should -Be (ConvertFrom-Json -InputObject $restResultAll).Count
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     "$URI" -eq "/rest/api/2/project" -and
                     $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys' -and
@@ -155,36 +155,36 @@ InModuleScope JiraPS {
             It "Uses the direct lookup route for project keys and IDs" {
                 $null = Get-JiraProject -Project $projectKey, $projectId
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     "$URI" -eq "/rest/api/2/project/$projectKey" -and
                     $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys' -and
                     -not $Paging
                 } -Exactly -Times 1
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and
                     "$URI" -eq "/rest/api/2/project/$projectId" -and
                     $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys' -and
                     -not $Paging
                 } -Exactly -Times 1
 
-                Should -Invoke Test-JiraCloudServer -ModuleName JiraPS -Exactly -Times 0
+                Should -Invoke Test-JiraCloudServer -ModuleName JiraPSVII -Exactly -Times 0
             }
 
             It "Emits stable Jira project typed output" {
                 $allResults = Get-JiraProject
 
                 foreach ($projectResult in $allResults) {
-                    $projectResult.PSObject.TypeNames | Should -Contain 'AtlassianPS.JiraPS.Project'
+                    $projectResult.PSObject.TypeNames | Should -Contain 'AtlassianPSVII.JiraPSVII.Project'
                 }
             }
 
             Context "Jira Cloud collection search" {
                 BeforeEach {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
                         Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                         ConvertFrom-Json $restResultAll
                     }
@@ -194,7 +194,7 @@ InModuleScope JiraPS {
                     $allResults = Get-JiraProject -PageSize 2
 
                     $allResults | Should -HaveCount 2
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         "$URI" -eq "/rest/api/3/project/search" -and
                         $Paging -eq $true -and
@@ -202,7 +202,7 @@ InModuleScope JiraPS {
                         $GetParameter['expand'] -eq 'description,lead,issueTypes,url,projectKeys'
                     } -Exactly -Times 1
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         "$URI" -eq "/rest/api/2/project"
                     } -Exactly -Times 0
                 }
@@ -210,7 +210,7 @@ InModuleScope JiraPS {
                 It "Forwards -First and -Skip to the shared paginator" {
                     $null = Get-JiraProject -First 1 -Skip 1
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         "$URI" -eq "/rest/api/3/project/search" -and
                         $Paging -eq $true -and
                         $First -eq 1 -and
@@ -221,16 +221,16 @@ InModuleScope JiraPS {
                 It "Preserves direct lookup behavior on Jira Cloud" {
                     $null = Get-JiraProject -Project $projectKey
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         "$URI" -eq "/rest/api/2/project/$projectKey" -and
                         -not $Paging
                     } -Exactly -Times 1
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         "$URI" -eq "/rest/api/3/project/search"
                     } -Exactly -Times 0
 
-                    Should -Invoke Test-JiraCloudServer -ModuleName JiraPS -Exactly -Times 0
+                    Should -Invoke Test-JiraCloudServer -ModuleName JiraPSVII -Exactly -Times 0
                 }
 
                 It "Returns only projects present in permission-filtered search results" {
@@ -244,7 +244,7 @@ InModuleScope JiraPS {
     }
 ]
 "@
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
                         ConvertFrom-Json $visibleResult
                     }
 
@@ -256,7 +256,7 @@ InModuleScope JiraPS {
                 }
 
                 It "Returns projects from every page yielded by Invoke-JiraMethod" {
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and "$URI" -eq "/rest/api/3/project/search" } {
                         ConvertFrom-Json $restResultAll
                     }
 

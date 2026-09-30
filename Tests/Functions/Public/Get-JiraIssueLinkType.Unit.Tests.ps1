@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueLinkType" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -18,12 +18,12 @@ InModuleScope JiraPS {
 
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
             $filterAll = { $Method -eq 'Get' -and $Uri -ceq "/rest/api/2/issueLinkType" }
             $filterOne = { $Method -eq 'Get' -and $Uri -ceq "/rest/api/2/issueLinkType/10000" }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
@@ -32,13 +32,13 @@ InModuleScope JiraPS {
                 Write-MockDebugInfo 'ConvertTo-JiraIssueLinkType'
                 # We also don't care what comes out of here - this function has its own tests
                 [PSCustomObject] @{
-                    PSTypeName = 'JiraPS.IssueLinkType'
+                    PSTypeName = 'JiraPSVII.IssueLinkType'
                     foo        = 'bar'
                 }
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -67,7 +67,7 @@ InModuleScope JiraPS {
         Describe "Signature" {
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = 'LinkType'; type = 'AtlassianPS.JiraPS.IssueLinkType' }
+                    @{ parameter = 'LinkType'; type = 'AtlassianPSVII.JiraPSVII.IssueLinkType' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                 ) {
                     param($parameter, $type)
@@ -104,7 +104,7 @@ InModuleScope JiraPS {
                         Write-MockDebugInfo 'ConvertTo-JiraIssueLinkType'
                         # We also don't care what comes out of here - this function has its own tests
                         [PSCustomObject] @{
-                            PSTypeName = 'JiraPS.IssueLinkType'
+                            PSTypeName = 'JiraPSVII.IssueLinkType'
                             Name       = 'myLink'
                             ID         = 5
                         }
@@ -129,7 +129,7 @@ InModuleScope JiraPS {
 
             Context "Cloud routing" {
                 BeforeAll {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
                     Mock Invoke-JiraMethod -ParameterFilter { $Uri -ceq '/rest/api/3/issueLinkType' } {
                         [PSCustomObject]@{ issueLinkTypes = @('foo') }
                     }

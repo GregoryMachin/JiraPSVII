@@ -9,7 +9,7 @@ BeforeDiscovery {
     $script:Skip = Skip-IntegrationTest
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Server Information" -Tag 'Integration', 'Smoke', 'CanaryRead', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -42,7 +42,7 @@ InModuleScope JiraPS {
             }
 
             It "returns the correct type" {
-                $serverInfo.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.ServerInfo'
+                $serverInfo.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.ServerInfo'
             }
 
             It "includes the base URL" {

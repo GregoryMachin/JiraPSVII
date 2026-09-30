@@ -9,7 +9,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Invoke-JiraMethod" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -50,43 +50,43 @@ InModuleScope JiraPS {
             #endregion
 
             #region Mocks
-            Mock Resolve-DefaultParameterValue -ModuleName 'JiraPS' {
+            Mock Resolve-DefaultParameterValue -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Resolve-DefaultParameterValue'
                 @{ }
             }
-            Mock Join-Hashtable -ModuleName 'JiraPS' {
+            Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Join-Hashtable'
                 @{ }
             }
-            Mock Set-TlsLevel -ModuleName 'JiraPS' {
+            Mock Set-TlsLevel -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Set-TlsLevel'
             }
-            Mock Resolve-ErrorWebResponse -ModuleName 'JiraPS' {
+            Mock Resolve-ErrorWebResponse -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Resolve-ErrorWebResponse'
             }
-            Mock Expand-Result -ModuleName 'JiraPS' {
+            Mock Expand-Result -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Expand-Result'
             }
-            Mock Convert-Result -ModuleName 'JiraPS' {
+            Mock Convert-Result -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Convert-Result'
             }
-            Mock Get-JiraSession -ModuleName 'JiraPS' {
+            Mock Get-JiraSession -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Get-JiraSession'
                 [PSCustomObject]@{
                     WebSession = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSession
                 }
             }
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' {
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' {
                 'https://jira.example.com'
             }
-            Mock Test-ServerResponse -ModuleName 'JiraPS' {
+            Mock Test-ServerResponse -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Test-ServerResponse'
             }
-            Mock ConvertTo-JiraSession -ModuleName 'JiraPS' {
+            Mock ConvertTo-JiraSession -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'ConvertTo-JiraSession'
             }
             foreach ($type in $supportedTypes) {
-                Mock -CommandName "ConvertTo-$type" -ModuleName 'JiraPS' {
+                Mock -CommandName "ConvertTo-$type" -ModuleName 'JiraPSVII' {
                     Write-MockDebugInfo "ConvertTo-$type"
                 }
             }
@@ -141,7 +141,7 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+            Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                 Write-MockDebugInfo 'Invoke-WebRequest' 'Uri', 'Method', 'Body', 'Headers', 'ContentType', 'SessionVariable', 'WebSession'
 
                 if ($SessionVariable) {
@@ -196,7 +196,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = 'Invoke-WebRequest'
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 1
                     Scope       = 'It'
@@ -213,56 +213,56 @@ InModuleScope JiraPS {
             It "resolves errors" {
                 Invoke-JiraMethod -URI "https://postman-echo.com/status/400" -ErrorAction Stop
 
-                Should -Invoke -CommandName Resolve-ErrorWebResponse -ModuleName 'JiraPS' -Exactly -Times 1
+                Should -Invoke -CommandName Resolve-ErrorWebResponse -ModuleName 'JiraPSVII' -Exactly -Times 1
             }
 
             It "supports TLS1.2 connections" {
                 Invoke-JiraMethod -URI "https://postman-echo.com/get?test=123" -ErrorAction Stop
 
-                Should -Invoke -CommandName Set-TlsLevel -ModuleName 'JiraPS' -Exactly -Times 2
-                Should -Invoke -CommandName Set-TlsLevel -ModuleName 'JiraPS' -ParameterFilter { $Tls12 -eq $true } -Exactly -Times 1
-                Should -Invoke -CommandName Set-TlsLevel -ModuleName 'JiraPS' -ParameterFilter { $Revert -eq $true } -Exactly -Times 1
+                Should -Invoke -CommandName Set-TlsLevel -ModuleName 'JiraPSVII' -Exactly -Times 2
+                Should -Invoke -CommandName Set-TlsLevel -ModuleName 'JiraPSVII' -ParameterFilter { $Tls12 -eq $true } -Exactly -Times 1
+                Should -Invoke -CommandName Set-TlsLevel -ModuleName 'JiraPSVII' -ParameterFilter { $Revert -eq $true } -Exactly -Times 1
             }
 
             It "uses global default values for parameters" {
                 Invoke-JiraMethod -URI "https://postman-echo.com/get?test=123" -ErrorAction Stop
 
-                Should -Invoke -CommandName Resolve-DefaultParameterValue -ModuleName 'JiraPS' -Exactly -Times 1
+                Should -Invoke -CommandName Resolve-DefaultParameterValue -ModuleName 'JiraPSVII' -Exactly -Times 1
             }
 
             It "does not log response headers before logging is configured" {
-                Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+                Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                     New-FakeEchoResponse -Uri $Uri -Method $Method -Body $Body -Headers $Headers -ResponseHeaders @{
                         'X-AREQUESTID' = 'request-123'
                     }
                 }
-                Mock Write-DebugMessage -ModuleName 'JiraPS' {}
+                Mock Write-DebugMessage -ModuleName 'JiraPSVII' {}
 
                 $script:JiraResponseHeaderLogConfiguration = $null
                 Invoke-JiraMethod -URI "https://postman-echo.com/get?test=123" -ErrorAction Stop
 
-                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Message -like '*Jira response headers*'
                 } -Exactly -Times 0
             }
 
             It "logs configured response headers from successful responses" {
-                Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+                Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                     New-FakeEchoResponse -Uri $Uri -Method $Method -Body $Body -Headers $Headers -ResponseHeaders @{
                         'X-AREQUESTID' = 'request-123'
                         'X-Auth-Token' = 'secret'
                         'Set-Cookie'   = 'cookie=value'
                     }
                 }
-                Mock Write-DebugMessage -ModuleName 'JiraPS' {}
+                Mock Write-DebugMessage -ModuleName 'JiraPSVII' {}
 
                 Set-JiraResponseHeaderLogConfiguration -Include 'X-A*' -Exclude 'X-Auth*'
                 Invoke-JiraMethod -URI "https://postman-echo.com/get?test=123" -ErrorAction Stop
 
-                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Message -like '*Jira response headers*'
                 } -Exactly -Times 1
-                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Message -like '*X-AREQUESTID*request-123*' -and
                     $Message -notlike '*secret*' -and
                     $Message -notlike '*cookie=value*'
@@ -270,23 +270,23 @@ InModuleScope JiraPS {
             }
 
             It "logs configured response headers from terminal error responses" {
-                Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+                Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                     New-FakeEchoResponse -Uri ([Uri]'https://postman-echo.com/status/400') -Method $Method -Body $Body -Headers $Headers -ResponseHeaders @{
                         'X-AREQUESTID' = 'failed-request-123'
                     }
                 }
-                Mock Write-DebugMessage -ModuleName 'JiraPS' {}
+                Mock Write-DebugMessage -ModuleName 'JiraPSVII' {}
 
                 Set-JiraResponseHeaderLogConfiguration -Pattern '^X-A(?!uth)'
                 Invoke-JiraMethod -URI "https://postman-echo.com/status/400" -ErrorAction Stop
 
-                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Message -like '*X-AREQUESTID*failed-request-123*'
                 } -Exactly -Times 1
             }
 
             It "always suppresses cookie and authorization response headers even when configured" {
-                Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+                Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                     New-FakeEchoResponse -Uri $Uri -Method $Method -Body $Body -Headers $Headers -ResponseHeaders @{
                         'Set-Cookie'          = 'sid=cookie-secret'
                         'Set-Cookie2'         = 'session=cookie2-secret'
@@ -295,12 +295,12 @@ InModuleScope JiraPS {
                         'X-ANODEID'           = 'node-1'
                     }
                 }
-                Mock Write-DebugMessage -ModuleName 'JiraPS' {}
+                Mock Write-DebugMessage -ModuleName 'JiraPSVII' {}
 
                 Set-JiraResponseHeaderLogConfiguration -Include '*'
                 Invoke-JiraMethod -URI "https://postman-echo.com/get?test=123" -ErrorAction Stop
 
-                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Message -like '*X-ANODEID*node-1*' -and
                     $Message -notlike '*cookie-secret*' -and
                     $Message -notlike '*cookie2-secret*' -and
@@ -310,12 +310,12 @@ InModuleScope JiraPS {
             }
 
             It "does not derail the main flow when response-header logging fails" {
-                Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+                Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                     New-FakeEchoResponse -Uri $Uri -Method $Method -Body $Body -Headers $Headers -ResponseHeaders @{
                         'X-ANODEID' = 'node-1'
                     }
                 }
-                Mock Write-JiraResponseHeaderLog -ModuleName 'JiraPS' { throw 'boom' }
+                Mock Write-JiraResponseHeaderLog -ModuleName 'JiraPSVII' { throw 'boom' }
 
                 Set-JiraResponseHeaderLogConfiguration -Include '*'
 
@@ -345,13 +345,13 @@ InModuleScope JiraPS {
             It "resolves relative URIs against configured Jira server" {
                 $null = Invoke-JiraMethod -URI "/rest/api/2/field" -ErrorAction Stop
 
-                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPSVII' -ParameterFilter {
                     $Uri -like "https://jira.example.com/rest/api/2/field?*"
                 } -Exactly -Times 1
             }
 
             It "throws when relative URI is used without configured Jira server" {
-                Mock Get-JiraConfigServer -ModuleName 'JiraPS' { $null }
+                Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { $null }
 
                 { Invoke-JiraMethod -URI "/rest/api/2/field" -ErrorAction Stop } | Should -Throw -ExpectedMessage "*no Jira server is configured*"
             }
@@ -372,7 +372,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $Method -eq $_
                     }
@@ -393,7 +393,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $Body -is [Byte[]] -and
                         (($Body -join " ") -eq "76 111 114 101 109 32 195 153 226 128 166 195 152 194 177 195 152 194 173 195 152 194 168 195 152 194 167 32 195 144 226 128 148 195 144 194 180 195 145 226 130 172 195 144 194 176 195 144 194 178 195 145 194 129 195 145 226 128 154 195 144 194 178 195 145 198 146 195 144 194 185 195 145 226 128 154 195 144 194 181 32 195 176 197 184 203 156 194 129" -or
@@ -417,7 +417,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $Body -is [String] -and
                         $Body -eq $utf8String
@@ -433,10 +433,10 @@ InModuleScope JiraPS {
                 # Mock Resolve-DefaultParameterValue so it returns a known Invoke-WebRequest header
                 # without mutating the live $global:PSDefaultParameterValues (which conflicts with
                 # Pester's mock infrastructure when the dict contains an 'Invoke-WebRequest:Headers' entry).
-                Mock Resolve-DefaultParameterValue -ModuleName 'JiraPS' {
+                Mock Resolve-DefaultParameterValue -ModuleName 'JiraPSVII' {
                     @{ 'Invoke-WebRequest:Headers' = @{ 'X-From-Default' = 'default-value' } }
                 }
-                Mock Join-Hashtable -ModuleName 'JiraPS' {
+                Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                     $table = @{}
                     foreach ($item in $Hashtable) {
                         if ($null -ne $item) {
@@ -448,13 +448,13 @@ InModuleScope JiraPS {
 
                 $null = Invoke-JiraMethod -Method 'Get' -URI 'https://postman-echo.com/headers' -ErrorAction SilentlyContinue
 
-                Should -Invoke -CommandName 'Invoke-WebRequest' -ModuleName 'JiraPS' -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-WebRequest' -ModuleName 'JiraPSVII' -Exactly -Times 1 -ParameterFilter {
                     $Headers.ContainsKey('X-From-Default') -and $Headers['X-From-Default'] -eq 'default-value'
                 }
             }
 
             It "overwrites global PSDefaultParameterValues with -Header" {
-                Mock Join-Hashtable -ModuleName 'JiraPS' {
+                Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                     $table = @{}
                     foreach ($item in $Hashtable) {
                         if ($null -ne $item) {
@@ -468,7 +468,7 @@ InModuleScope JiraPS {
                 try {
                     $null = Invoke-JiraMethod -Method 'Get' -URI 'https://postman-echo.com/headers' -Header @{ 'X-Precedence' = 'from-param' } -ErrorAction SilentlyContinue
 
-                    Should -Invoke -CommandName 'Invoke-WebRequest' -ModuleName 'JiraPS' -Exactly -Times 1 -ParameterFilter {
+                    Should -Invoke -CommandName 'Invoke-WebRequest' -ModuleName 'JiraPSVII' -Exactly -Times 1 -ParameterFilter {
                         $Headers['X-Precedence'] -eq 'from-param'
                     }
                 }
@@ -478,7 +478,7 @@ InModuleScope JiraPS {
             }
 
             It "overwrites module default headers with -Header" {
-                Mock Join-Hashtable -ModuleName 'JiraPS' {
+                Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                     $table = @{}
                     foreach ($item in $Hashtable) {
                         if ($null -ne $item) {
@@ -490,7 +490,7 @@ InModuleScope JiraPS {
 
                 $null = Invoke-JiraMethod -Method 'Get' -URI 'https://postman-echo.com/headers' -Header @{ 'X-Override' = 'caller-value' } -ErrorAction SilentlyContinue
 
-                Should -Invoke -CommandName 'Invoke-WebRequest' -ModuleName 'JiraPS' -Exactly -Times 1 -ParameterFilter {
+                Should -Invoke -CommandName 'Invoke-WebRequest' -ModuleName 'JiraPSVII' -Exactly -Times 1 -ParameterFilter {
                     $Headers.ContainsKey('X-Override') -and $Headers['X-Override'] -eq 'caller-value'
                 }
             }
@@ -507,7 +507,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $inFile -eq "./file-does-not-exist.txt"
                     }
@@ -528,7 +528,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $OutFile -eq "./file-does-not-exist.txt"
                     }
@@ -542,7 +542,7 @@ InModuleScope JiraPS {
             It "forwards the default 100s -TimeoutSec to Invoke-WebRequest" {
                 Invoke-JiraMethod -URI "https://postman-echo.com/get" -ErrorAction Stop
 
-                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPSVII' -ParameterFilter {
                     $TimeoutSec -eq 100
                 } -Exactly -Times 1 -Scope It
             }
@@ -550,7 +550,7 @@ InModuleScope JiraPS {
             It "forwards an explicit -TimeoutSec to Invoke-WebRequest" {
                 Invoke-JiraMethod -URI "https://postman-echo.com/get" -TimeoutSec 30 -ErrorAction Stop
 
-                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPSVII' -ParameterFilter {
                     $TimeoutSec -eq 30
                 } -Exactly -Times 1 -Scope It
             }
@@ -558,7 +558,7 @@ InModuleScope JiraPS {
             It "omits TimeoutSec from the Invoke-WebRequest splat when -TimeoutSec is 0" {
                 Invoke-JiraMethod -URI "https://postman-echo.com/get" -TimeoutSec 0 -ErrorAction Stop
 
-                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPS' -ParameterFilter {
+                Should -Invoke -CommandName Invoke-WebRequest -ModuleName 'JiraPSVII' -ParameterFilter {
                     -not $PSBoundParameters.ContainsKey('TimeoutSec')
                 } -Exactly -Times 1 -Scope It
             }
@@ -579,14 +579,14 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = "Invoke-WebRequest"
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = { $SessionVariable -eq "newSessionVar" }
                     Exactly         = $true
                     Times           = 1
                     Scope           = 'It'
                 }
                 Should -Invoke @assertMockCalledSplat
-                Should -Invoke -CommandName ConvertTo-JiraSession -ModuleName 'JiraPS' -Exactly -Times 1
+                Should -Invoke -CommandName ConvertTo-JiraSession -ModuleName 'JiraPSVII' -Exactly -Times 1
             }
 
             foreach ($type in $supportedTypes) {
@@ -595,7 +595,7 @@ InModuleScope JiraPS {
 
                     $assertMockCalledSplat = @{
                         CommandName     = "Convert-Result"
-                        ModuleName      = 'JiraPS'
+                        ModuleName      = 'JiraPSVII'
                         ParameterFilter = { $OutputType -eq $type }
                         Exactly         = $true
                         Times           = 1
@@ -609,7 +609,7 @@ InModuleScope JiraPS {
 
                     $assertMockCalledSplat = @{
                         CommandName     = "Convert-Result"
-                        ModuleName      = 'JiraPS'
+                        ModuleName      = 'JiraPSVII'
                         ParameterFilter = { $OutputType -eq $type }
                         Exactly         = $true
                         Times           = 0
@@ -629,7 +629,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $WebSession -is [Microsoft.PowerShell.Commands.WebRequestSession] -and
                         $Credential -eq $null
@@ -639,11 +639,11 @@ InModuleScope JiraPS {
                     Scope           = 'It'
                 }
                 Should -Invoke @assertMockCalledSplat
-                Should -Invoke -CommandName Get-JiraSession -ModuleName 'JiraPS' -Exactly -Times 1
+                Should -Invoke -CommandName Get-JiraSession -ModuleName 'JiraPSVII' -Exactly -Times 1
             }
 
             It "uses -Credential even if session is present" {
-                Mock Get-JiraSession -ModuleName 'JiraPS' {
+                Mock Get-JiraSession -ModuleName 'JiraPSVII' {
                     [PSCustomObject]@{
                         WebSession = New-Object -TypeName Microsoft.PowerShell.Commands.WebRequestSession
                     }
@@ -659,7 +659,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = 'Invoke-WebRequest'
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $SessionVariable -eq $null -and
                         $Credential -ne $null
@@ -669,11 +669,11 @@ InModuleScope JiraPS {
                     Scope           = 'It'
                 }
                 Should -Invoke @assertMockCalledSplat
-                Should -Invoke -CommandName Get-JiraSession -ModuleName 'JiraPS' -Exactly -Times 0
+                Should -Invoke -CommandName Get-JiraSession -ModuleName 'JiraPSVII' -Exactly -Times 0
             }
 
             It "uses -Headers for the call" {
-                Mock Join-Hashtable -ModuleName 'JiraPS' {
+                Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                     $table = @{ }
                     foreach ($item in $Hashtable) {
                         foreach ($key in $item.Keys) {
@@ -703,7 +703,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = "Invoke-WebRequest"
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 2
                     Scope       = 'It'
@@ -712,7 +712,7 @@ InModuleScope JiraPS {
             }
 
             It "uses authenticates as anonymous when no -Credential is provided and no session exists" -Pending {
-                Mock Get-JiraSession -ModuleName 'JiraPS' {
+                Mock Get-JiraSession -ModuleName 'JiraPSVII' {
                     $null
                 }
 
@@ -725,7 +725,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = "Invoke-WebRequest"
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $Credential -eq $null -and
                         $WebSession -eq $null
@@ -738,7 +738,7 @@ InModuleScope JiraPS {
             }
 
             It "only defaults Invoke-WebRequest -ContentType when sending a body, and honors explicit Content-Type headers" {
-                Mock Join-Hashtable -ModuleName 'JiraPS' {
+                Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                     $table = @{ }
                     foreach ($item in $Hashtable) {
                         foreach ($key in $item.Keys) {
@@ -763,7 +763,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName     = "Invoke-WebRequest"
-                    ModuleName      = 'JiraPS'
+                    ModuleName      = 'JiraPSVII'
                     ParameterFilter = {
                         $Uri -notlike "*contentType*" -and
                         $Uri -notlike "*content-Type*" -and
@@ -787,7 +787,7 @@ InModuleScope JiraPS {
                 Invoke-JiraMethod -Method 'Post' -URI "https://postman-echo.com/post" -InFile "./file-does-not-exist.txt"
                 Invoke-JiraMethod -Method 'Get' -URI "https://postman-echo.com/get" -OutFile "./file-does-not-exist.txt"
 
-                Should -Invoke -CommandName "Invoke-WebRequest" -ModuleName 'JiraPS' -Exactly -Times 2 -Scope It -ParameterFilter {
+                Should -Invoke -CommandName "Invoke-WebRequest" -ModuleName 'JiraPSVII' -Exactly -Times 2 -Scope It -ParameterFilter {
                     -not $PSBoundParameters.ContainsKey('ContentType')
                 }
             }
@@ -812,7 +812,7 @@ InModuleScope JiraPS {
                 # and then monkey-patched RawContentStream.ToArray onto it. Building
                 # the response directly from a MemoryStream is simpler and avoids ~6
                 # real HTTP calls that this Context used to make on every run.
-                Mock Invoke-WebRequest -ModuleName 'JiraPS' {
+                Mock Invoke-WebRequest -ModuleName 'JiraPSVII' {
                     Write-MockDebugInfo 'Invoke-WebRequest' -Params 'Uri', 'Method', 'Body'
 
                     $response = switch -Regex ([string]$Uri) {
@@ -828,7 +828,7 @@ InModuleScope JiraPS {
                         RawContentStream = [System.IO.MemoryStream]::new($bytes)
                     }
                 }
-                Mock Join-Hashtable -ModuleName 'JiraPS' {
+                Mock Join-Hashtable -ModuleName 'JiraPSVII' {
                     $table = @{ }
                     foreach ($item in $Hashtable) {
                         foreach ($key in $item.Keys) {
@@ -837,10 +837,10 @@ InModuleScope JiraPS {
                     }
                     $table
                 }
-                Mock Convert-Result -ModuleName 'JiraPS' {
+                Mock Convert-Result -ModuleName 'JiraPSVII' {
                     $InputObject
                 }
-                Mock Expand-Result -ModuleName 'JiraPS' {
+                Mock Expand-Result -ModuleName 'JiraPSVII' {
                     $InputObject.issues
                 }
             }
@@ -858,7 +858,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = 'Invoke-WebRequest'
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 2
                     Scope       = 'It'
@@ -877,7 +877,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = 'Expand-Result'
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 3
                     Scope       = 'It'
@@ -899,7 +899,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = 'Invoke-WebRequest'
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 1
                     Scope       = 'It'
@@ -921,7 +921,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = 'Invoke-WebRequest'
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 2
                     Scope       = 'It'
@@ -943,7 +943,7 @@ InModuleScope JiraPS {
 
                 $assertMockCalledSplat = @{
                     CommandName = 'Invoke-WebRequest'
-                    ModuleName  = 'JiraPS'
+                    ModuleName  = 'JiraPSVII'
                     Exactly     = $true
                     Times       = 1
                     Scope       = 'It'
@@ -966,9 +966,9 @@ InModuleScope JiraPS {
             BeforeAll {
                 $jiraServer = 'http://jiraserver.example.com'
 
-                Mock Get-JiraConfigServer -ModuleName JiraPS { $jiraServer }
+                Mock Get-JiraConfigServer -ModuleName JiraPSVII { $jiraServer }
 
-                Mock Invoke-WebRequest -ModuleName JiraPS {
+                Mock Invoke-WebRequest -ModuleName JiraPSVII {
                     $result = [PSCustomObject]@{
                         StatusCode       = 200
                         Content          = '{"id": "test-data", "name": "Test"}'
@@ -993,14 +993,14 @@ InModuleScope JiraPS {
                 $null = Invoke-JiraMethod -Uri "$jiraServer/rest/api/2/field" -CacheKey 'TestCache'
                 $null = Invoke-JiraMethod -Uri "$jiraServer/rest/api/2/field" -CacheKey 'TestCache'
 
-                Should -Invoke Invoke-WebRequest -ModuleName JiraPS -Times 1 -Exactly
+                Should -Invoke Invoke-WebRequest -ModuleName JiraPSVII -Times 1 -Exactly
             }
 
             It "bypasses cache when -BypassCache is specified" {
                 $null = Invoke-JiraMethod -Uri "$jiraServer/rest/api/2/field" -CacheKey 'TestCache'
                 $null = Invoke-JiraMethod -Uri "$jiraServer/rest/api/2/field" -CacheKey 'TestCache' -BypassCache
 
-                Should -Invoke Invoke-WebRequest -ModuleName JiraPS -Times 2 -Exactly
+                Should -Invoke Invoke-WebRequest -ModuleName JiraPSVII -Times 2 -Exactly
             }
 
             It "does not cache non-GET requests" {
@@ -1033,7 +1033,7 @@ InModuleScope JiraPS {
 
                 $result = Invoke-JiraMethod -Uri "$jiraServer/rest/api/2/field" -CacheKey 'TestCache'
 
-                Should -Invoke Invoke-WebRequest -ModuleName JiraPS -Times 1 -Exactly
+                Should -Invoke Invoke-WebRequest -ModuleName JiraPSVII -Times 1 -Exactly
                 $result.id | Should -Be "test-data"
             }
 
@@ -1041,10 +1041,10 @@ InModuleScope JiraPS {
                 $server1 = 'http://server1.example.com'
                 $server2 = 'http://server2.example.com'
 
-                Mock Get-JiraConfigServer -ModuleName JiraPS { $server1 }
+                Mock Get-JiraConfigServer -ModuleName JiraPSVII { $server1 }
                 $null = Invoke-JiraMethod -Uri "$server1/rest/api/2/field" -CacheKey 'Fields'
 
-                Mock Get-JiraConfigServer -ModuleName JiraPS { $server2 }
+                Mock Get-JiraConfigServer -ModuleName JiraPSVII { $server2 }
                 $null = Invoke-JiraMethod -Uri "$server2/rest/api/2/field" -CacheKey 'Fields'
 
                 $script:JiraCache.Keys | Should -HaveCount 2

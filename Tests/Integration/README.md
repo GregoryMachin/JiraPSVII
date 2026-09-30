@@ -1,10 +1,10 @@
-# JiraPS Integration Tests
+# JiraPSVII Integration Tests
 
-This directory contains integration tests that exercise JiraPS against a real Jira instance.
+This directory contains integration tests that exercise JiraPSVII against a real Jira instance.
 
 ## Overview
 
-Integration tests verify that JiraPS functions work correctly with actual Jira APIs.
+Integration tests verify that JiraPSVII functions work correctly with actual Jira APIs.
 Unlike unit tests that mock API calls, integration tests make real HTTP requests and validate real responses.
 
 ## Test Tracks
@@ -262,7 +262,7 @@ BeforeDiscovery {
     $script:Skip = Skip-IntegrationTest
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssue" -Tag 'Integration' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -299,7 +299,7 @@ The `IntegrationTestTools.ps1` module provides:
 | `Get-TestFixture`                   | Returns hashtable of test fixture references                    |
 | `Skip-IntegrationTest`              | Returns `$true` if environment not configured                   |
 | `New-TemporaryTestIssue`            | Creates a temporary issue for write tests                       |
-| `New-TestResourceName`              | Generates prefixed name like `JiraPS-IntTest-Issue-20260412...` |
+| `New-TestResourceName`              | Generates prefixed name like `JiraPSVII-IntTest-Issue-20260412...` |
 | `Get-TestResourcePrefix`            | Returns the prefix used for test resources                      |
 | `Remove-StaleTestResource`          | Cleans up resources from failed test runs                       |
 
@@ -309,11 +309,11 @@ Integration tests create real resources in Jira. Here's how we ensure cleanup ha
 
 ### 1. Use Prefixed Names
 
-All test resources use a discoverable prefix (`JiraPS-IntTest-`):
+All test resources use a discoverable prefix (`JiraPSVII-IntTest-`):
 
 ```powershell
 $summary = New-TestResourceName -Type "Issue"
-# Returns: "JiraPS-IntTest-Issue-20260412233045-a1b2c3"
+# Returns: "JiraPSVII-IntTest-Issue-20260412233045-a1b2c3"
 ```
 
 ### 2. Track Created Resources
@@ -338,7 +338,7 @@ Remove stale resources from previous failed runs:
 
 ```powershell
 BeforeAll {
-    # This finds and deletes old JiraPS-IntTest-* resources
+    # This finds and deletes old JiraPSVII-IntTest-* resources
     Remove-StaleTestResource -Fixtures $fixtures
 }
 ```
@@ -366,7 +366,7 @@ If tests leave behind resources, clean them manually:
 
 ```powershell
 # Find stale resources via JQL
-Get-JiraIssue -Query "project = TV AND summary ~ 'JiraPS-IntTest-'"
+Get-JiraIssue -Query "project = TV AND summary ~ 'JiraPSVII-IntTest-'"
 
 # Or run cleanup helper
 . ./Tests/Helpers/IntegrationTestTools.ps1

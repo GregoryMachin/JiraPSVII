@@ -6,15 +6,15 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Write-JiraResponseHeaderLog" -Tag 'Unit' {
         BeforeEach {
             $script:JiraResponseHeaderLogConfiguration = $null
         }
 
         BeforeAll {
-            Mock Write-DebugMessage -ModuleName 'JiraPS' {}
-            Mock Test-JiraResponseHeaderMatch -ModuleName 'JiraPS' { $true }
+            Mock Write-DebugMessage -ModuleName 'JiraPSVII' {}
+            Mock Test-JiraResponseHeaderMatch -ModuleName 'JiraPSVII' { $true }
         }
 
         It "returns silently when InputObject is null" {
@@ -22,7 +22,7 @@ InModuleScope JiraPS {
 
             { Write-JiraResponseHeaderLog -InputObject $null } | Should -Not -Throw
 
-            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -Exactly -Times 0 -Scope It
         }
 
         It "returns silently when InputObject has no Headers property" {
@@ -31,7 +31,7 @@ InModuleScope JiraPS {
 
             { Write-JiraResponseHeaderLog -InputObject $response } | Should -Not -Throw
 
-            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -Exactly -Times 0 -Scope It
         }
 
         It "returns silently when no configuration is set" {
@@ -41,12 +41,12 @@ InModuleScope JiraPS {
 
             Write-JiraResponseHeaderLog -InputObject $response
 
-            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -Exactly -Times 0 -Scope It
+            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -Exactly -Times 0 -Scope It
         }
 
         It "writes a debug message containing matched headers" {
             $script:JiraResponseHeaderLogConfiguration = [PSCustomObject]@{ Mode = 'Wildcard' }
-            Mock Test-JiraResponseHeaderMatch -ModuleName 'JiraPS' { $Name -like 'X-A*' }
+            Mock Test-JiraResponseHeaderMatch -ModuleName 'JiraPSVII' { $Name -like 'X-A*' }
 
             $response = [PSCustomObject]@{
                 Headers = @{
@@ -57,7 +57,7 @@ InModuleScope JiraPS {
 
             Write-JiraResponseHeaderLog -InputObject $response
 
-            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                 $Message -like '*X-AREQUESTID*request-123*' -and
                 $Message -notlike '*Server*'
             } -Exactly -Times 1 -Scope It
@@ -77,7 +77,7 @@ InModuleScope JiraPS {
 
             Write-JiraResponseHeaderLog -InputObject $response
 
-            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                 $Message -like '*X-ANODEID*node-1*' -and
                 $Message -notlike '*cookie-secret*' -and
                 $Message -notlike '*cookie2-secret*' -and
@@ -96,7 +96,7 @@ InModuleScope JiraPS {
 
             Write-JiraResponseHeaderLog -InputObject $response
 
-            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPS' -ParameterFilter {
+            Should -Invoke -CommandName Write-DebugMessage -ModuleName 'JiraPSVII' -ParameterFilter {
                 $Message -like '*request-123, request-456*'
             } -Exactly -Times 1 -Scope It
         }

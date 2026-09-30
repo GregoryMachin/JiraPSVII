@@ -13,7 +13,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "JQL Search" -Tag 'Integration', 'Smoke', 'CanaryRead', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -68,7 +68,7 @@ InModuleScope JiraPS {
                     $results = Get-JiraIssue -Query $jql
 
                     $results | Should -Not -BeNullOrEmpty
-                    @($results)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Issue'
+                    @($results)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Issue'
                 }
 
                 It "searches for specific issue by key" {
@@ -109,7 +109,7 @@ InModuleScope JiraPS {
                     # Keep this OR query anchored to project-scoped predicates that only
                     # reference real indexed issues. Jira 11 can intermittently throw a
                     # backend null-deref when one OR branch targets a non-existent key,
-                    # which flakes the Server workflow without exercising JiraPS logic.
+                    # which flakes the Server workflow without exercising JiraPSVII logic.
                     # This still validates OR parsing while avoiding brittle server behavior.
                     $jql = "project = $($fixtures.TestProject) AND (key = $($fixtures.TestIssue) OR key != $($fixtures.TestIssue))"
 

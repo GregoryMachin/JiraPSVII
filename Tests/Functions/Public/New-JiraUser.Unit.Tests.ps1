@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraUser" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -32,20 +32,20 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq "/rest/api/2/user" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'POST' -and $URI -eq "/rest/api/2/user" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJson
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -86,18 +86,18 @@ InModuleScope JiraPS {
             It "Uses ConvertTo-JiraUser to beautify output" {
                 Mock ConvertTo-JiraUser {}
                 New-JiraUser -UserName $testUsername -EmailAddress $testEmail -DisplayName $testDisplayName
-                Should -Invoke 'ConvertTo-JiraUser' -ModuleName JiraPS -Exactly 1
+                Should -Invoke 'ConvertTo-JiraUser' -ModuleName JiraPSVII -Exactly 1
             }
 
             It "uses REST API v3 and the Cloud products contract" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'POST' -and $URI -eq '/rest/api/3/user' } {
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'POST' -and $URI -eq '/rest/api/3/user' } {
                     ConvertFrom-Json $testJson
                 }
 
                 New-JiraUser -UserName $testUsername -EmailAddress $testEmail -Product jira-software | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $bodyObject = $Body | ConvertFrom-Json
                     $Method -eq 'POST' -and
                     $URI -eq '/rest/api/3/user' -and

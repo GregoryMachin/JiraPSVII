@@ -41,7 +41,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Server (Data Center) Smoke" -Tag 'Integration', 'Smoke', 'Server' -Skip:($Skip -or $SkipNotServer) {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -91,7 +91,7 @@ InModuleScope JiraPS {
         Context "Basic-auth session" {
             It "establishes a session via Connect-JiraTestServer" {
                 $session | Should -Not -BeNullOrEmpty
-                $session.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Session'
+                $session.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Session'
             }
 
             It "permits authenticated calls without explicit credentials" {

@@ -6,11 +6,11 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Find-JiraFilter" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
             # $VerbosePreference = 'Continue'  # Uncomment for mock debugging
 
             #region Definitions
@@ -56,12 +56,12 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraProject -ModuleName JiraPS {
+            Mock Get-JiraProject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraProject' 'Project'
                 [PSCustomObject]@{
                     Id  = '1'
@@ -69,12 +69,12 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock Get-JiraUser -ModuleName JiraPS {
+            Mock Get-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraUser' 'InputObject'
                 $mockOwner
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Get' -and
                 $URI -like "*rest/api/*/filter/search*"
             } {
@@ -82,7 +82,7 @@ InModuleScope JiraPS {
                 ConvertFrom-Json $response
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw 'Unidentified call to Invoke-JiraMethod'
             }
@@ -98,9 +98,9 @@ InModuleScope JiraPS {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
                     @{ parameter = "Name"; type = "String[]" }
                     @{ parameter = "AccountId"; type = "String" }
-                    @{ parameter = "Owner"; type = "AtlassianPS.JiraPS.User" }
+                    @{ parameter = "Owner"; type = "AtlassianPSVII.JiraPSVII.User" }
                     @{ parameter = "GroupName"; type = "String" }
-                    @{ parameter = "Project"; type = "AtlassianPS.JiraPS.Project" }
+                    @{ parameter = "Project"; type = "AtlassianPSVII.JiraPSVII.Project" }
                     @{ parameter = "Fields"; type = "String[]" }
                     @{ parameter = "Sort"; type = "String" }
                     @{ parameter = "Credential"; type = "System.Management.Automation.PSCredential" }
@@ -122,7 +122,7 @@ InModuleScope JiraPS {
                 It "finds a JIRA filter by Name" {
                     { Find-JiraFilter -Name 'Test Filter' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*'
                     } -Exactly 1
@@ -131,7 +131,7 @@ InModuleScope JiraPS {
                 It "uses accountId to find JIRA filters if the -AccountId parameter is used" {
                     { Find-JiraFilter -Name 'Test Filter' -AccountId $mockowner.AccountId } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['accountId'] -eq $mockOwner.AccountId
@@ -141,7 +141,7 @@ InModuleScope JiraPS {
                 It "uses groupName to find JIRA filters if the -GroupName parameter is used" {
                     { Find-JiraFilter -Name 'Test Filter' -GroupName $group } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['groupName'] -eq $group
@@ -151,7 +151,7 @@ InModuleScope JiraPS {
                 It "uses projectId to find JIRA filters if a -Project parameter is used" {
                     { Find-JiraFilter -Name 'Test Filter' -Project 'TEST' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['projectId'] -eq '1'
@@ -161,7 +161,7 @@ InModuleScope JiraPS {
                 It "uses orderBy to sort JIRA filters found if the -Sort parameter is used" {
                     { Find-JiraFilter -Name 'Test Filter' -Sort 'name' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['orderBy'] -eq 'name'
@@ -172,13 +172,13 @@ InModuleScope JiraPS {
                     { Find-JiraFilter -Name 'Test Filter' } | Should -Not -Throw
                     { Find-JiraFilter -Name 'Test Filter' -Fields 'description' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['expand'] -eq 'description,favourite,favouritedCount,jql,owner,searchUrl,sharePermissions,subscriptions,viewUrl'
                     } -Exactly 1
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['expand'] -eq 'description'
@@ -192,7 +192,7 @@ InModuleScope JiraPS {
                 It "accepts a project key for the -Project parameter" {
                     { Find-JiraFilter -Project 'Test' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['projectId'] -eq '1'
@@ -208,7 +208,7 @@ InModuleScope JiraPS {
 
                     { $searchObject | Find-JiraFilter } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*' -and
                         $GetParameter['accountId'] -eq $mockowner.AccountId -and
@@ -222,7 +222,7 @@ InModuleScope JiraPS {
 
                     { Find-JiraFilter -Owner $mockowner.Name } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'Get' -and
                         $URI -like '*rest/api/*/filter/search*'
                     } -Exactly 1
@@ -230,7 +230,7 @@ InModuleScope JiraPS {
                     # Resolve-JiraUser routes a Name-only stub through
                     # Get-JiraUser -UserName when explicit Data Center metadata
                     # is configured.
-                    Should -Invoke Get-JiraUser -ModuleName JiraPS -ParameterFilter {
+                    Should -Invoke Get-JiraUser -ModuleName JiraPSVII -ParameterFilter {
                         $UserName -contains $mockOwner.Name
                     } -Exactly 1
                 }
@@ -245,13 +245,13 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeEach {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
             }
 
             It "uses REST API v3 and the owner's account ID" {
                 Find-JiraFilter -Owner $mockOwner.AccountId -First 25
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -eq '/rest/api/3/filter/search' -and
                     $Paging -eq $true -and

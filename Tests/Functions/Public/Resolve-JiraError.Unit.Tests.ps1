@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraError" -Tag 'Unit' {
         BeforeAll {
             $script:testErrorKey = 'error'
@@ -111,11 +111,11 @@ InModuleScope JiraPS {
         }
 
         Describe "Type information" {
-            It "adds the JiraPS.Error type name" {
+            It "adds the JiraPSVII.Error type name" {
                 $json = '{ "message": "Test error" }'
                 $obj = Resolve-JiraError -InputObject (ConvertFrom-Json $json)
 
-                $obj.PSObject.TypeNames[0] | Should -Be 'JiraPS.Error'
+                $obj.PSObject.TypeNames[0] | Should -Be 'JiraPSVII.Error'
             }
 
             It "has a ToString method" {

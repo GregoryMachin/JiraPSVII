@@ -1,8 +1,8 @@
-# Contributing to JiraPS
+# Contributing to JiraPSVII
 
 Happy to see you are interested in helping.
 
-We have a comprehensive documentation on how to contribute here: **[Contributing to AtlassianPS](https://atlassianps.org/docs/Contributing/)**.
+We have a comprehensive documentation on how to contribute here: **[Contributing to AtlassianPSVII](https://atlassianps.org/docs/Contributing/)**.
 
 ## Testing
 
@@ -10,7 +10,7 @@ For detailed information about writing and debugging tests, see the **[Testing G
 
 Key highlights:
 
-- JiraPS uses **Pester v5.7+** for unit testing
+- JiraPSVII uses **Pester v5.7+** for unit testing
 - All tests follow a consistent structure with Context blocks
 - **Test organization**: Tests mirror the module structure
   - `Tests/Functions/Public/` - Public CRUD functions
@@ -37,8 +37,8 @@ Here is the gist of it once you have forked the repository:
 - before changing the code
 
 ```powershell
-git clone https://github.com/<YOUR GITHUB USER>/JiraPS
-cd JiraPS
+git clone https://github.com/<YOUR GITHUB USER>/JiraPSVII
+cd JiraPSVII
 git checkout -b <NAME FOR YOUR FEATURE>
 code .
 ```

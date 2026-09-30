@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraVersion" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -36,12 +36,12 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraProject -ModuleName JiraPS {
+            Mock Get-JiraProject -ModuleName JiraPSVII {
                 $Project = [PSCustomObject]@{
                     Id  = $projectId
                     Key = "ABC"
                 }
-                $Project.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Project')
+                $Project.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Project')
                 $Project
             }
             #endregion Mocks
@@ -57,8 +57,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Version'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Version'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Version'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Version'
                 }
             }
 

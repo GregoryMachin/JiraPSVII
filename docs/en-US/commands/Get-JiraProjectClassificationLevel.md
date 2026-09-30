@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraProjectClassificationLevel/
 locale: en-US
 layout: documentation
@@ -69,7 +69,7 @@ HelpMessage: ''
 
 ### -Project
 
-A Jira project key, ID, or JiraPS project object.
+A Jira project key, ID, or JiraPSVII project object.
 
 ```yaml
 Type: Project[]
@@ -97,13 +97,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Project[]
+### AtlassianPSVII.JiraPSVII.Project[]
 
-A JiraPS project key, ID, or project object.
+A JiraPSVII project key, ID, or project object.
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.ProjectClassificationLevel
+### AtlassianPSVII.JiraPSVII.ProjectClassificationLevel
 
 One available project classification level with default-state metadata.
 

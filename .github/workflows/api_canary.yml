@@ -14,7 +14,7 @@ name: API Canary
 # Both tiers use a dedicated, least-privilege canary account
 # (ATLASSIAN_CANARY_USER / ATLASSIAN_CANARY_PAT) rather than the shared
 # ATLASSIAN_CLOUD_PAT the smoke/nightly jobs use, and publish a
-# machine-readable result per operation (AtlassianPS.Standards'
+# machine-readable result per operation (AtlassianPSVII.Standards'
 # ConvertTo-ApiCanaryResult) as a workflow artifact.
 #
 # SETUP REQUIRED before either schedule can run green: create a dedicated,
@@ -79,7 +79,7 @@ jobs:
 
       - name: Publish machine-readable canary results
         if: always()
-        run: ./Tools/Publish-ApiCanaryResult.ps1 -ResultXmlPath 'Test-Integration.xml' -Repository 'JiraPS' -DeploymentType 'Cloud' -OutputPath 'api-canary-read-results.json'
+        run: ./Tools/Publish-ApiCanaryResult.ps1 -ResultXmlPath 'Test-Integration.xml' -Repository 'JiraPSVII' -DeploymentType 'Cloud' -OutputPath 'api-canary-read-results.json'
         shell: pwsh
 
       - uses: actions/upload-artifact@v7
@@ -116,7 +116,7 @@ jobs:
 
       - name: Publish machine-readable canary results
         if: always()
-        run: ./Tools/Publish-ApiCanaryResult.ps1 -ResultXmlPath 'Test-Integration.xml' -Repository 'JiraPS' -DeploymentType 'Cloud' -OutputPath 'api-canary-write-results.json'
+        run: ./Tools/Publish-ApiCanaryResult.ps1 -ResultXmlPath 'Test-Integration.xml' -Repository 'JiraPSVII' -DeploymentType 'Cloud' -OutputPath 'api-canary-write-results.json'
         shell: pwsh
 
       # No separate guaranteed-cleanup step here: Tests/Integration/ApiCanary's

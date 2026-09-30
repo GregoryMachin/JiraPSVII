@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraResponseTelemetry" -Tag 'Unit' {
         BeforeEach {
             $script:JiraLastResponseTelemetry = $null

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraComponent" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -36,9 +36,9 @@ InModuleScope JiraPS {
                     $result | Should -BeOfType [PSCustomObject]
                 }
 
-                It "returns AtlassianPS.JiraPS.Component" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Component'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.Component]
+                It "returns AtlassianPSVII.JiraPSVII.Component" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Component'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.Component]
                 }
             }
 

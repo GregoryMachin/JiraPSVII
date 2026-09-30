@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraIssueLinkRequest" -Tag 'Unit' {
         Describe "Signature" {
             BeforeAll {
@@ -15,9 +15,9 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = "LinkType"; type = "AtlassianPS.JiraPS.IssueLinkType" }
-                    @{ parameter = "FromIssue"; type = "AtlassianPS.JiraPS.Issue" }
-                    @{ parameter = "ToIssue"; type = "AtlassianPS.JiraPS.Issue" }
+                    @{ parameter = "LinkType"; type = "AtlassianPSVII.JiraPSVII.IssueLinkType" }
+                    @{ parameter = "FromIssue"; type = "AtlassianPSVII.JiraPSVII.Issue" }
+                    @{ parameter = "ToIssue"; type = "AtlassianPSVII.JiraPSVII.Issue" }
                 ) {
                     $command | Should -HaveParameter $parameter -Type $type
                 }
@@ -48,16 +48,16 @@ InModuleScope JiraPS {
             It "returns a typed issue-link create request" {
                 $result = New-JiraIssueLinkRequest -LinkType "Blocks" -FromIssue "TEST-01" -ToIssue "TEST-02"
 
-                $result | Should -BeOfType "AtlassianPS.JiraPS.IssueLinkCreateRequest"
+                $result | Should -BeOfType "AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest"
                 $result.Type.Name | Should -Be "Blocks"
                 $result.InwardIssue.Key | Should -Be "TEST-01"
                 $result.OutwardIssue.Key | Should -Be "TEST-02"
             }
 
             It "supports id-based refs for type and issue refs" {
-                $type = [AtlassianPS.JiraPS.IssueLinkType]@{ Id = "10000" }
-                $from = [AtlassianPS.JiraPS.Issue]@{ Id = "10001" }
-                $to = [AtlassianPS.JiraPS.Issue]@{ Id = "10002" }
+                $type = [AtlassianPSVII.JiraPSVII.IssueLinkType]@{ Id = "10000" }
+                $from = [AtlassianPSVII.JiraPSVII.Issue]@{ Id = "10001" }
+                $to = [AtlassianPSVII.JiraPSVII.Issue]@{ Id = "10002" }
 
                 $result = New-JiraIssueLinkRequest -LinkType $type -FromIssue $from -ToIssue $to
 

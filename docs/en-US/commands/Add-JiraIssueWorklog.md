@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraIssueWorklog/
 locale: en-US
 layout: documentation
@@ -26,7 +26,7 @@ This function adds a worklog item to an existing issue in JIRA.
 You can optionally set the visibility of the item (All Users, Developers, or Administrators).
 
 On **Jira Cloud**, the `-Comment` text is interpreted as Markdown and converted to Atlassian Document Format (ADF) before being sent.
-The reverse path is also handled: when worklogs are read back from Cloud, the ADF comment payload is rendered to plain text on the returned `JiraPS.Worklogitem` object.
+The reverse path is also handled: when worklogs are read back from Cloud, the ADF comment payload is rendered to plain text on the returned `JiraPSVII.Worklogitem` object.
 On **Jira Server / Data Center**, the comment is sent and read back verbatim and the legacy wiki-markup syntax continues to apply.
 See [`ConvertTo-AtlassianDocumentFormat`](../ConvertTo-AtlassianDocumentFormat/) for the supported Markdown subset.
 
@@ -173,7 +173,7 @@ HelpMessage: ''
 
 Issue to receive the new worklog item.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -277,13 +277,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
-Pipe a AtlassianPS.JiraPS.Issue object to record work against it.
+Pipe a AtlassianPSVII.JiraPSVII.Issue object to record work against it.
 
 ## OUTPUTS
 
-### JiraPS.Worklogitem
+### JiraPSVII.Worklogitem
 
 ## NOTES
 

@@ -1,0 +1,74 @@
+﻿function Remove-JiraVersion {
+    # .ExternalHelp ..\JiraPSVII-help.xml
+    [CmdletBinding( ConfirmImpact = 'High', SupportsShouldProcess )]
+    param(
+        [Parameter( Mandatory, ValueFromPipeline )]
+        [ValidateNotNull()]
+        [AtlassianPSVII.JiraPSVII.VersionTransformation()]
+        [AtlassianPSVII.JiraPSVII.Version[]]
+        $Version,
+
+        [Parameter()]
+        [System.Management.Automation.PSCredential]
+        [System.Management.Automation.Credential()]
+        $Credential = [System.Management.Automation.PSCredential]::Empty,
+
+        [Switch]
+        $Force
+    )
+
+    begin {
+        Write-Verbose "[$($MyInvocation.MyCommand.Name)] Function started"
+
+        $isCloud = Test-JiraCloudServer -Credential $Credential
+        $versionResourceUri = ConvertTo-JiraRestApiV3Url -Url '/rest/api/2/version/{0}' -IsCloud $isCloud
+
+        if ($Force) {
+            Write-DebugMessage "[Remove-JiraVersion] -Force was passed. Backing up current ConfirmPreference [$ConfirmPreference] and setting to None"
+            $oldConfirmPreference = $ConfirmPreference
+            $ConfirmPreference = 'None'
+        }
+    }
+
+    process {
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] ParameterSetName: $($PsCmdlet.ParameterSetName)"
+        Write-DebugMessage "[$($MyInvocation.MyCommand.Name)] Bound parameter names: $($PSBoundParameters.Keys -join ', ')"
+
+        foreach ($_version in $Version) {
+            Write-Verbose "[$($MyInvocation.MyCommand.Name)] Processing [$_version]"
+            Write-Debug "[$($MyInvocation.MyCommand.Name)] Processing `$_version [$_version]"
+
+            if (-not $_version.Id) {
+                $errorItem = [System.Management.Automation.ErrorRecord]::new(
+                    ([System.ArgumentException]"Version ID is required"),
+                    'ParameterValue.VersionIdRequired',
+                    [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                    $_version
+                )
+                $errorItem.ErrorDetails = "Remove-JiraVersion requires a version ID. Provide a numeric version ID or an AtlassianPSVII.JiraPSVII.Version object with an ID."
+                ThrowError -ErrorRecord $errorItem
+            }
+
+            $versionObj = Get-JiraVersion -Id $_version.Id -Credential $Credential -ErrorAction Stop
+
+            $parameter = @{
+                URI        = $versionResourceUri -f $_version.Id
+                Method     = "DELETE"
+                Credential = $Credential
+            }
+            Write-Debug "[$($MyInvocation.MyCommand.Name)] Invoking JiraMethod with `$parameter"
+            if ($PSCmdlet.ShouldProcess($versionObj.Name, "Removing Version")) {
+                Invoke-JiraMethod @parameter
+            }
+        }
+    }
+
+    end {
+        if ($Force) {
+            Write-Debug "[Remove-JiraVersion] Restoring ConfirmPreference to [$oldConfirmPreference]"
+            $ConfirmPreference = $oldConfirmPreference
+        }
+
+        Write-Verbose "[$($MyInvocation.MyCommand.Name)] Complete"
+    }
+}

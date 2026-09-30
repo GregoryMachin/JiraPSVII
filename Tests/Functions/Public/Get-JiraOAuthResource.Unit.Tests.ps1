@@ -8,7 +8,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraOAuthResource" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -30,18 +30,18 @@ InModuleScope JiraPS {
                 }
             )
 
-            Mock Get-JiraSession -ModuleName JiraPS {
-                [AtlassianPS.JiraPS.Session]@{
+            Mock Get-JiraSession -ModuleName JiraPSVII {
+                [AtlassianPSVII.JiraPSVII.Session]@{
                     WebSession         = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
                     AuthenticationType = 'OAuth'
                     CloudId            = '11223344-a1b2-3b33-c444-def123456789'
                 }
             }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Get' -and $Uri -eq 'https://api.atlassian.com/oauth/token/accessible-resources'
             } { $wireResources }
-            Mock Invoke-JiraMethod -ModuleName JiraPS { throw "Unidentified call to Invoke-JiraMethod: $Method $Uri" }
-            Mock Invoke-WebRequest -ModuleName JiraPS { throw 'Get-JiraOAuthResource must use Invoke-JiraMethod.' }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII { throw "Unidentified call to Invoke-JiraMethod: $Method $Uri" }
+            Mock Invoke-WebRequest -ModuleName JiraPSVII { throw 'Get-JiraOAuthResource must use Invoke-JiraMethod.' }
         }
 
         BeforeEach {
@@ -73,9 +73,9 @@ InModuleScope JiraPS {
                 $result = @(Get-JiraOAuthResource -OAuthAccessToken $testToken)
 
                 $result | Should -HaveCount 2
-                $result[0] | Should -BeOfType [AtlassianPS.JiraPS.OAuthResource]
+                $result[0] | Should -BeOfType [AtlassianPSVII.JiraPSVII.OAuthResource]
                 $result[0].CloudId | Should -Be $wireResources[0].id
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Uri -eq 'https://api.atlassian.com/oauth/token/accessible-resources' -and
                     $Headers.Authorization -eq 'Bearer oauth-token-secret'
                 }
@@ -100,7 +100,7 @@ InModuleScope JiraPS {
                         id = $wireResources[1].id; name = 'One'; url = $wireResources[1].url; scopes = @()
                     }
                 )
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Uri -eq 'https://api.atlassian.com/oauth/token/accessible-resources'
                 } { $duplicateResources }
 
@@ -109,7 +109,7 @@ InModuleScope JiraPS {
             }
 
             It "returns no objects when the token has no accessible resources" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Uri -eq 'https://api.atlassian.com/oauth/token/accessible-resources'
                 } { @() }
 
@@ -119,7 +119,7 @@ InModuleScope JiraPS {
             It "rejects multiple selectors before making a request" {
                 { Get-JiraOAuthResource -OAuthAccessToken $testToken -CloudId $wireResources[0].id -SiteName One } |
                     Should -Throw '*Specify only one OAuth resource selector*'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0
             }
         }
 
@@ -128,13 +128,13 @@ InModuleScope JiraPS {
                 $null = Get-JiraOAuthResource
 
                 $script:JiraOAuthResourceCache.Data | Should -HaveCount 2
-                $script:JiraOAuthResourceCache.Data[0] | Should -BeOfType [AtlassianPS.JiraPS.OAuthResource]
+                $script:JiraOAuthResourceCache.Data[0] | Should -BeOfType [AtlassianPSVII.JiraPSVII.OAuthResource]
                 ($script:JiraOAuthResourceCache | ConvertTo-Json -Depth 5) | Should -Not -Match 'oauth-token-secret|Authorization'
             }
 
             It "does not make explicit-token metadata reusable by the current session" {
                 $script:JiraOAuthResourceCache = @{
-                    Data   = [AtlassianPS.JiraPS.OAuthResource[]]@()
+                    Data   = [AtlassianPSVII.JiraPSVII.OAuthResource[]]@()
                     Expiry = (Get-Date).AddMinutes(5)
                 }
 
@@ -145,8 +145,8 @@ InModuleScope JiraPS {
 
             It "uses unexpired metadata for the current OAuth session" {
                 $script:JiraOAuthResourceCache = @{
-                    Data   = [AtlassianPS.JiraPS.OAuthResource[]]@(
-                        [AtlassianPS.JiraPS.OAuthResource]@{
+                    Data   = [AtlassianPSVII.JiraPSVII.OAuthResource[]]@(
+                        [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                             CloudId = $wireResources[0].id; Name = 'Cached'; Url = 'https://one.atlassian.net/'
                         }
                     )
@@ -156,35 +156,35 @@ InModuleScope JiraPS {
                 $result = Get-JiraOAuthResource
 
                 $result.Name | Should -Be 'Cached'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0
             }
 
             It "refreshes expired metadata with the current OAuth session" {
                 $script:JiraOAuthResourceCache = @{
-                    Data   = [AtlassianPS.JiraPS.OAuthResource[]]@()
+                    Data   = [AtlassianPSVII.JiraPSVII.OAuthResource[]]@()
                     Expiry = (Get-Date).AddSeconds(-1)
                 }
 
                 Get-JiraOAuthResource -CacheExpiry ([TimeSpan]::FromMinutes(7)) | Should -HaveCount 2
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
                 $script:JiraOAuthResourceCache.Expiry | Should -BeGreaterThan (Get-Date).AddMinutes(6)
             }
 
             It "bypasses unexpired metadata when requested" {
                 $script:JiraOAuthResourceCache = @{
-                    Data   = [AtlassianPS.JiraPS.OAuthResource[]]@()
+                    Data   = [AtlassianPSVII.JiraPSVII.OAuthResource[]]@()
                     Expiry = (Get-Date).AddMinutes(5)
                 }
 
                 Get-JiraOAuthResource -BypassCache | Should -HaveCount 2
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
             }
 
             It "clears stale metadata and propagates revoked-token failures" {
                 $script:JiraOAuthResourceCache = @{ Data = @('stale'); Expiry = (Get-Date).AddMinutes(5) }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Uri -eq 'https://api.atlassian.com/oauth/token/accessible-resources'
                 } { throw 'Unauthorized: token expired or revoked' }
 
@@ -195,29 +195,29 @@ InModuleScope JiraPS {
 
         Describe "Security" {
             It "requires an explicit token or current OAuth session" {
-                Mock Get-JiraSession -ModuleName JiraPS { $null }
+                Mock Get-JiraSession -ModuleName JiraPSVII { $null }
 
                 { Get-JiraOAuthResource } | Should -Throw '*Provide OAuthAccessToken or create an OAuth session*'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0
             }
 
             It "does not return cached metadata without a current OAuth session" {
                 $script:JiraOAuthResourceCache = @{
-                    Data   = [AtlassianPS.JiraPS.OAuthResource[]]@(
-                        [AtlassianPS.JiraPS.OAuthResource]@{
+                    Data   = [AtlassianPSVII.JiraPSVII.OAuthResource[]]@(
+                        [AtlassianPSVII.JiraPSVII.OAuthResource]@{
                             CloudId = $wireResources[0].id; Name = 'Cached'; Url = 'https://one.atlassian.net/'
                         }
                     )
                     Expiry = (Get-Date).AddMinutes(5)
                 }
-                Mock Get-JiraSession -ModuleName JiraPS { $null }
+                Mock Get-JiraSession -ModuleName JiraPSVII { $null }
 
                 { Get-JiraOAuthResource } | Should -Throw '*Provide OAuthAccessToken or create an OAuth session*'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0
             }
 
             It "rejects malformed server resource metadata" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Uri -eq 'https://api.atlassian.com/oauth/token/accessible-resources'
                 } {
                     [PSCustomObject]@{
@@ -239,8 +239,8 @@ InModuleScope JiraPS {
             It "uses shared transport rather than calling Invoke-WebRequest directly" {
                 $null = Get-JiraOAuthResource -OAuthAccessToken $testToken
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
-                Should -Invoke Invoke-WebRequest -ModuleName JiraPS -Exactly 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
+                Should -Invoke Invoke-WebRequest -ModuleName JiraPSVII -Exactly 0
             }
         }
     }

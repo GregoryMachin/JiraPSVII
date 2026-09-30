@@ -11,7 +11,7 @@ Describe 'Initialize-TestEnvironment' -Tag Unit {
         . "$PSScriptRoot/Helpers/TestTools.ps1"
     }
 
-    It 'returns the path to the JiraPS manifest' {
+    It 'returns the path to the JiraPSVII manifest' {
         $path = Initialize-TestEnvironment
         $path | Should -Not -BeNullOrEmpty
         Test-Path $path | Should -BeTrue
@@ -21,6 +21,6 @@ Describe 'Initialize-TestEnvironment' -Tag Unit {
     It 'imports the module under test' {
         Initialize-TestEnvironment | Out-Null
 
-        Get-Module JiraPS | Should -Not -BeNullOrEmpty
+        Get-Module JiraPSVII | Should -Not -BeNullOrEmpty
     }
 }

@@ -17,7 +17,7 @@
     discovers the available transitions on its target issue at runtime
     (via `Get-JiraIssue -Key $key | Select -ExpandProperty Transition`) and
     selects a transition based on the destination state exposed via the
-    `ResultStatus.Name` property of the `JiraPS.Transition` object. This
+    `ResultStatus.Name` property of the `JiraPSVII.Transition` object. This
     keeps the suite green across the various workflows that ship with
     different Jira flavours: the Cloud Software default ("To Do" -> "In
     Progress" -> "Done"), the AMPS standalone bundle's jira-core template
@@ -38,7 +38,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Invoke-JiraIssueTransition" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -75,7 +75,7 @@ InModuleScope JiraPS {
                 $issue = Get-JiraIssue -Key $fixtures.TestIssue
 
                 $issue.Transition | Should -Not -BeNullOrEmpty
-                $issue.Transition[0] | Should -BeOfType [AtlassianPS.JiraPS.Transition]
+                $issue.Transition[0] | Should -BeOfType [AtlassianPSVII.JiraPSVII.Transition]
             }
 
             It "transitions have Id and Name properties" {
@@ -239,10 +239,10 @@ InModuleScope JiraPS {
                 $null = $script:createdIssues.Add($issue.Key)
 
                 $issue = Get-JiraIssue -Key $issue.Key
-                # `JiraPS.Issue.Status` is a `JiraPS.Status` PSObject (#633 wired
+                # `JiraPSVII.Issue.Status` is a `JiraPSVII.Status` PSObject (#633 wired
                 # ConvertTo-JiraStatus into the converter); read the destination
                 # name from `.Status.Name`, not `.Status` directly. The
-                # destination state of a `JiraPS.Transition` is also a nested
+                # destination state of a `JiraPSVII.Transition` is also a nested
                 # PSObject with a `.Name` property (populated from the `to`
                 # block returned by `/rest/api/2/issue/{id}/transitions`).
                 $initialStatus = $issue.Status.Name

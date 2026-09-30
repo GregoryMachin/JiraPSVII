@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Remove-JiraIssueBulk/
 locale: en-US
 layout: documentation
@@ -78,7 +78,7 @@ HelpMessage: ''
 
 ### -Credential
 
-Credentials to use to connect to Jira. If omitted, the current JiraPS session or anonymous access is used.
+Credentials to use to connect to Jira. If omitted, the current JiraPSVII session or anonymous access is used.
 
 ```yaml
 Type: PSCredential
@@ -123,7 +123,7 @@ HelpMessage: ''
 
 ### -Request
 
-A prebuilt typed `AtlassianPS.JiraPS.BulkIssueDeleteRequest`.
+A prebuilt typed `AtlassianPSVII.JiraPSVII.BulkIssueDeleteRequest`.
 
 ```yaml
 Type: BulkIssueDeleteRequest
@@ -212,11 +212,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.SubmittedBulkOperation
+### AtlassianPSVII.JiraPSVII.SubmittedBulkOperation
 
 When submitted, returns the Jira asynchronous bulk-operation task ID.
 
-### AtlassianPS.JiraPS.BulkIssueDeleteRequest
+### AtlassianPSVII.JiraPSVII.BulkIssueDeleteRequest
 
 When `-ValidateOnly` is used, returns the validated request object.
 

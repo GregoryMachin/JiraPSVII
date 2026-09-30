@@ -9,7 +9,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraWebRequestSplat" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -21,7 +21,7 @@ InModuleScope JiraPS {
         }
 
         It "defaults ContentType only when a body is supplied" {
-            Mock Get-JiraSession -ModuleName 'JiraPS' { $null }
+            Mock Get-JiraSession -ModuleName 'JiraPSVII' { $null }
 
             $withBody = New-JiraWebRequestSplat -Uri 'https://jira.example.com/rest/api/2/issue' -Method Post -Headers @{} -Body '{}' -DefaultContentType 'application/json; charset=utf-8'
             $withoutBody = New-JiraWebRequestSplat -Uri 'https://jira.example.com/rest/api/2/issue' -Method Post -Headers @{} -InFile './attachment.bin' -DefaultContentType 'application/json; charset=utf-8'
@@ -31,7 +31,7 @@ InModuleScope JiraPS {
         }
 
         It "honors explicit Content-Type header and removes it from Headers" {
-            Mock Get-JiraSession -ModuleName 'JiraPS' { $null }
+            Mock Get-JiraSession -ModuleName 'JiraPSVII' { $null }
 
             $headers = @{
                 'Content-Type' = 'text/plain'
@@ -45,7 +45,7 @@ InModuleScope JiraPS {
         }
 
         It "uses SessionVariable and drops WebSession when -StoreSession is set" {
-            Mock Get-JiraSession -ModuleName 'JiraPS' {
+            Mock Get-JiraSession -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     WebSession = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
                 }
@@ -59,14 +59,14 @@ InModuleScope JiraPS {
 
         It "renews OAuth client-credentials tokens and adds the Authorization header" {
             $webSession = [Microsoft.PowerShell.Commands.WebRequestSession]::new()
-            Mock Get-JiraSession -ModuleName 'JiraPS' {
+            Mock Get-JiraSession -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     WebSession         = $webSession
                     AuthenticationType = 'OAuth'
                     CloudId            = '11223344-a1b2-3b33-c444-def123456789'
                 }
             }
-            Mock Request-JiraOAuthClientCredentialsToken -ModuleName 'JiraPS' {
+            Mock Request-JiraOAuthClientCredentialsToken -ModuleName 'JiraPSVII' {
                 [PSCustomObject]@{
                     AccessToken = ConvertTo-SecureString 'renewed-token' -AsPlainText -Force
                     ExpiresAt   = [DateTimeOffset]::UtcNow.AddHours(1)
@@ -94,7 +94,7 @@ InModuleScope JiraPS {
 
             $result.Headers.Authorization | Should -Be 'Bearer renewed-token'
             $webSession.Headers.Authorization | Should -Be 'Bearer renewed-token'
-            Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPS -Exactly 1
+            Should -Invoke Request-JiraOAuthClientCredentialsToken -ModuleName JiraPSVII -Exactly 1
         }
     }
 }

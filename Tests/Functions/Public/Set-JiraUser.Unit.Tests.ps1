@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Set-JiraUser" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -32,26 +32,26 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Get-JiraUser -ModuleName JiraPS {
+            Mock Get-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraUser' 'UserName'
                 $object = ConvertFrom-Json $restResultGet
-                $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                 return $object
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Put' -and $URI -eq '/rest/api/2/user' -and $GetParameter.username -eq $testUsername } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Put' -and $URI -eq '/rest/api/2/user' -and $GetParameter.username -eq $testUsername } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResultGet
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -86,29 +86,29 @@ InModuleScope JiraPS {
         Describe "Behavior" {
             It "Accepts a username as a String to the -User parameter" {
                 { Set-JiraUser -User $testUsername -DisplayName $testDisplayNameChanged } | Should -Not -Throw
-                Should -Invoke Get-JiraUser -ModuleName JiraPS -Exactly -Times 1
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Get-JiraUser -ModuleName JiraPSVII -Exactly -Times 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
-            It "Accepts a AtlassianPS.JiraPS.User object to the -User parameter" {
+            It "Accepts a AtlassianPSVII.JiraPSVII.User object to the -User parameter" {
                 $user = Get-JiraUser -UserName $testUsername
                 { Set-JiraUser -User $user -DisplayName $testDisplayNameChanged } | Should -Not -Throw
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "Accepts pipeline input from Get-JiraUser" {
                 { Get-JiraUser -UserName $testUsername | Set-JiraUser -DisplayName $testDisplayNameChanged } | Should -Not -Throw
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "Modifies a user's DisplayName if the -DisplayName parameter is passed" {
                 { Set-JiraUser -User $testUsername -DisplayName $testDisplayNameChanged } | Should -Not -Throw
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "Modifies a user's EmailAddress if the -EmailAddress parameter is passed" {
                 { Set-JiraUser -User $testUsername -EmailAddress $testEmailChanged } | Should -Not -Throw
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "Provides no output if the -PassThru parameter is not passed" {
@@ -116,7 +116,7 @@ InModuleScope JiraPS {
                 $output | Should -BeNullOrEmpty
             }
 
-            It "Outputs a AtlassianPS.JiraPS.User object if the -PassThru parameter is passed" {
+            It "Outputs a AtlassianPSVII.JiraPSVII.User object if the -PassThru parameter is passed" {
                 $output = Set-JiraUser -User $testUsername -DisplayName $testDisplayNameChanged -PassThru
                 $output | Should -Not -BeNullOrEmpty
             }
@@ -130,14 +130,14 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeAll {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
             }
 
             It "reports that Jira Cloud does not expose a user profile update operation" {
                 { Set-JiraUser -User $testUsername -DisplayName $testDisplayNameChanged -ErrorAction Stop } |
                     Should -Throw -ErrorId 'CloudUserUpdate.NotSupported,Set-JiraUser'
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0
             }
         }
     }

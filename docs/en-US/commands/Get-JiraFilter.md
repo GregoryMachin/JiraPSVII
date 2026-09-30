@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraFilter/
 locale: en-US
 layout: documentation
@@ -164,14 +164,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Filter / String
+### AtlassianPSVII.JiraPSVII.Filter / String
 
 The filter to look up in JIRA.
-This can be a String (filter ID) or a AtlassianPS.JiraPS.Filter object.
+This can be a String (filter ID) or a AtlassianPSVII.JiraPSVII.Filter object.
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Filter
+### AtlassianPSVII.JiraPSVII.Filter
 
 ## NOTES
 

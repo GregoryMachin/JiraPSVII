@@ -1,10 +1,10 @@
 # Public Function Tests
 
-This directory contains unit tests for **public (exported) JiraPS functions**.
+This directory contains unit tests for **public (exported) JiraPSVII functions**.
 
 ## Test Pattern
 
-All tests in this directory follow the **CRUD function pattern** for public (exported) JiraPS functions.
+All tests in this directory follow the **CRUD function pattern** for public (exported) JiraPSVII functions.
 
 ### When to Use
 

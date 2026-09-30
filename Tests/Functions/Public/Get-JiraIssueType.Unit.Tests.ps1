@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueType" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -87,7 +87,7 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
@@ -97,13 +97,13 @@ InModuleScope JiraPS {
                 $inputObject
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $Uri -eq "/rest/api/2/issuetype" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $Uri -eq "/rest/api/2/issuetype" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResult
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -125,7 +125,7 @@ InModuleScope JiraPS {
                 $allResults = Get-JiraIssueType
                 $allResults | Should -Not -BeNullOrEmpty
                 @($allResults) | Should -HaveCount 8
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
             }
 
             It "Gets a specified issue type if an issue type ID is provided" {

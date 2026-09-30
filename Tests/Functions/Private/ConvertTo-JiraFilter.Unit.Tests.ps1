@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraFilter" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -144,9 +144,9 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock ConvertTo-JiraFilterPermission -ModuleName JiraPS {
+            Mock ConvertTo-JiraFilterPermission -ModuleName JiraPSVII {
                 $i = New-Object -TypeName PSCustomObject -Property @{ Id = 1111 }
-                $i.PSObject.TypeNames.Insert(0, 'JiraPS.FilterPermission')
+                $i.PSObject.TypeNames.Insert(0, 'JiraPSVII.FilterPermission')
                 $i
             }
             #endregion Mocks
@@ -162,8 +162,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Filter'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Filter'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Filter'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Filter'
                 }
             }
 
@@ -219,14 +219,14 @@ InModuleScope JiraPS {
                     $script:result = ConvertTo-JiraFilter -InputObject $sampleObject -FilterPermissions (ConvertFrom-Json -InputObject $script:samplePermission)
                 }
 
-                It "converts Owner to AtlassianPS.JiraPS.User object" {
+                It "converts Owner to AtlassianPSVII.JiraPSVII.User object" {
                     $result.Owner | Should -Not -BeNullOrEmpty
-                    $result.Owner.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+                    $result.Owner.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
                 }
 
-                It "keeps FilterPermissions as an AtlassianPS.JiraPS.FilterPermission[] slot" {
-                    [AtlassianPS.JiraPS.Filter].GetProperty('FilterPermissions').PropertyType.FullName |
-                        Should -Be 'AtlassianPS.JiraPS.FilterPermission[]'
+                It "keeps FilterPermissions as an AtlassianPSVII.JiraPSVII.FilterPermission[] slot" {
+                    [AtlassianPSVII.JiraPSVII.Filter].GetProperty('FilterPermissions').PropertyType.FullName |
+                        Should -Be 'AtlassianPSVII.JiraPSVII.FilterPermission[]'
                 }
 
                 It "converts Id to string type (as returned from JSON)" {

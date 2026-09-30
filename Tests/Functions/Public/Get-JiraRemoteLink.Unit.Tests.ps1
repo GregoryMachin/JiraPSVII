@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraRemoteLink" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -39,40 +39,40 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
             Mock Get-JiraIssue {
                 Write-MockDebugInfo 'Get-JiraIssue'
-                $object = [AtlassianPS.JiraPS.Issue]@{
+                $object = [AtlassianPSVII.JiraPSVII.Issue]@{
                     RestURL = "$jiraServer/rest/api/2/issue/12345"
                     Key     = $issueKey
                 }
                 return $object
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock ConvertTo-JiraLink -ModuleName JiraPS {
+            Mock ConvertTo-JiraLink -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraLink'
                 $InputObject
             }
 
             # Searching for a group.
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json -InputObject $restResult
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -94,30 +94,30 @@ InModuleScope JiraPS {
                 $getResult = Get-JiraRemoteLink -Issue $issueKey
                 $getResult | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq "Get" -and
                     $Uri -eq "/rest/api/2/issue/$issueKey/remotelink"
                 } -Exactly 1
 
-                Should -Invoke ConvertTo-JiraLink -ModuleName JiraPS -Exactly 1
+                Should -Invoke ConvertTo-JiraLink -ModuleName JiraPSVII -Exactly 1
             }
 
             It "Gets information of all remote link from a Jira issue" {
                 $getResult = Get-JiraRemoteLink -Issue $issueKey -LinkId 10000
                 $getResult | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq "Get" -and
                     $Uri -eq "/rest/api/2/issue/$issueKey/remotelink/10000"
                 } -Exactly 1
             }
 
             It "uses v3 for Cloud even when the issue object contains a v2 self link" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
                 $null = Get-JiraRemoteLink -Issue $issueKey
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/3/issue/$issueKey/remotelink"
                 }
             }

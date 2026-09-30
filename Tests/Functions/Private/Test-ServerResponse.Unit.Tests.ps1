@@ -6,13 +6,13 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Test-ServerResponse" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
 
             $script:sleepSeconds = $null
-            Mock Start-Sleep -ModuleName JiraPS {
+            Mock Start-Sleep -ModuleName JiraPSVII {
                 $script:sleepSeconds = $Seconds
             }
         }
@@ -40,7 +40,7 @@ InModuleScope JiraPS {
 
                 $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
 
-                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "respects the Retry-After header with jitter applied" {
@@ -51,7 +51,7 @@ InModuleScope JiraPS {
 
                 $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3 -JitterFactor 1
 
-                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPSVII -Exactly -Times 1
                 $script:sleepSeconds | Should -Be 10
             }
 
@@ -111,7 +111,7 @@ InModuleScope JiraPS {
 
                 $null = Test-ServerResponse -InputObject $response -RetryCount 3 -MaxRetries 3
 
-                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPS -Exactly -Times 0
+                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPSVII -Exactly -Times 0
             }
 
             It "emits a warning on 429" {
@@ -144,7 +144,7 @@ InModuleScope JiraPS {
 
                 $null = Test-ServerResponse -InputObject $response -RetryCount 0 -MaxRetries 3
 
-                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke -CommandName Start-Sleep -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "emits a warning on 503" {

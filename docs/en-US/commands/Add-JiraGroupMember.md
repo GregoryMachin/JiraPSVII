@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraGroupMember/
 locale: en-US
 layout: documentation
@@ -186,13 +186,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### JiraPS.Group
+### JiraPSVII.Group
 
 Group(s) to which users should be added
 
 ## OUTPUTS
 
-### JiraPS.Group
+### JiraPSVII.Group
 
 If the `-PassThru` parameter is provided, this function will provide a reference to the JIRA group modified.
 Otherwise, this function does not provide output.

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraEditMetaField" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -90,9 +90,9 @@ InModuleScope JiraPS {
                     $result | Should -HaveCount 2
                 }
 
-                It "returns AtlassianPS.JiraPS.EditMetaField for each item" {
-                    $result[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.EditMetaField'
-                    $result[1].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.EditMetaField'
+                It "returns AtlassianPSVII.JiraPSVII.EditMetaField for each item" {
+                    $result[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.EditMetaField'
+                    $result[1].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.EditMetaField'
                 }
             }
 

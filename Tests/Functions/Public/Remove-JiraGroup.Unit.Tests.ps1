@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraGroup" -Tag 'Unit' {
 
         BeforeAll {
@@ -36,21 +36,21 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraGroup -ModuleName JiraPS {
+            Mock Get-JiraGroup -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraGroup' 'GroupName'
                 $object = ConvertFrom-Json $testJson
-                $object.PSObject.TypeNames.Insert(0, 'JiraPS.Group')
+                $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Group')
                 return $object
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'DELETE' -and
                 $URI -eq '/rest/api/2/group' -and
                 $GetParameter['groupname'] -eq $testGroupName
@@ -60,7 +60,7 @@ InModuleScope JiraPS {
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -74,7 +74,7 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = 'Group'; type = 'AtlassianPS.JiraPS.Group[]' }
+                    @{ parameter = 'Group'; type = 'AtlassianPSVII.JiraPSVII.Group[]' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'Force'; type = 'Switch' }
                 ) {
@@ -95,7 +95,7 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
 
-                It "Accepts a JiraPS.Group object to the -Group parameter" {
+                It "Accepts a JiraPSVII.Group object to the -Group parameter" {
                     $group = Get-JiraGroup -GroupName $testGroupName
                     { Remove-JiraGroup -Group $group -Force } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
@@ -116,9 +116,9 @@ InModuleScope JiraPS {
                 }
 
                 It "uses groupId for deletion on Cloud" {
-                    Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                    Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                    Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                    Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                         $Method -eq 'DELETE' -and
                         $URI -eq '/rest/api/3/group' -and
                         $GetParameter['groupId'] -eq $testGroupId
@@ -130,7 +130,7 @@ InModuleScope JiraPS {
 
                     { Remove-JiraGroup -Group $group -Force } | Should -Not -Throw
 
-                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -ParameterFilter {
+                    Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -ParameterFilter {
                         $Method -eq 'DELETE' -and
                         $URI -eq '/rest/api/3/group' -and
                         $GetParameter['groupId'] -eq $testGroupId

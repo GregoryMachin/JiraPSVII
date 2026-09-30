@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraIssueLink/
 locale: en-US
 layout: documentation
@@ -28,10 +28,10 @@ Creates a new link of the specified type between two issues.
 ### EXAMPLE 1
 
 ```powershell
-$_issueLink = [AtlassianPS.JiraPS.IssueLinkCreateRequest]@{
-    inwardIssue = [AtlassianPS.JiraPS.LinkedIssueRef]@{ key = "TEST-01" }
-    outwardIssue = [AtlassianPS.JiraPS.LinkedIssueRef]@{ key = "TEST-10" }
-    type = [AtlassianPS.JiraPS.IssueLinkTypeRef]@{ name = "Composition" }
+$_issueLink = [AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest]@{
+    inwardIssue = [AtlassianPSVII.JiraPSVII.LinkedIssueRef]@{ key = "TEST-01" }
+    outwardIssue = [AtlassianPSVII.JiraPSVII.LinkedIssueRef]@{ key = "TEST-10" }
+    type = [AtlassianPSVII.JiraPSVII.IssueLinkTypeRef]@{ name = "Composition" }
 }
 Add-JiraIssueLink -IssueLink $_issueLink
 ```
@@ -117,7 +117,7 @@ HelpMessage: ''
 ### -IssueLink
 
 Issue Link to be created.
-Accepts `AtlassianPS.JiraPS.IssueLinkCreateRequest` values and compatible payload objects that include `type`, `inwardIssue`, and `outwardIssue`.
+Accepts `AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest` values and compatible payload objects that include `type`, `inwardIssue`, and `outwardIssue`.
 The nested `type` object must include `name` or `id`.
 The nested issue references must include `key` or `id`.
 Both `inwardIssue` and `outwardIssue` are required.
@@ -171,7 +171,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.IssueLinkCreateRequest
+### AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest
 
 The issue-link create request payload that should be used.
 

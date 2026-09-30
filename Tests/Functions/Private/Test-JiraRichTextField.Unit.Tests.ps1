@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Test-JiraRichTextField" -Tag 'Unit' {
 
         Context "When -Field is `$null" {

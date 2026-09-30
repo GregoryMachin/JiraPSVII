@@ -20,20 +20,20 @@ $ErrorActionPreference = 'Stop'
 
 $projectRoot = (Resolve-Path -LiteralPath (Join-Path -Path $PSScriptRoot -ChildPath '..')).ProviderPath
 $buildRequirementsPath = Join-Path -Path $projectRoot -ChildPath 'Tools/build.requirements.psd1'
-$manifestPath = Join-Path -Path $projectRoot -ChildPath 'JiraPS/JiraPS.psd1'
+$manifestPath = Join-Path -Path $projectRoot -ChildPath 'JiraPSVII/JiraPSVII.psd1'
 
 $buildRequirements = Import-PowerShellDataFile -Path $buildRequirementsPath
 $standardsRequirement = $buildRequirements |
-    Where-Object { $_.ModuleName -eq 'AtlassianPS.Standards' } |
+    Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
     Select-Object -First 1
 
 if (-not $standardsRequirement -or -not $standardsRequirement.RequiredVersion) {
-    throw "Could not resolve AtlassianPS.Standards required version from '$buildRequirementsPath'."
+    throw "Could not resolve AtlassianPSVII.Standards required version from '$buildRequirementsPath'."
 }
 
 $standardsVersion = [string] $standardsRequirement.RequiredVersion
 
-if (-not $PSCmdlet.ShouldProcess($manifestPath, 'Update AtlassianPS dependency references')) {
+if (-not $PSCmdlet.ShouldProcess($manifestPath, 'Update AtlassianPSVII dependency references')) {
     return [PSCustomObject]@{
         Skipped                 = $true
         BuildRequirementsPath   = $buildRequirementsPath
@@ -80,7 +80,7 @@ if ($isWindowsPowerShell -and ($ForceDesktopBootstrapRemediation -or $psGalleryR
     Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted -ErrorAction Stop
 }
 
-Install-Module -Name 'AtlassianPS.Standards' `
+Install-Module -Name 'AtlassianPSVII.Standards' `
     -RequiredVersion $standardsVersion `
     -Scope CurrentUser `
     -Repository 'PSGallery' `
@@ -88,9 +88,9 @@ Install-Module -Name 'AtlassianPS.Standards' `
     -Force `
     -ErrorAction Stop
 
-Import-Module -Name 'AtlassianPS.Standards' -RequiredVersion $standardsVersion -Force -ErrorAction Stop
+Import-Module -Name 'AtlassianPSVII.Standards' -RequiredVersion $standardsVersion -Force -ErrorAction Stop
 
-$result = Update-AtlassianPSDependencyReference `
+$result = Update-AtlassianPSVIIDependencyReference `
     -BuildRequirementsPath $buildRequirementsPath `
     -ManifestPath $manifestPath `
     -SkipBuildRequirement:$SkipBuildRequirement `

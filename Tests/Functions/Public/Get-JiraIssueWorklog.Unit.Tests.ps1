@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueWorklog" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -41,16 +41,16 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
-                $object = [AtlassianPS.JiraPS.Issue]@{
+                $object = [AtlassianPSVII.JiraPSVII.Issue]@{
                     ID      = $issueID
                     Key     = $issueKey
                     RestUrl = "$jiraServer/rest/api/2/issue/$issueID"
@@ -58,17 +58,17 @@ InModuleScope JiraPS {
                 return $object
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 (ConvertFrom-Json -InputObject $restResult).worklogs
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -98,11 +98,11 @@ InModuleScope JiraPS {
                     $worklogs.TimeSpentSeconds | Should -Be 180
 
                     # Get-JiraIssue should be called to identify the -Issue parameter
-                    Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 1
 
                     # Normally, this would be called once in Get-JiraIssue and a second time in Get-JiraIssueComment, but
                     # since we've mocked Get-JiraIssue out, it will only be called once.
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
 
                 It "Obtains all Jira worklogs from a Jira issue if the Jira object is provided" {
@@ -112,7 +112,7 @@ InModuleScope JiraPS {
                     $worklogs | Should -Not -BeNullOrEmpty
                     $worklogs.ID | Should -Be 90730
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
 
                 It "Handles pipeline input from Get-JiraIssue" {
@@ -121,7 +121,7 @@ InModuleScope JiraPS {
                     $worklogs | Should -Not -BeNullOrEmpty
                     $worklogs.ID | Should -Be 90730
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
             }
         }
@@ -130,7 +130,7 @@ InModuleScope JiraPS {
             It "uses v2 for Data Center and the shared default page size" {
                 $null = Get-JiraIssueWorklog -Issue $issueKey
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "$jiraServer/rest/api/2/issue/$issueID/worklog" -and
                     $GetParameter['maxResults'] -eq $script:DefaultPageSize -and
                     $GetParameter['expand'] -eq 'properties'
@@ -138,14 +138,14 @@ InModuleScope JiraPS {
             }
 
             It "uses v3 for Cloud even when the issue object contains a v2 self link" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog"
                 } { (ConvertFrom-Json -InputObject $restResult).worklogs }
 
                 $null = Get-JiraIssueWorklog -Issue $issueKey
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "$jiraServer/rest/api/3/issue/$issueID/worklog"
                 }
             }

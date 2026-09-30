@@ -2,9 +2,9 @@
 layout: documentation
 permalink: /docs/JiraPS/commands/
 ---
-# JiraPS commands
+# JiraPSVII commands
 
-JiraPS exports these commands directly without an additional default command prefix.
+JiraPSVII exports these commands directly without an additional default command prefix.
 
 | Command | Documentation |
 |---|---|
@@ -91,4 +91,4 @@ JiraPS exports these commands directly without an additional default command pre
 | `Set-JiraVersion` | [Set-JiraVersion](/docs/JiraPS/commands/Set-JiraVersion/) |
 | `Wait-JiraBulkOperation` | [Wait-JiraBulkOperation](/docs/JiraPS/commands/Wait-JiraBulkOperation/) |
 
-For conceptual documentation, see the [JiraPS about topics](/docs/JiraPS/about/).
+For conceptual documentation, see the [JiraPSVII about topics](/docs/JiraPS/about/).

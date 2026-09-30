@@ -5,13 +5,13 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Test-JiraJql" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Post' -and $URI -eq '/rest/api/3/jql/parse'
             } {
                 $bodyObject = $Body | ConvertFrom-Json
@@ -31,7 +31,7 @@ InModuleScope JiraPS {
                     )
                 }
             }
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 throw "Unidentified call to Invoke-JiraMethod: $Method $URI"
             }
         }
@@ -40,7 +40,7 @@ InModuleScope JiraPS {
             $results = Test-JiraJql -Query 'project = TEST', 'invalid query'
 
             @($results) | Should -HaveCount 2
-            $results[0].GetType().FullName | Should -Be 'AtlassianPS.JiraPS.JqlValidationResult'
+            $results[0].GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.JqlValidationResult'
             $results[0].IsValid | Should -BeTrue
             $results[0].Errors | Should -BeNullOrEmpty
             $results[1].IsValid | Should -BeFalse
@@ -57,7 +57,7 @@ InModuleScope JiraPS {
             $results = Test-JiraJql -Query $queries -Validation Warn
 
             $results.Query | Should -Be $queries
-            Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+            Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                 $URI -eq '/rest/api/3/jql/parse' -and
                 $GetParameter.validation -eq 'warn' -and
                 ($Body | ConvertFrom-Json).queries[2] -eq $queries[2] -and
@@ -68,11 +68,11 @@ InModuleScope JiraPS {
         It "batches pipeline input into one parse request" {
             'project = A', 'project = B' | Test-JiraJql | Should -HaveCount 2
 
-            Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1
+            Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1
         }
 
         It "propagates permission and authentication failures" {
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $URI -eq '/rest/api/3/jql/parse'
             } { throw 'Unauthorized' }
 
@@ -80,10 +80,10 @@ InModuleScope JiraPS {
         }
 
         It "rejects Data Center explicitly without making a request" {
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
             { Test-JiraJql -Query 'project = TEST' } | Should -Throw -ExpectedMessage '*only on Jira Cloud*'
-            Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0
+            Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0
         }
     }
 }

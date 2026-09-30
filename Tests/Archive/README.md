@@ -4,7 +4,7 @@ This directory contains archived test files that are kept for historical referen
 
 ## Contents
 
-### JiraPS.Integration.Tests.legacy.ps1
+### JiraPSVII.Integration.Tests.legacy.ps1
 
 **Status**: Archived, not executed
 

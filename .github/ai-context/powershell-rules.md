@@ -1,10 +1,10 @@
 # PowerShell Development Rules
 
-These rules apply to all `.ps1`, `.psm1`, and `.psd1` files in JiraPS.
+These rules apply to all `.ps1`, `.psm1`, and `.psd1` files in JiraPSVII.
 
 ## Jira Cloud vs Data Center Compatibility
 
-JiraPS targets both Jira Cloud and Jira Data Center. These are different
+JiraPSVII targets both Jira Cloud and Jira Data Center. These are different
 products with different API behaviors. Any change to API endpoints, request
 bodies, or response handling MUST work on both deployment types.
 
@@ -16,7 +16,7 @@ bodies, or response handling MUST work on both deployment types.
 - If a function uses `?accountId=` or `@{accountId=...}`, it only works on Cloud
 - Correct approach: branch based on deployment type
 
-To find functions that need this branching, search `JiraPS/Public/` for cmdlets that:
+To find functions that need this branching, search `JiraPSVII/Public/` for cmdlets that:
 - Take a `User`/`Assignee`/`Reporter` parameter, **or**
 - Build a request body containing `username`, `name`, `accountId`, or `assignee`/`reporter` keys, **or**
 - Call `/rest/api/2/user`, `/rest/api/3/user`, or `/group/member` endpoints
@@ -87,11 +87,11 @@ param(
 
 ### Help & Comments in Public Function Files
 
-Files in `JiraPS/Public/` rely **exclusively** on PlatyPS-generated external help (`docs/en-US/commands/*.md` → `JiraPS-help.xml`). Therefore:
+Files in `JiraPSVII/Public/` rely **exclusively** on PlatyPS-generated external help (`docs/en-US/commands/*.md` → `JiraPSVII-help.xml`). Therefore:
 
 - **No comment-based help.** Do not add `<# .SYNOPSIS ... #>`, `.DESCRIPTION`, `.EXAMPLE`, `.PARAMETER`, `.LINK`, `.NOTES`, `.INPUTS`, or `.OUTPUTS` blocks to public function files.
 - **No parameter comments.** Do not add descriptive comments above or beside parameter declarations. Parameter docs belong in the corresponding `docs/en-US/commands/<FunctionName>.md` file.
-- **Single help directive only.** The first line inside the function body is `# .ExternalHelp ..\JiraPS-help.xml` — nothing else above or below `param()` describes the cmdlet.
+- **Single help directive only.** The first line inside the function body is `# .ExternalHelp ..\JiraPSVII-help.xml` — nothing else above or below `param()` describes the cmdlet.
 - **`#ToDo:Category` is the exception.** Tracked technical-debt markers (with their context block) may appear next to parameters; nothing else.
 
 When updating a public function's signature, also update `docs/en-US/commands/<FunctionName>.md` (or regenerate it with PlatyPS) so the external help stays in sync.
@@ -175,7 +175,7 @@ Invoke-Build -Task TestIntegration -ThrottleLimit 8     # More parallelism
 | `TestIntegration` | Runs integration tests in parallel (no build needed) |
 | `TestIntegrationServer` | Starts local Docker Jira DC, runs Server-tagged integration tests, then stops Docker |
 | `GenerateExternalHelp` | Generates help XML from `docs/` markdown |
-| `Package` | Creates `Release/JiraPS.zip` from the built module |
+| `Package` | Creates `Release/JiraPSVII.zip` from the built module |
 | `TestPublish` | Dry-runs release packaging checks without publishing |
 | `Publish` | Publishes to PowerShell Gallery (release tags only) |
 

@@ -8,8 +8,8 @@ BeforeDiscovery {
 
 Describe "Validation of example codes in the documentation" -Tag Documentation, NotImplemented -Skip {
     BeforeAll {
-        $script:commands = Get-Command -Module JiraPS -CommandType Cmdlet, Function
-        $script:module = Get-Module JiraPS
+        $script:commands = Get-Command -Module JiraPSVII -CommandType Cmdlet, Function
+        $script:module = Get-Module JiraPSVII
     }
 
     Describe "Examples" {

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraGroup" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -55,12 +55,12 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Group'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Group'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Group'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Group'
                 }
 
-                It "is a real .NET AtlassianPS.JiraPS.Group instance" {
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.Group]
+                It "is a real .NET AtlassianPSVII.JiraPSVII.Group instance" {
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.Group]
                 }
             }
 

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraProject" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -78,8 +78,8 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "adds custom type 'AtlassianPS.JiraPS.Project'" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Project'
+                It "adds custom type 'AtlassianPSVII.JiraPSVII.Project'" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Project'
                 }
             }
 
@@ -110,8 +110,8 @@ InModuleScope JiraPS {
                     $script:result = ConvertTo-JiraProject -InputObject $sampleObject
                 }
 
-                It "converts Lead to AtlassianPS.JiraPS.User type" {
-                    $result.Lead.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.User'
+                It "converts Lead to AtlassianPSVII.JiraPSVII.User type" {
+                    $result.Lead.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.User'
                 }
             }
 

@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraVersion/
 locale: en-US
 layout: documentation
@@ -81,7 +81,7 @@ Get-JiraVersion -ID '66596'
 ```
 
 This example returns information about all JIRA Version visible to the current user
-(or using anonymous access if a JiraPS session has not been defined) for the project.
+(or using anonymous access if a JiraPSVII session has not been defined) for the project.
 
 ## PARAMETERS
 
@@ -177,7 +177,7 @@ HelpMessage: ''
 A Project Object to search
 
 ```yaml
-Type: AtlassianPS.JiraPS.Project
+Type: AtlassianPSVII.JiraPSVII.Project
 DefaultValue: ''
 SupportsWildcards: false
 Aliases: []
@@ -359,14 +359,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Version
+### AtlassianPSVII.JiraPSVII.Version
 
 
-### AtlassianPS.JiraPS.Project
+### AtlassianPSVII.JiraPSVII.Project
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Version
+### AtlassianPSVII.JiraPSVII.Version
 
 ## NOTES
 

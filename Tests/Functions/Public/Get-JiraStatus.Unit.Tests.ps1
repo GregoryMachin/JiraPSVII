@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraStatus" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -38,17 +38,17 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock ConvertTo-JiraStatus -ModuleName JiraPS {
+            Mock ConvertTo-JiraStatus -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraStatus'
                 $InputObject
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'GET' -and
                 $URI -eq "$jiraServer/rest/api/latest/status"
             } {
@@ -56,7 +56,7 @@ InModuleScope JiraPS {
                 ConvertFrom-Json $restResultAll
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'GET' -and
                 $URI -eq "$jiraServer/rest/api/latest/status/1"
             } {
@@ -64,7 +64,7 @@ InModuleScope JiraPS {
                 ConvertFrom-Json $restResultOne
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'GET' -and
                 $URI -eq "$jiraServer/rest/api/latest/status/Open"
             } {
@@ -72,7 +72,7 @@ InModuleScope JiraPS {
                 ConvertFrom-Json $restResultOne
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -86,7 +86,7 @@ InModuleScope JiraPS {
                 $result | Should -Not -BeNullOrEmpty
                 @($result) | Should -HaveCount 1
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Method -eq 'GET' -and
                     $URI -eq "$jiraServer/rest/api/latest/status"
                 }
@@ -98,7 +98,7 @@ InModuleScope JiraPS {
                 $result | Should -Not -BeNullOrEmpty
                 @($result) | Should -HaveCount 1
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Method -eq 'GET' -and
                     $URI -eq "$jiraServer/rest/api/latest/status/1"
                 }
@@ -110,12 +110,12 @@ InModuleScope JiraPS {
                 $result | Should -Not -BeNullOrEmpty
                 @($result) | Should -HaveCount 2
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Method -eq 'GET' -and
                     $URI -eq "$jiraServer/rest/api/latest/status/1"
                 }
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Method -eq 'GET' -and
                     $URI -eq "$jiraServer/rest/api/latest/status/Open"
                 }
@@ -124,7 +124,7 @@ InModuleScope JiraPS {
             It "accepts pipeline input for -Status" {
                 { '1' | Get-JiraStatus } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Method -eq 'GET' -and
                     $URI -eq "$jiraServer/rest/api/latest/status/1"
                 }
@@ -136,7 +136,7 @@ InModuleScope JiraPS {
                 $result | Should -Not -BeNullOrEmpty
                 @($result) | Should -HaveCount 1
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1 -Scope It -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1 -Scope It -ParameterFilter {
                     $Method -eq 'GET' -and
                     $URI -eq "$jiraServer/rest/api/latest/status/Open"
                 }

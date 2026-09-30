@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Add-JiraGroupMember" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -21,35 +21,35 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Get-JiraGroup -ModuleName JiraPS {
+            Mock Get-JiraGroup -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraGroup'
                 $object = [PSCustomObject] @{
                     'Name' = $testGroupName
                     'Size' = 2
                 }
-                $object.PSObject.TypeNames.Insert(0, 'JiraPS.Group')
+                $object.PSObject.TypeNames.Insert(0, 'JiraPSVII.Group')
                 return $object
             }
 
-            Mock Resolve-JiraUser -ModuleName JiraPS {
+            Mock Resolve-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraUser' 'InputObject'
                 foreach ($user in $InputObject) {
                     $object = [PSCustomObject] @{
                         'Name' = "$user"
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                     Write-Output $object
                 }
             }
 
-            Mock Get-JiraGroupMember -ModuleName JiraPS {
+            Mock Get-JiraGroupMember -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraGroupMember'
                 @(
                     [PSCustomObject] @{
@@ -58,12 +58,12 @@ InModuleScope JiraPS {
                 )
             }
 
-            Mock ConvertTo-JiraGroup -ModuleName JiraPS {
+            Mock ConvertTo-JiraGroup -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraGroup' 'InputObject'
                 $InputObject
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
                 return $true
             }
@@ -77,15 +77,15 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = "Group"; type = "AtlassianPS.JiraPS.Group[]" }
-                    @{ parameter = "UserName"; type = "AtlassianPS.JiraPS.User[]" }
+                    @{ parameter = "Group"; type = "AtlassianPSVII.JiraPSVII.Group[]" }
+                    @{ parameter = "UserName"; type = "AtlassianPSVII.JiraPSVII.User[]" }
                     @{ parameter = "Credential"; type = "System.Management.Automation.PSCredential" }
                     @{ parameter = "Passthru"; type = "Switch" }
                 ) {
                     $command | Should -HaveParameter $parameter
 
                     #ToDo:CustomClass
-                    # can't use -Type as long we are using `PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Filter')`
+                    # can't use -Type as long we are using `PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Filter')`
                     (Get-Member -InputObject $command.Parameters.Item($parameter)).Attributes | Should -Contain $typeName
                 }
             }
@@ -120,7 +120,7 @@ InModuleScope JiraPS {
                 Should -Invoke -CommandName ConvertTo-JiraGroup -Exactly -Times 1
             }
 
-            It "Accepts a JiraPS.Group object to the -Group parameter" {
+            It "Accepts a JiraPSVII.Group object to the -Group parameter" {
                 $group = Get-JiraGroup -GroupName $testGroupName
                 { Add-JiraGroupMember -Group $group -User $testUsername2 } | Should -Not -Throw
 
@@ -161,7 +161,7 @@ InModuleScope JiraPS {
 
             It "Adds multiple users to a JIRA group if they are passed to the -User parameter" {
                 # Override our previous mock so we have no group members
-                Mock Get-JiraGroupMember -ModuleName JiraPS { @() }
+                Mock Get-JiraGroupMember -ModuleName JiraPSVII { @() }
 
                 # Should use the REST method twice, since at present, you can only add one group member per API call
                 { Add-JiraGroupMember -Group $testGroupName -User $testUsername1, $testUsername2 } | Should -Not -Throw
@@ -194,21 +194,21 @@ InModuleScope JiraPS {
 
         Describe "Cloud Deployment" {
             BeforeAll {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                Mock Get-JiraGroupMember -ModuleName JiraPS {
+                Mock Get-JiraGroupMember -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Get-JiraGroupMember'
                     @()
                 }
 
-                Mock Resolve-JiraUser -ModuleName JiraPS {
+                Mock Resolve-JiraUser -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Resolve-JiraUser' 'InputObject'
                     foreach ($user in $InputObject) {
                         $object = [PSCustomObject] @{
                             'Name'      = "$user"
                             'AccountId' = "abc123def456"
                         }
-                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                        $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                         Write-Output $object
                     }
                 }
@@ -217,7 +217,7 @@ InModuleScope JiraPS {
             It "uses accountId in POST body when adding a user on Cloud" {
                 { Add-JiraGroupMember -Group $testGroupName -User $testUsername2 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -eq '/rest/api/3/group/user' -and
                     $GetParameter['groupname'] -eq $testGroupName -and
@@ -226,13 +226,13 @@ InModuleScope JiraPS {
             }
 
             It "uses groupId when a Cloud group object provides one" {
-                $group = [AtlassianPS.JiraPS.Group]@{
+                $group = [AtlassianPSVII.JiraPSVII.Group]@{
                     Id = 'cloud-group-id'
                 }
 
                 { Add-JiraGroupMember -Group $group -User $testUsername2 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -eq '/rest/api/3/group/user' -and
                     $GetParameter['groupId'] -eq 'cloud-group-id' -and
@@ -242,8 +242,8 @@ InModuleScope JiraPS {
             }
 
             It "rejects a Cloud membership mutation when accountId is unavailable" {
-                Mock Resolve-JiraUser -ModuleName JiraPS {
-                    [AtlassianPS.JiraPS.User]@{ Name = 'ambiguous-user' }
+                Mock Resolve-JiraUser -ModuleName JiraPSVII {
+                    [AtlassianPSVII.JiraPSVII.User]@{ Name = 'ambiguous-user' }
                 }
 
                 { Add-JiraGroupMember -Group $testGroupName -User 'ambiguous-user' -ErrorAction Stop } |

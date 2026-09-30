@@ -14,7 +14,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Filters" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -36,7 +36,7 @@ InModuleScope JiraPS {
             #     relying on fuzzy `-Name "test"` matching, because Cloud/DC
             #     deployments can differ in how broadly filter-name search matches.
             #   - The seeded filter intentionally does NOT use the shared
-            #     `JiraPS-IntTest-` prefix. Parallel runspaces call
+            #     `JiraPSVII-IntTest-` prefix. Parallel runspaces call
             #     `Remove-StaleTestResource`, which removes prefixed filters
             #     immediately and can race this test's freshly seeded filter.
             #     This test tracks the seed in `$script:createdFilters` and removes
@@ -61,7 +61,7 @@ InModuleScope JiraPS {
             $script:SeededFilter = $null
             if (-not $env.ReadOnly -and -not [string]::IsNullOrEmpty($fixtures.TestProject)) {
                 try {
-                    $seedName = "JiraPS-FindFilterSeed-$(Get-Date -Format 'yyyyMMddHHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0, 6))"
+                    $seedName = "JiraPSVII-FindFilterSeed-$(Get-Date -Format 'yyyyMMddHHmmss')-$([Guid]::NewGuid().ToString('N').Substring(0, 6))"
                     $script:SeededFilter = New-JiraFilter `
                         -Name $seedName `
                         -JQL "project = $($fixtures.TestProject)" `
@@ -115,7 +115,7 @@ InModuleScope JiraPS {
                     }
                     $filter = Get-JiraFilter -Id $fixtures.TestFilter
 
-                    $filter.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Filter'
+                    $filter.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Filter'
                 }
 
                 It "includes filter name" {
@@ -215,7 +215,7 @@ InModuleScope JiraPS {
                     $filter = New-JiraFilter -Name $filterName -JQL $jql
                     $null = $script:createdFilters.Add($filter)
 
-                    $filter.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Filter'
+                    $filter.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Filter'
                 }
             }
         }

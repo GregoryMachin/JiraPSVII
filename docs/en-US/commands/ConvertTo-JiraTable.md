@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/ConvertTo-JiraTable/
 locale: en-US
 layout: documentation
@@ -121,7 +121,7 @@ This is a destructive transform: it walks the input pipeline and emits a single 
 Remember to "filter left, format right!"
 
 **Output format.**
-The output is Jira **wiki markup**, the native format for text fields on Jira Server / Data Center and for the legacy v2 REST API endpoints used by JiraPS write commands such as `Add-JiraIssueComment` and `Add-JiraIssueWorklog`.
+The output is Jira **wiki markup**, the native format for text fields on Jira Server / Data Center and for the legacy v2 REST API endpoints used by JiraPSVII write commands such as `Add-JiraIssueComment` and `Add-JiraIssueWorklog`.
 On Jira Cloud (REST v3 / ADF) the table syntax renders as literal text; ADF wrapping for the write-side cmdlets is tracked in [#602](https://github.com/AtlassianPS/JiraPS/issues/602).
 
 Alias: `Format-Jira` (deprecated)

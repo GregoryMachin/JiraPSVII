@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Invoke-JiraIssueTransition/
 locale: en-US
 layout: documentation
@@ -171,8 +171,8 @@ HelpMessage: ''
 
 Any additional fields that should be updated.
 
-When you provide field names in `-Fields`, JiraPS first resolves them against transition-screen metadata for the selected transition.
-If a provided key is not present in that scoped metadata, JiraPS falls back to the global `Get-JiraField` catalogue.
+When you provide field names in `-Fields`, JiraPSVII first resolves them against transition-screen metadata for the selected transition.
+If a provided key is not present in that scoped metadata, JiraPSVII falls back to the global `Get-JiraField` catalogue.
 Using scoped metadata first avoids ambiguous name matching when duplicate custom-field display names exist across projects.
 
 Fields must be configured to appear on the transition screen to use this parameter.
@@ -203,7 +203,7 @@ HelpMessage: ''
 
 The Issue Object or ID to transition.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -320,11 +320,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue / String / JiraPS.Transition
+### AtlassianPSVII.JiraPSVII.Issue / String / JiraPSVII.Transition
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 When `-Passthru` is provided, the issue will be returned.
 
@@ -336,8 +336,8 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 
 ## RELATED LINKS
 
-[about_JiraPS_CustomFields](../../about/custom-fields.html)
+[about_JiraPSVII_CustomFields](../../about/custom-fields.html)
 
-[about_JiraPS_UpdatingIssues](../../about/updating-issues.html)
+[about_JiraPSVII_UpdatingIssues](../../about/updating-issues.html)
 
 [Get-JiraIssue](../Get-JiraIssue/)

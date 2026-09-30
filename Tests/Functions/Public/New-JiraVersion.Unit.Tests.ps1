@@ -8,7 +8,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "New-JiraVersion" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -47,21 +47,21 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraProject -ModuleName JiraPS {
+            Mock Get-JiraProject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraProject'
                 $Projects = ConvertFrom-Json $JiraProjectData
-                $Projects | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Project') }
+                $Projects | ForEach-Object { $_.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Project') }
                 $Projects | Where-Object { $_.Key -in $projectKey }
             }
 
-            Mock Get-JiraVersion -ModuleName JiraPS {
+            Mock Get-JiraVersion -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraVersion'
                 $Version = [PSCustomObject]@{
                     Name        = "v1"
@@ -71,11 +71,11 @@ InModuleScope JiraPS {
                     StartDate   = (Get-Date "2017-01-01")
                     RestUrl     = "$jiraServer/rest/api/2/version/$versionID"
                 }
-                $Version.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Version')
+                $Version.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Version')
                 $Version
             }
 
-            Mock ConvertTo-JiraVersion -ModuleName JiraPS {
+            Mock ConvertTo-JiraVersion -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraVersion'
                 $result = New-Object -TypeName PSObject -Property @{
                     Id      = $InputObject.Id
@@ -83,17 +83,17 @@ InModuleScope JiraPS {
                     Project = $InputObject.projectId
                     self    = "$jiraServer/rest/api/2/version/$($InputObject.self)"
                 }
-                $result.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.Version')
+                $result.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.Version')
                 $result
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/*/version" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/*/version" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $testJsonOne
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -133,16 +133,16 @@ InModuleScope JiraPS {
                 $version = Get-JiraVersion -Project $projectKey
                 $results = $version | New-JiraVersion -ErrorAction Stop
                 $results | Should -Not -BeNullOrEmpty
-                $results.PSObject.TypeNames[0] | Should -Be "AtlassianPS.JiraPS.Version"
-                Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
-                Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPS
+                $results.PSObject.TypeNames[0] | Should -Be "AtlassianPSVII.JiraPSVII.Version"
+                Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
+                Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPSVII
             }
             It "creates a Version using parameters" {
                 $results = New-JiraVersion -Name $versionName -Project $projectKey -ErrorAction Stop
                 $results | Should -Not -BeNullOrEmpty
-                $results.PSObject.TypeNames[0] | Should -Be "AtlassianPS.JiraPS.Version"
-                Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
-                Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPS
+                $results.PSObject.TypeNames[0] | Should -Be "AtlassianPSVII.JiraPSVII.Version"
+                Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
+                Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPSVII
             }
             It "creates a Version using splatting" {
                 $password = (ConvertTo-SecureString -AsPlainText -Force -String "password")
@@ -159,16 +159,16 @@ InModuleScope JiraPS {
                 }
                 $results = New-JiraVersion @splat -ErrorAction Stop
                 $results | Should -Not -BeNullOrEmpty
-                $results.PSObject.TypeNames[0] | Should -Be "AtlassianPS.JiraPS.Version"
-                Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPS -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
-                Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPS
+                $results.PSObject.TypeNames[0] | Should -Be "AtlassianPSVII.JiraPSVII.Version"
+                Should -Invoke 'Invoke-JiraMethod' -Times 1 -Exactly -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Post' -and $URI -like "/rest/api/2/version" }
+                Should -Invoke 'ConvertTo-JiraVersion' -Times 1 -Exactly -ModuleName JiraPSVII
             }
         }
 
         Describe "Cloud Deployment" {
             BeforeEach {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Post' -and $URI -eq '/rest/api/3/version'
                 } {
                     ConvertFrom-Json $testJsonOne
@@ -178,7 +178,7 @@ InModuleScope JiraPS {
             It "uses REST API v3 for version creation" {
                 New-JiraVersion -Name $versionName -Project $projectKey | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq '/rest/api/3/version'
                 }
             }
@@ -186,7 +186,7 @@ InModuleScope JiraPS {
             It "does not send a create request with WhatIf" {
                 New-JiraVersion -Name $versionName -Project $projectKey -WhatIf
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0 -ParameterFilter {
                     $URI -eq '/rest/api/3/version'
                 }
             }

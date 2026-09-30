@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraCachedResponse" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -14,7 +14,7 @@ InModuleScope JiraPS {
 
         BeforeEach {
             $script:JiraCache = @{}
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://jira.example.com' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'https://jira.example.com' }
         }
 
         It "returns null when cache should be bypassed" {

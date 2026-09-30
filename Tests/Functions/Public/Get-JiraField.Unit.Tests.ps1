@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraField" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -144,12 +144,12 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $Uri -eq "/rest/api/2/field" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $Uri -eq "/rest/api/2/field" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResult
             }
@@ -187,7 +187,7 @@ InModuleScope JiraPS {
                 $allResults | Should -Not -BeNullOrEmpty
                 @($allResults).Count | Should -Be @((ConvertFrom-Json -InputObject $restResult)).Count
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "gets a specified field if a field ID is provided" {
@@ -226,7 +226,7 @@ InModuleScope JiraPS {
 
         Describe "Caching Behavior" {
             BeforeAll {
-                Mock Invoke-WebRequest -ModuleName JiraPS {
+                Mock Invoke-WebRequest -ModuleName JiraPSVII {
                     [PSCustomObject]@{
                         StatusCode       = 200
                         Content          = $restResult
@@ -242,7 +242,7 @@ InModuleScope JiraPS {
             It "passes CacheKey to Invoke-JiraMethod" {
                 $null = Get-JiraField
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $CacheKey -eq 'Fields'
                 }
             }
@@ -250,7 +250,7 @@ InModuleScope JiraPS {
             It "passes BypassCache to Invoke-JiraMethod when -Force is specified" {
                 $null = Get-JiraField -Force
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $BypassCache -eq $true
                 }
             }
@@ -258,7 +258,7 @@ InModuleScope JiraPS {
             It "passes -Force to nested Get-JiraField call when searching" {
                 $null = Get-JiraField -Field 'issuetype' -Force
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $BypassCache -eq $true
                 }
             }

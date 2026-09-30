@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/ConvertTo-AtlassianDocumentFormat/
 locale: en-US
 layout: documentation
@@ -113,7 +113,7 @@ ready to be serialized to JSON with `ConvertTo-Json -Depth 20`.
 The output must be serialized with sufficient depth (`-Depth 20` or higher)
 to preserve the nested ADF structure.
 
-This function is public because JiraPS's write commands (`New-JiraIssue`, `Set-JiraIssue`,
+This function is public because JiraPSVII's write commands (`New-JiraIssue`, `Set-JiraIssue`,
 `Add-JiraIssueComment`) currently use API v2, which accepts plain text or wiki markup.
 Users who need to write to Jira Cloud v3 endpoints via `Invoke-JiraMethod` must supply ADF.
 Making this function public lets users convert Markdown to ADF for those calls without

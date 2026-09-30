@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Set-JiraResponseHeaderLogConfiguration/
 locale: en-US
 layout: documentation
@@ -28,11 +28,11 @@ Set-JiraResponseHeaderLogConfiguration -Disable [<CommonParameters>]
 
 ## DESCRIPTION
 
-`Set-JiraResponseHeaderLogConfiguration` configures which HTTP response headers JiraPS logs when `Invoke-JiraMethod` receives a response from Jira.
+`Set-JiraResponseHeaderLogConfiguration` configures which HTTP response headers JiraPSVII logs when `Invoke-JiraMethod` receives a response from Jira.
 The configuration is disabled by default.
 After you configure it, matching headers are written to the debug stream when callers use `-Debug`.
 
-The configuration is stored in module-scoped memory, like the JiraPS response cache.
+The configuration is stored in module-scoped memory, like the JiraPSVII response cache.
 It survives normal cmdlet calls in the current module instance and is cleared when the module is forcefully reloaded.
 It is not written to disk or user profile storage.
 

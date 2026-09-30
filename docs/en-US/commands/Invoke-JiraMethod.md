@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Invoke-JiraMethod/
 locale: en-US
 layout: documentation
@@ -25,24 +25,24 @@ Invoke-JiraMethod [-URI] <uri> [[-Method] <WebRequestMethod>] [[-Body] <string>]
 
 ## DESCRIPTION
 
-Make a call to a REST Api endpoint with all the benefits of JiraPS.
+Make a call to a REST Api endpoint with all the benefits of JiraPSVII.
 
 This cmdlet is what the other cmdlets call under the hood.
 It handles the authentication, parses the response, handles exceptions from Jira, returns specific objects and handles the differences between versions of Powershell and Operating Systems.
-When you pass a relative URI path, it must start with `/` and JiraPS resolves it against `Get-JiraConfigServer`.
+When you pass a relative URI path, it must start with `/` and JiraPSVII resolves it against `Get-JiraConfigServer`.
 Absolute URIs are also accepted for compatibility with object properties like `RestURL`.
 
 Use `Set-JiraResponseHeaderLogConfiguration` to opt into response-header logging on the debug stream.
 This is useful when troubleshooting Jira Data Center diagnostic headers such as `X-AREQUESTID`, `X-ANODEID`, `X-ASESSIONID`, and `X-AUSERNAME`.
 Debug output can include diagnostic metadata such as Jira usernames, so review logs before sharing them.
-JiraPS also captures sanitized response telemetry internally for request ID, retry-after, rate-limit, deprecation, sunset, and deprecation-link headers.
+JiraPSVII also captures sanitized response telemetry internally for request ID, retry-after, rate-limit, deprecation, sunset, and deprecation-link headers.
 Deprecation and sunset metadata is surfaced as warnings; deprecation links are not followed automatically.
 HTTP 429 and 503 responses are retried with bounded jittered delays.
 
-JiraPS does not support any third-party plugins on Jira.
-This cmdlet can be used to interact with REST Api enpoints which are not already coverted in JiraPS.
-It allows for anyone to use the same technics as JiraPS uses internally for creating their own functions or modules.
-When used by a module, the Manifest (.psd1) can define the dependency to JiraPS with the 'RequiredModules' property.
+JiraPSVII does not support any third-party plugins on Jira.
+This cmdlet can be used to interact with REST Api enpoints which are not already coverted in JiraPSVII.
+It allows for anyone to use the same technics as JiraPSVII uses internally for creating their own functions or modules.
+When used by a module, the Manifest (.psd1) can define the dependency to JiraPSVII with the 'RequiredModules' property.
 This will import the module if not already loaded or even download it from the PSGallery.
 
 ## EXAMPLES
@@ -111,7 +111,7 @@ Invoke-JiraMethod @params
 ```
 
 Executes the GET request but instead of returning the response,
-it returns a `[AtlassianPS.JiraPS.Session]` which contains the `[WebRequestSession]`.
+it returns a `[AtlassianPSVII.JiraPSVII.Session]` which contains the `[WebRequestSession]`.
 
 ### Example 6
 
@@ -617,7 +617,7 @@ HelpMessage: ''
 
 ### -StoreSession
 
-Instead of returning the response, it returns a `[AtlassianPS.JiraPS.Session]` which contains the `[WebRequestSession]`.
+Instead of returning the response, it returns a `[AtlassianPSVII.JiraPSVII.Session]` which contains the `[WebRequestSession]`.
 
 ```yaml
 Type: SwitchParameter
@@ -667,7 +667,7 @@ HelpMessage: ''
 
 URI address of the REST API endpoint.
 Relative paths must start with `/`.
-When a relative path is used, JiraPS prefixes it with the configured Jira server URL.
+When a relative path is used, JiraPSVII prefixes it with the configured Jira server URL.
 Absolute URLs are still supported.
 
 ```yaml

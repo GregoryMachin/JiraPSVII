@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraTable" -Tag 'Unit' {
         BeforeAll {
             $script:n = [System.Environment]::NewLine
@@ -130,11 +130,11 @@ InModuleScope JiraPS {
             # Any deployment-aware behavior (e.g., the planned ADF wrapping in #602)
             # belongs on the write-side cmdlets, where the actual API payload is built.
             It "Does not call Test-JiraCloudServer" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
                 $null = ConvertTo-JiraTable -InputObject $obj
 
-                Should -Invoke Test-JiraCloudServer -ModuleName JiraPS -Times 0 -Exactly
+                Should -Invoke Test-JiraCloudServer -ModuleName JiraPSVII -Times 0 -Exactly
             }
 
             It "Emits no warnings on the warning stream" {
@@ -149,7 +149,7 @@ InModuleScope JiraPS {
                 $aliasCommand = Get-Command -Name Format-Jira -ErrorAction Stop
 
                 $aliasCommand.CommandType | Should -Be 'Alias'
-                $aliasCommand.Source | Should -Be 'JiraPS'
+                $aliasCommand.Source | Should -Be 'JiraPSVII'
                 $aliasCommand.Definition | Should -Be 'ConvertTo-JiraTable'
             }
 

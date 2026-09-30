@@ -2,28 +2,28 @@
 $script:_ProjectRoot = git -C $script:_TestToolsDir rev-parse --show-toplevel
 $script:_BuildRequirements = Import-PowerShellDataFile -Path (Join-Path -Path $script:_ProjectRoot -ChildPath 'Tools/build.requirements.psd1')
 $script:_StandardsRequirement = $script:_BuildRequirements |
-    Where-Object { $_.ModuleName -eq 'AtlassianPS.Standards' } |
+    Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
     Select-Object -First 1
 
 if (-not $script:_StandardsRequirement) {
-    throw 'AtlassianPS.Standards is missing from Tools/build.requirements.psd1.'
+    throw 'AtlassianPSVII.Standards is missing from Tools/build.requirements.psd1.'
 }
 
-Import-Module AtlassianPS.Standards -RequiredVersion $script:_StandardsRequirement.RequiredVersion -Force -ErrorAction Stop
+Import-Module AtlassianPSVII.Standards -RequiredVersion $script:_StandardsRequirement.RequiredVersion -Force -ErrorAction Stop
 
-# These compatibility wrappers keep existing tests readable while binding JiraPS defaults
+# These compatibility wrappers keep existing tests readable while binding JiraPSVII defaults
 # to the shared Standards primitives.
 
 function Initialize-TestEnvironment {
-    Initialize-AtlassianPSModuleTestEnvironment -ModuleName 'JiraPS' -StartPath $script:_TestToolsDir -Global
+    Initialize-AtlassianPSVIIModuleTestEnvironment -ModuleName 'JiraPSVII' -StartPath $script:_TestToolsDir -Global
 }
 
 function Resolve-ModuleSource {
-    Resolve-AtlassianPSModuleSource -ModuleName 'JiraPS' -StartPath $script:_TestToolsDir
+    Resolve-AtlassianPSVIIModuleSource -ModuleName 'JiraPSVII' -StartPath $script:_TestToolsDir
 }
 
 function Resolve-ProjectRoot {
-    Resolve-AtlassianPSProjectRoot -StartPath $script:_TestToolsDir
+    Resolve-AtlassianPSVIIProjectRoot -StartPath $script:_TestToolsDir
 }
 
 function Write-MockDebugInfo {
@@ -59,7 +59,7 @@ function Write-MockDebugInfo {
 
     .EXAMPLE
         # Basic usage in a mock
-        Mock Get-JiraFilter -ModuleName JiraPS {
+        Mock Get-JiraFilter -ModuleName JiraPSVII {
             Write-MockDebugInfo 'Get-JiraFilter' 'Id', 'Name'
             return @{ Id = $Id; Name = $Name }
         }
@@ -72,7 +72,7 @@ function Write-MockDebugInfo {
 
     .EXAMPLE
         # In Invoke-JiraMethod mock
-        Mock Invoke-JiraMethod -ModuleName JiraPS {
+        Mock Invoke-JiraMethod -ModuleName JiraPSVII {
             Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
             # ... mock implementation
         }

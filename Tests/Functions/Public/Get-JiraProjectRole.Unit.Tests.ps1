@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraProjectRole" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -24,14 +24,14 @@ InModuleScope JiraPS {
                 actors      = @([PSCustomObject]@{ displayName = 'jira-developers' })
             }
 
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Get' -and $URI -eq "/rest/api/2/project/$projectKey/role"
             } { $roleMap }
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Get' -and $URI -eq "/rest/api/2/project/$projectKey/role/10360"
             } { $roleResponse }
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 throw "Unidentified call to Invoke-JiraMethod: $Method $URI"
             }
         }
@@ -42,7 +42,7 @@ InModuleScope JiraPS {
             }
 
             It "has the expected parameter '<parameter>' of type '<type>'" -TestCases @(
-                @{ parameter = 'Project'; type = 'AtlassianPS.JiraPS.Project[]' }
+                @{ parameter = 'Project'; type = 'AtlassianPSVII.JiraPSVII.Project[]' }
                 @{ parameter = 'RoleId'; type = 'System.UInt32[]' }
                 @{ parameter = 'ExcludeInactiveUsers'; type = 'System.Management.Automation.SwitchParameter' }
                 @{ parameter = 'Credential'; type = 'System.Management.Automation.PSCredential' }
@@ -62,13 +62,13 @@ InModuleScope JiraPS {
                 $roles = Get-JiraProjectRole -Project $projectKey
 
                 @($roles) | Should -HaveCount 1
-                $roles.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.ProjectRole'
+                $roles.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.ProjectRole'
                 $roles.Id | Should -Be $roleId
                 $roles.Name | Should -Be 'Developers'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/2/project/$projectKey/role"
                 }
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/2/project/$projectKey/role/$roleId"
                 }
             }
@@ -76,7 +76,7 @@ InModuleScope JiraPS {
             It "supports direct role lookup without retrieving the role map" {
                 Get-JiraProjectRole -Project $projectKey -Id $roleId | Should -Not -BeNullOrEmpty
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 0 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 0 -ParameterFilter {
                     $URI -eq "/rest/api/2/project/$projectKey/role"
                 }
             }
@@ -84,11 +84,11 @@ InModuleScope JiraPS {
 
         Describe "Cloud deployment" {
             BeforeEach {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/role"
                 } { $roleMap }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$projectKey/role/10360"
                 } { $roleResponse }
             }
@@ -96,28 +96,28 @@ InModuleScope JiraPS {
             It "uses REST API v3 and rebuilds detail routes from numeric role IDs" {
                 $roles = Get-JiraProjectRole -Project $projectKey
 
-                $roles.GetType().FullName | Should -Be 'AtlassianPS.JiraPS.ProjectRole'
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                $roles.GetType().FullName | Should -Be 'AtlassianPSVII.JiraPSVII.ProjectRole'
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/3/project/$projectKey/role/$roleId"
                 }
             }
 
             It "escapes project path segments and forwards the inactive-user filter" {
                 $escapedProject = 'TEAM%20OPS'
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -eq "/rest/api/3/project/$escapedProject/role/$roleId"
                 } { $roleResponse }
 
                 Get-JiraProjectRole -Project 'TEAM OPS' -RoleId $roleId -ExcludeInactiveUsers
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq "/rest/api/3/project/$escapedProject/role/$roleId" -and
                     $GetParameter.excludeInactiveUsers -eq $true
                 }
             }
 
             It "propagates permission failures" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $URI -eq "/rest/api/3/project/$projectKey/role/$roleId"
                 } { throw 'Forbidden' }
 
@@ -125,7 +125,7 @@ InModuleScope JiraPS {
             }
 
             It "rejects an invalid role URL returned by Jira" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $URI -eq "/rest/api/3/project/$projectKey/role"
                 } { [PSCustomObject]@{ Developers = 'https://evil.example/roles/not-a-number' } }
 

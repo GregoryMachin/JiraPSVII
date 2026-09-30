@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraUser" -Tag 'Unit' {
 
         BeforeAll {
@@ -33,21 +33,21 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraUser -ModuleName JiraPS {
+            Mock Get-JiraUser -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraUser' 'UserName'
                 $object = ConvertFrom-Json $testJsonGet
-                $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                 return $object
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'DELETE' -and
                 $URI -eq '/rest/api/2/user' -and
                 $GetParameter.username -eq $testUsername
@@ -57,7 +57,7 @@ InModuleScope JiraPS {
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -71,7 +71,7 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = 'User'; type = 'AtlassianPS.JiraPS.User' }
+                    @{ parameter = 'User'; type = 'AtlassianPSVII.JiraPSVII.User' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'Force'; type = 'Switch' }
                 ) {
@@ -92,7 +92,7 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
 
-                It "Accepts a AtlassianPS.JiraPS.User object to the -User parameter" {
+                It "Accepts a AtlassianPSVII.JiraPSVII.User object to the -User parameter" {
                     $user = Get-JiraUser -UserName $testUsername
                     { Remove-JiraUser -User $user -Force } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
@@ -124,17 +124,17 @@ InModuleScope JiraPS {
             BeforeAll {
                 $script:testAccountId = '5b10a2844c20165700ede21a'
 
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                Mock Get-JiraUser -ModuleName JiraPS {
+                Mock Get-JiraUser -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Get-JiraUser' 'UserName'
                     $object = ConvertFrom-Json $testJsonGet
                     $object | Add-Member -MemberType NoteProperty -Name 'AccountId' -Value $testAccountId
-                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                     return $object
                 }
 
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'DELETE' -and
                     $URI -eq '/rest/api/3/user' -and
                     $GetParameter.accountId -eq $testAccountId

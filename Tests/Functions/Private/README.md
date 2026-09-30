@@ -1,10 +1,10 @@
 # Private Function Tests
 
-This directory contains unit tests for **private (internal) JiraPS functions**.
+This directory contains unit tests for **private (internal) JiraPSVII functions**.
 
 ## Test Pattern
 
-All tests in this directory follow the **converter function pattern** for private (internal) JiraPS functions.
+All tests in this directory follow the **converter function pattern** for private (internal) JiraPSVII functions.
 
 ### When to Use
 
@@ -32,7 +32,7 @@ Converter function tests focus on a single `Describe "Behavior"` block with four
 Verify that:
 
 - The function creates a valid PSObject
-- The correct type name is added (e.g., `JiraPS.Attachment`)
+- The correct type name is added (e.g., `JiraPSVII.Attachment`)
 
 ### 2. Property Mapping
 
@@ -49,7 +49,7 @@ Use data-driven tests with `-TestCases` for comprehensive property validation.
 Verify special type handling:
 
 - DateTime fields are converted from ISO strings
-- Nested objects are converted to proper custom types (e.g., `AtlassianPS.JiraPS.User`)
+- Nested objects are converted to proper custom types (e.g., `AtlassianPSVII.JiraPSVII.User`)
 - Numeric values are properly typed
 
 ### 4. Pipeline Support

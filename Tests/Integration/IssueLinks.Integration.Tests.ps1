@@ -34,7 +34,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Issue Links" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -74,7 +74,7 @@ InModuleScope JiraPS {
                 It "link types have correct type name" {
                     $linkTypes = Get-JiraIssueLinkType
 
-                    $linkTypes[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.IssueLinkType'
+                    $linkTypes[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.IssueLinkType'
                 }
 
                 It "link types have Id, Name, Inward, and Outward properties" {
@@ -85,7 +85,7 @@ InModuleScope JiraPS {
                     # `ConvertTo-JiraIssueLinkType` projects the inward/outward labels as
                     # `InwardText`/`OutwardText`. Earlier revisions of this test referenced
                     # `InwardDescription`/`OutwardDescription`, which never existed on the
-                    # JiraPS object and silently returned `$null` against any deployment.
+                    # JiraPSVII object and silently returned `$null` against any deployment.
                     $linkTypes[0].InwardText | Should -Not -BeNullOrEmpty
                     $linkTypes[0].OutwardText | Should -Not -BeNullOrEmpty
                 }
@@ -221,10 +221,10 @@ InModuleScope JiraPS {
                     }
 
                     $linkTypes = Get-JiraIssueLinkType
-                    $issueLink = [AtlassianPS.JiraPS.IssueLinkCreateRequest]@{
-                        inwardIssue  = [AtlassianPS.JiraPS.LinkedIssueRef]@{ key = $sourceIssue.Key }
-                        type         = [AtlassianPS.JiraPS.IssueLinkTypeRef]@{ name = $linkTypes[0].Name }
-                        outwardIssue = [AtlassianPS.JiraPS.LinkedIssueRef]@{ key = $targetIssue.Key }
+                    $issueLink = [AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest]@{
+                        inwardIssue  = [AtlassianPSVII.JiraPSVII.LinkedIssueRef]@{ key = $sourceIssue.Key }
+                        type         = [AtlassianPSVII.JiraPSVII.IssueLinkTypeRef]@{ name = $linkTypes[0].Name }
+                        outwardIssue = [AtlassianPSVII.JiraPSVII.LinkedIssueRef]@{ key = $targetIssue.Key }
                     }
 
                     { Add-JiraIssueLink -IssueLink $issueLink } |
@@ -247,10 +247,10 @@ InModuleScope JiraPS {
                         return
                     }
 
-                    $issueLink = [AtlassianPS.JiraPS.IssueLinkCreateRequest]@{
-                        type         = [AtlassianPS.JiraPS.IssueLinkTypeRef]@{ id = $linkTypeId }
-                        inwardIssue  = [AtlassianPS.JiraPS.LinkedIssueRef]@{ id = $sourceIssueFull.Id }
-                        outwardIssue = [AtlassianPS.JiraPS.LinkedIssueRef]@{ id = $targetIssueFull.Id }
+                    $issueLink = [AtlassianPSVII.JiraPSVII.IssueLinkCreateRequest]@{
+                        type         = [AtlassianPSVII.JiraPSVII.IssueLinkTypeRef]@{ id = $linkTypeId }
+                        inwardIssue  = [AtlassianPSVII.JiraPSVII.LinkedIssueRef]@{ id = $sourceIssueFull.Id }
+                        outwardIssue = [AtlassianPSVII.JiraPSVII.LinkedIssueRef]@{ id = $targetIssueFull.Id }
                     }
 
                     { Add-JiraIssueLink -IssueLink $issueLink } |
@@ -322,7 +322,7 @@ InModuleScope JiraPS {
                     $linkId = $issue.issueLinks[0].Id
                     $link = Get-JiraIssueLink -Id $linkId
 
-                    $link.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.IssueLink'
+                    $link.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.IssueLink'
                 }
 
                 It "link includes type information" {

@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraServerInformation" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -31,18 +31,18 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $restResult
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -74,11 +74,11 @@ InModuleScope JiraPS {
             It "answers to the alias 'Get-JiraServerInfo'" {
                 $thisAlias = (Get-Alias -Name "Get-JiraServerInfo")
                 $thisAlias.ResolvedCommandName | Should -Be "Get-JiraServerInformation"
-                $thisAlias.ModuleName | Should -Be "JiraPS"
+                $thisAlias.ModuleName | Should -Be "JiraPSVII"
             }
 
             It "throws an actionable error when auto-detection fails without explicit metadata" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
                     throw 'response-body-that-must-not-leak'
                 }
 
@@ -97,20 +97,20 @@ InModuleScope JiraPS {
             It "returns explicit deployment metadata when server information cannot be retrieved" {
                 $script:JiraServerUrl = [Uri]'https://example.atlassian.net/'
                 $script:JiraServerMetadata = @{ DeploymentType = 'Cloud' }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
                     throw 'simulated network failure'
                 }
 
                 $serverInfo = Get-JiraServerInformation
 
-                $serverInfo | Should -BeOfType [AtlassianPS.JiraPS.ServerInfo]
+                $serverInfo | Should -BeOfType [AtlassianPSVII.JiraPSVII.ServerInfo]
                 $serverInfo.DeploymentType | Should -Be 'Cloud'
                 $serverInfo.BaseURL | Should -Be 'https://example.atlassian.net/'
             }
 
             It "uses cached server information before auto-detection" {
-                $script:JiraServerInfo = [AtlassianPS.JiraPS.ServerInfo]@{ DeploymentType = 'DataCenter'; Version = '9.12.0' }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
+                $script:JiraServerInfo = [AtlassianPSVII.JiraPSVII.ServerInfo]@{ DeploymentType = 'DataCenter'; Version = '9.12.0' }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/serverInfo" } {
                     throw 'auto-detection should not run'
                 }
 
@@ -118,7 +118,7 @@ InModuleScope JiraPS {
 
                 $serverInfo.DeploymentType | Should -Be 'DataCenter'
                 $serverInfo.Version | Should -Be '9.12.0'
-                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 0 -Scope It
+                Should -Invoke -CommandName Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 0 -Scope It
             }
         }
 

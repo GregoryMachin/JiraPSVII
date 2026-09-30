@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraFilterPermission" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -112,11 +112,11 @@ InModuleScope JiraPS {
                     $result | Should -HaveCount 4
                 }
 
-                It "returns AtlassianPS.JiraPS.FilterPermission for each item" {
-                    $result[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.FilterPermission'
-                    $result[1].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.FilterPermission'
-                    $result[2].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.FilterPermission'
-                    $result[3].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.FilterPermission'
+                It "returns AtlassianPSVII.JiraPSVII.FilterPermission for each item" {
+                    $result[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.FilterPermission'
+                    $result[1].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.FilterPermission'
+                    $result[2].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.FilterPermission'
+                    $result[3].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.FilterPermission'
                 }
             }
 
@@ -163,16 +163,16 @@ InModuleScope JiraPS {
                     $script:result = ConvertTo-JiraFilterPermission -InputObject $sampleObject
                 }
 
-                It "converts nested Project to 'AtlassianPS.JiraPS.Project' type" {
-                    $result[1].Project.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Project'
+                It "converts nested Project to 'AtlassianPSVII.JiraPSVII.Project' type" {
+                    $result[1].Project.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Project'
                 }
 
-                It "converts nested Role to 'JiraPS.ProjectRole' type" {
-                    $result[2].Role.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.ProjectRole'
+                It "converts nested Role to 'JiraPSVII.ProjectRole' type" {
+                    $result[2].Role.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.ProjectRole'
                 }
 
-                It "converts nested Group to 'AtlassianPS.JiraPS.Group' type" {
-                    $result[3].Group.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Group'
+                It "converts nested Group to 'AtlassianPSVII.JiraPSVII.Group' type" {
+                    $result[3].Group.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Group'
                 }
 
                 It "converts Id to numeric type" {

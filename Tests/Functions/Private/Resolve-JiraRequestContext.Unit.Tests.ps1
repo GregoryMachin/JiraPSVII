@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraRequestContext" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -35,7 +35,7 @@ InModuleScope JiraPS {
         }
 
         It "resolves a relative URI against the configured Jira server and applies default page size" {
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://jira.example.com' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'https://jira.example.com' }
 
             $result = Invoke-ResolveJiraRequestContext -Uri '/rest/api/2/search'
 
@@ -70,13 +70,13 @@ InModuleScope JiraPS {
         }
 
         It "throws when a relative URI is used without a configured Jira server" {
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { $null }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { $null }
 
             { Invoke-ResolveJiraRequestContext -Uri '/rest/api/2/search' } | Should -Throw -ExpectedMessage "*no Jira server is configured*"
         }
 
         It "throws when resolving a relative URI still results in a non-absolute URI" {
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'jira.example.com' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'jira.example.com' }
 
             { Invoke-ResolveJiraRequestContext -Uri '/rest/api/2/search' } | Should -Throw -ExpectedMessage "*must be an absolute URI*"
         }
@@ -87,7 +87,7 @@ InModuleScope JiraPS {
                 AuthenticationType = 'OAuth'
                 CloudId            = '11223344-a1b2-3b33-c444-def123456789'
             }
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://example.atlassian.net' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'https://example.atlassian.net' }
 
             $result = Invoke-ResolveJiraRequestContext -Uri '/rest/api/3/myself'
 
@@ -100,7 +100,7 @@ InModuleScope JiraPS {
                 AuthenticationType = 'ApiToken'
                 CloudId            = '11223344-a1b2-3b33-c444-def123456789'
             }
-            Mock Get-JiraConfigServer -ModuleName 'JiraPS' { 'https://example.atlassian.net' }
+            Mock Get-JiraConfigServer -ModuleName 'JiraPSVII' { 'https://example.atlassian.net' }
 
             $result = Invoke-ResolveJiraRequestContext -Uri '/rest/api/3/project/search'
 

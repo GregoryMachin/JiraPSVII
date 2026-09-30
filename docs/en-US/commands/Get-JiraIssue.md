@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraIssue/
 locale: en-US
 layout: documentation
@@ -402,12 +402,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue / String
+### AtlassianPSVII.JiraPSVII.Issue / String
 
 The `-Key` parameter accepts pipeline input by property name.
 This means:
 
-- If a AtlassianPS.JiraPS.Issue object is piped, its `Key` property is bound to the `-Key` parameter.
+- If a AtlassianPSVII.JiraPSVII.Issue object is piped, its `Key` property is bound to the `-Key` parameter.
 - If a String is passed, this function searches for an issue with that issue key or internal ID.
 - If an Object with a `Key` property is piped, that property value is used.
 
@@ -415,7 +415,7 @@ This enables patterns like `Get-JiraIssue TEST-1 | Get-JiraIssue` to refresh iss
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 ## NOTES
 
@@ -425,8 +425,8 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 
 ## RELATED LINKS
 
-[about_JiraPS_CreatingIssues](../../about/creating-issues.html)
+[about_JiraPSVII_CreatingIssues](../../about/creating-issues.html)
 
-[about_JiraPS_CustomFields](../../about/custom-fields.html)
+[about_JiraPSVII_CustomFields](../../about/custom-fields.html)
 
 [New-JiraIssue](../New-JiraIssue/)

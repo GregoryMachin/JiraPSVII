@@ -17,4 +17,4 @@ jobs:
           repository: AtlassianPS/AtlassianPS.github.io
           event-type: module-release
           client-payload: >-
-            {"module":"JiraPS","version":"${{ github.event.release.tag_name }}"}
+            {"module":"JiraPSVII","version":"${{ github.event.release.tag_name }}"}

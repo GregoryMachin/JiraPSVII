@@ -10,7 +10,7 @@
     Used by the Server-track integration tests (the `server_integration_tests` job in
     .github/workflows/integration_tests.yml and the StartJiraDocker build task) to bring up Atlassian Jira inside the moveworkforward/atlas-run-standalone
     Docker container (Atlassian Plugin SDK 9.6.0 + Jira Software 11.0.1) and seed the
-    fixtures the integration test suite then exercises through the JiraPS module.
+    fixtures the integration test suite then exercises through the JiraPSVII module.
 
     The script:
 
@@ -38,7 +38,7 @@
          $env:GITHUB_ENV so downstream test steps see them.
 
     AGENTS.md mandates that all HTTP traffic from the module flow through Invoke-JiraMethod.
-    This script is the documented exception: it runs *before* the JiraPS module is imported
+    This script is the documented exception: it runs *before* the JiraPSVII module is imported
     (the module is not yet usable because Jira itself is not yet reachable), and it provisions
     fixtures the integration test suite then exercises through the module. Treat this file as
     test infrastructure, not module code.
@@ -92,7 +92,7 @@
 #>
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Test infrastructure: provisions a known-secret test user against a local Docker container, not a real instance')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '', Justification = 'Defaults match the moveworkforward/atlas-run-standalone image used in CI; never used against a real instance')]
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeRestMethod', '', Justification = 'Test infrastructure runs before the JiraPS module is loaded; AGENTS.md documents this as the one allowed Invoke-RestMethod site')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingInvokeRestMethod', '', Justification = 'Test infrastructure runs before the JiraPSVII module is loaded; AGENTS.md documents this as the one allowed Invoke-RestMethod site')]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingWriteHost', '', Justification = 'Diagnostic CI script: this file runs in the server_integration_tests job of integration_tests.yml and in StartJiraDocker where the operator (CI logs / interactive shell) is the consumer. Write-Host is the correct primitive for prompt-style status banners ("==> ...", "    attempt N: ..."). Write-Output would pollute the script''s return value; Write-Verbose/-Information would be hidden by default in CI logs and obscure the boot/probe progress that humans actively read.')]
 [CmdletBinding()]
 param(
@@ -115,7 +115,7 @@ param(
     [string]$ProjectKey = $(if ($env:JIRA_TEST_PROJECT) { $env:JIRA_TEST_PROJECT } else { 'TEST' }),
 
     [Parameter()]
-    [string]$ProjectName = $(if ($env:JIRA_TEST_PROJECT_NAME) { $env:JIRA_TEST_PROJECT_NAME } else { 'JiraPS Integration Tests' }),
+    [string]$ProjectName = $(if ($env:JIRA_TEST_PROJECT_NAME) { $env:JIRA_TEST_PROJECT_NAME } else { 'JiraPSVII Integration Tests' }),
 
     [Parameter()]
     [int]$TimeoutSeconds = 1200,
@@ -179,7 +179,7 @@ Write-Host "==> Provisioning normal test user '$NormalUser' via $userApiUrl"
 $body = @{
     name         = $NormalUser
     emailAddress = "$NormalUser@example.com"
-    displayName  = 'JiraPS Integration Test User'
+    displayName  = 'JiraPSVII Integration Test User'
     password     = $NormalPassword
 } | ConvertTo-Json -Compress
 
@@ -472,7 +472,7 @@ foreach ($pair in $candidatePairs) {
         projectTemplateKey = $pair.ProjectTemplateKey
         lead               = $AdminUser
         assigneeType       = 'PROJECT_LEAD'
-        description        = 'Created by Tools/Wait-JiraServer.ps1 for JiraPS integration tests. Safe to delete.'
+        description        = 'Created by Tools/Wait-JiraServer.ps1 for JiraPSVII integration tests. Safe to delete.'
         notificationScheme = $notificationScheme
     }
     if ($permissionScheme) { $payload['permissionScheme'] = $permissionScheme }
@@ -557,7 +557,7 @@ foreach ($itName in ($issueTypeCandidates | Select-Object -Unique)) {
     $issueBody = @{
         fields = @{
             project     = @{ key = $ProjectKey }
-            summary     = 'JiraPS-IntTest-Baseline'
+            summary     = 'JiraPSVII-IntTest-Baseline'
             issuetype   = @{ name = $itName }
             description = 'Baseline issue created by Tools/Wait-JiraServer.ps1. Safe to delete.'
         }

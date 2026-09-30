@@ -6,14 +6,14 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-ErrorWebResponse" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
         }
 
         BeforeEach {
-            Mock WriteError -ModuleName JiraPS {}
+            Mock WriteError -ModuleName JiraPSVII {}
         }
 
         It "writes field-level errors returned via the Jira errors object" {
@@ -36,7 +36,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter {
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                 $ErrorId -eq 'InvalidResponse.Status400' -and
                 $Category -eq 'InvalidResult' -and
                 $Message -eq 'attachment: Attachment is required.'
@@ -63,9 +63,9 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 2
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'Top-level failure' }
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'Second failure' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 2
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'Top-level failure' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'Second failure' }
         }
 
         It "writes the Jira message property when present" {
@@ -88,7 +88,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'Cloud validation failed.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'Cloud validation failed.' }
         }
 
         It "writes each field-level error when Jira returns multiple errors" {
@@ -111,9 +111,9 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 2
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'attachment: Attachment is required.' }
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'customfield_10001: Approver is required.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 2
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'attachment: Attachment is required.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'customfield_10001: Approver is required.' }
         }
 
         It "writes both top-level and field-level errors when Jira returns both payload shapes" {
@@ -136,9 +136,9 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 2
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'Top-level failure' }
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'attachment: Attachment is required.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 2
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'Top-level failure' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'attachment: Attachment is required.' }
         }
 
         It "writes the raw response body when the response is not valid JSON" {
@@ -161,7 +161,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'This is not JSON.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'This is not JSON.' }
         }
 
         It "writes a generic error when the JSON contains no usable error payload" {
@@ -184,7 +184,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'An unknown error occurred.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'An unknown error occurred.' }
         }
 
         It "writes a generic error when Jira returns empty errorMessages and errors payloads" {
@@ -207,7 +207,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::BadRequest) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter { $Message -eq 'An unknown error occurred.' }
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter { $Message -eq 'An unknown error occurred.' }
         }
 
         It "adds API token and scope guidance for authorization failures without exposing secrets" {
@@ -230,7 +230,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::Forbidden) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter {
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                 $Message -like '*Forbidden*API-token scopes*OAuth scopes*project permissions*issue security*' -and
                 $Message -notmatch 'Authorization|Bearer|Basic|ATSTT|token-secret'
             }
@@ -256,7 +256,7 @@ InModuleScope JiraPS {
                 Resolve-ErrorWebResponse -Exception $exception -StatusCode ([System.Net.HttpStatusCode]::Unauthorized) -Cmdlet $PSCmdlet
             } -ResponseBody $responseBody
 
-            Should -Invoke -CommandName WriteError -ModuleName JiraPS -Times 1 -ParameterFilter {
+            Should -Invoke -CommandName WriteError -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                 $Message -like '*Unauthorized*API token is valid and not revoked*OAuth token/client credentials*required Jira scopes*'
             }
         }

@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Set-JiraIssue/
 locale: en-US
 layout: documentation
@@ -235,11 +235,11 @@ HelpMessage: ''
 
 Any additional fields that should be updated.
 
-When you provide field names in `-Fields`, JiraPS first resolves them against edit metadata returned by `Get-JiraIssueEditMetadata` for the target issue.
-If a provided key is not present in that scoped metadata, JiraPS falls back to the global `Get-JiraField` catalogue.
+When you provide field names in `-Fields`, JiraPSVII first resolves them against edit metadata returned by `Get-JiraIssueEditMetadata` for the target issue.
+If a provided key is not present in that scoped metadata, JiraPSVII falls back to the global `Get-JiraField` catalogue.
 Using scoped metadata first avoids ambiguous name matching when duplicate custom-field display names exist across projects.
 
-Inspect [about_JiraPS_CustomFields](../../about/custom-fields.html) for more information.
+Inspect [about_JiraPSVII_CustomFields](../../about/custom-fields.html) for more information.
 
 On **Jira Cloud**, string values supplied for rich-text fields (`description`, `environment`, and custom textarea fields with schema type `doc`) are interpreted as Markdown and converted to Atlassian Document Format (ADF) before being sent, matching the behaviour of the explicit `-Description` parameter.
 Plain string fields, numeric fields, dates, etc. are forwarded as-is.
@@ -289,7 +289,7 @@ HelpMessage: ''
 
 Issue to be changed.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -475,11 +475,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue / String / Int
+### AtlassianPSVII.JiraPSVII.Issue / String / Int
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Issue
+### AtlassianPSVII.JiraPSVII.Issue
 
 If the `-PassThru` parameter is provided,
 this function will provide a reference to the JIRA issue modified.
@@ -493,9 +493,9 @@ If neither are supplied, this function will run with anonymous access to JIRA.
 
 ## RELATED LINKS
 
-[about_JiraPS_UpdatingIssues](../../about/updating-issues.html)
+[about_JiraPSVII_UpdatingIssues](../../about/updating-issues.html)
 
-[about_JiraPS_CustomFields](../../about/custom-fields.html)
+[about_JiraPSVII_CustomFields](../../about/custom-fields.html)
 
 [Get-JiraIssueEditMetadata](../Get-JiraIssueEditMetadata/)
 

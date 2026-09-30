@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Resolve-JiraOAuthBaseUri" -Tag 'Unit' {
         It "constructs the fixed Atlassian Jira OAuth base route" {
             $result = Resolve-JiraOAuthBaseUri -CloudId '11223344-a1b2-3b33-c444-def123456789'

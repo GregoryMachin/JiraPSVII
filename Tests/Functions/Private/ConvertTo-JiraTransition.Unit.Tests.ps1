@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraTransition" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -58,9 +58,9 @@ InModuleScope JiraPS {
                     $result | Should -Not -BeNullOrEmpty
                 }
 
-                It "returns AtlassianPS.JiraPS.Transition" {
-                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Transition'
-                    $result | Should -BeOfType [AtlassianPS.JiraPS.Transition]
+                It "returns AtlassianPSVII.JiraPSVII.Transition" {
+                    $result.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Transition'
+                    $result | Should -BeOfType [AtlassianPSVII.JiraPSVII.Transition]
                 }
             }
 
@@ -77,7 +77,7 @@ InModuleScope JiraPS {
                     $result.Name | Should -Be $tName
                 }
 
-                It "defines 'ResultStatus' property as JiraPS.Status object" {
+                It "defines 'ResultStatus' property as JiraPSVII.Status object" {
                     $result.ResultStatus.Id | Should -Be $tRId
                     $result.ResultStatus.Name | Should -Be $tRName
                 }
@@ -93,8 +93,8 @@ InModuleScope JiraPS {
                     $result.Id.GetType() | Should -BeIn @([int], [long], [int64])
                 }
 
-                It "converts ResultStatus to JiraPS.Status type" {
-                    $result.ResultStatus.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Status'
+                It "converts ResultStatus to JiraPSVII.Status type" {
+                    $result.ResultStatus.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Status'
                 }
             }
 

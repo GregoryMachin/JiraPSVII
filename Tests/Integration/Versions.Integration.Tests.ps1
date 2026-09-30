@@ -14,7 +14,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Versions" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -112,7 +112,7 @@ InModuleScope JiraPS {
                     $versions = Get-JiraVersion -Project $fixtures.TestProject
 
                     if ($versions) {
-                        @($versions)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Version'
+                        @($versions)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Version'
                     }
                 }
             }
@@ -164,7 +164,7 @@ InModuleScope JiraPS {
                     $version = New-JiraVersion -Project $fixtures.TestProject -Name $versionName
                     $null = $script:createdVersions.Add($version)
 
-                    $version.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Version'
+                    $version.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Version'
                 }
             }
 

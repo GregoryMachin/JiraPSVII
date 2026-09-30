@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "ConvertTo-JiraFieldAssignment" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -44,12 +44,12 @@ InModuleScope JiraPS {
         }
 
         BeforeEach {
-            Mock Get-JiraField -ModuleName JiraPS {
+            Mock Get-JiraField -ModuleName JiraPSVII {
                 @($fallbackField, $anotherFallbackField, $richTextField)
             }
 
-            Mock Test-JiraRichTextField -ModuleName JiraPS { $false }
-            Mock Resolve-JiraTextFieldPayload -ModuleName JiraPS { "ADF:$Text" }
+            Mock Test-JiraRichTextField -ModuleName JiraPSVII { $false }
+            Mock Resolve-JiraTextFieldPayload -ModuleName JiraPSVII { "ADF:$Text" }
         }
 
         It "resolves scoped fields without fetching the global field list" {
@@ -58,7 +58,7 @@ InModuleScope JiraPS {
             $result | Should -HaveCount 1
             $result[0].Id | Should -Be 'customfield_10001'
             $result[0].Value | Should -Be 'scoped value'
-            Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 0
+            Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 0
         }
 
         It "fetches the global field list at most once for multiple unscoped fields" {
@@ -70,32 +70,32 @@ InModuleScope JiraPS {
             $result | Should -HaveCount 2
             @($result.Id) | Should -Contain 'customfield_20001'
             @($result.Id) | Should -Contain 'customfield_20002'
-            Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 1
+            Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 1
         }
 
         It "wraps Cloud rich-text string values via Resolve-JiraTextFieldPayload" {
-            Mock Get-JiraField -ModuleName JiraPS { @($richTextField) }
-            Mock Test-JiraRichTextField -ModuleName JiraPS -ParameterFilter { $Field.Id -eq 'description' } { $true }
+            Mock Get-JiraField -ModuleName JiraPSVII { @($richTextField) }
+            Mock Test-JiraRichTextField -ModuleName JiraPSVII -ParameterFilter { $Field.Id -eq 'description' } { $true }
 
             $result = ConvertTo-JiraFieldAssignment -Fields @{ description = 'Hello world' } -ScopedMeta @() -IsCloud $true -FallbackFieldFetcher { Get-JiraField }
 
             $result | Should -HaveCount 1
             $result[0].Value | Should -Be 'ADF:Hello world'
-            Should -Invoke Resolve-JiraTextFieldPayload -ModuleName JiraPS -Exactly -Times 1
+            Should -Invoke Resolve-JiraTextFieldPayload -ModuleName JiraPSVII -Exactly -Times 1
         }
 
         It "leaves non-string values unchanged on Cloud" {
-            Mock Get-JiraField -ModuleName JiraPS { @($richTextField) }
-            Mock Test-JiraRichTextField -ModuleName JiraPS -ParameterFilter { $Field.Id -eq 'description' } { $true }
+            Mock Get-JiraField -ModuleName JiraPSVII { @($richTextField) }
+            Mock Test-JiraRichTextField -ModuleName JiraPSVII -ParameterFilter { $Field.Id -eq 'description' } { $true }
 
             $result = ConvertTo-JiraFieldAssignment -Fields @{ description = @{ text = 'already structured' } } -ScopedMeta @() -IsCloud $true -FallbackFieldFetcher { Get-JiraField }
 
             $result[0].Value.text | Should -Be 'already structured'
-            Should -Invoke Resolve-JiraTextFieldPayload -ModuleName JiraPS -Exactly -Times 0
+            Should -Invoke Resolve-JiraTextFieldPayload -ModuleName JiraPSVII -Exactly -Times 0
         }
 
         It "preserves ambiguity failures from Resolve-JiraField" {
-            Mock Get-JiraField -ModuleName JiraPS { @($dupeField1, $dupeField2) }
+            Mock Get-JiraField -ModuleName JiraPSVII { @($dupeField1, $dupeField2) }
 
             {
                 ConvertTo-JiraFieldAssignment -Fields @{ Duplicate = 'value' } -ScopedMeta @() -IsCloud $false -FallbackFieldFetcher { Get-JiraField } -ErrorAction Stop
@@ -113,7 +113,7 @@ InModuleScope JiraPS {
 
             $result | Should -HaveCount 1
             $result[0].Id | Should -Be 'customfield_10001'
-            Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 0
+            Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 0
         }
     }
 }

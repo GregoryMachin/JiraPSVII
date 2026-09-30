@@ -12,9 +12,9 @@ Describe "Remove-JiraSession" -Tag 'Unit' {
         #endregion Definitions
 
         #region Mocks
-        Mock Get-JiraSession -ModuleName JiraPS {
+        Mock Get-JiraSession -ModuleName JiraPSVII {
             Write-MockDebugInfo 'Get-JiraSession'
-            (Get-Module JiraPS).PrivateData.Session
+            (Get-Module JiraPSVII).PrivateData.Session
         }
         #endregion Mocks
     }
@@ -44,7 +44,7 @@ Describe "Remove-JiraSession" -Tag 'Unit' {
 
     Describe "Behavior" {
         Context "Session Cleanup" {
-            It "Closes and removes the AtlassianPS.JiraPS.Session data from module PrivateData" {
+            It "Closes and removes the AtlassianPSVII.JiraPSVII.Session data from module PrivateData" {
                 $commandModule = (Get-Command Remove-JiraSession).Module
                 $commandModule.PrivateData = @{ Session = $true }
                 $commandModule.SessionState.PSVariable.Set('JiraOAuthResourceCache', @{ Data = @('site') })

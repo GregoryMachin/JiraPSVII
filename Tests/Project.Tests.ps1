@@ -9,12 +9,12 @@ BeforeDiscovery {
 
 Describe "General project validation" -Tag Unit {
     BeforeDiscovery {
-        $script:module = Get-Module 'JiraPS'
+        $script:module = Get-Module 'JiraPSVII'
 
         $script:testFiles = Get-ChildItem $PSScriptRoot -Include "*.Tests.ps1" -Recurse
 
-        $script:publicFunctionFiles = (Get-ChildItem "$moduleRoot/JiraPS/Public/*.ps1").BaseName
-        $script:privateFunctionFiles = (Get-ChildItem "$moduleRoot/JiraPS/Private/*.ps1").BaseName
+        $script:publicFunctionFiles = (Get-ChildItem "$moduleRoot/JiraPSVII/Public/*.ps1").BaseName
+        $script:privateFunctionFiles = (Get-ChildItem "$moduleRoot/JiraPSVII/Private/*.ps1").BaseName
 
         # Use the loaded module's actual exported-function set instead of the
         # static manifest. Source manifests carry `FunctionsToExport = '*'`
@@ -71,7 +71,7 @@ Describe "General project validation" -Tag Unit {
 
     <#
     Describe "Classes" {
-        foreach ($class in ([AtlassianPS.ServerData].Assembly.GetTypes() | Where-Object IsClass)) {
+        foreach ($class in ([AtlassianPSVII.ServerData].Assembly.GetTypes() | Where-Object IsClass)) {
             It "has a test file for $class" {
                 $expectedTestFile = "$class.Unit.Tests.ps1"
                 $testFiles.Name | Should -Contain $expectedTestFile
@@ -80,7 +80,7 @@ Describe "General project validation" -Tag Unit {
     }
 
     Describe "Enumeration" {
-        foreach ($enum in ([AtlassianPS.ServerData].Assembly.GetTypes() | Where-Object IsEnum)) {
+        foreach ($enum in ([AtlassianPSVII.ServerData].Assembly.GetTypes() | Where-Object IsEnum)) {
             It "has a test file for $enum" {
                 $expectedTestFile = "$enum.Unit.Tests.ps1"
                 $testFiles.Name | Should -Contain $expectedTestFile
@@ -92,7 +92,7 @@ Describe "General project validation" -Tag Unit {
     Describe "Project stucture" {
         It "only exports functions from the Public folder" {
             foreach ($exportedFunctionName in $exportedFunctionNames) {
-                $publicFunctionFiles | Should -Contain $exportedFunctionName -Because "exported function '$exportedFunctionName' should have a corresponding file in JiraPS/Public/"
+                $publicFunctionFiles | Should -Contain $exportedFunctionName -Because "exported function '$exportedFunctionName' should have a corresponding file in JiraPSVII/Public/"
             }
         }
 
@@ -107,7 +107,7 @@ Describe "General project validation" -Tag Unit {
             # baseline: unlike the Public-folder-consistency checks above (which only catch a
             # folder/export mismatch), this catches an unreviewed addition or removal of a
             # public command, since updating the manifest is the explicit approval step.
-            $manifestData = Import-PowerShellDataFile -Path "$moduleRoot/JiraPS/JiraPS.psd1"
+            $manifestData = Import-PowerShellDataFile -Path "$moduleRoot/JiraPSVII/JiraPSVII.psd1"
             $manifestData.FunctionsToExport | Should -Not -Be '*'
             Compare-Object -ReferenceObject ($manifestData.FunctionsToExport | Sort-Object) -DifferenceObject ($publicFunctionFiles | Sort-Object) |
                 Should -BeNullOrEmpty

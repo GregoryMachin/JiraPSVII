@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraOAuthResource/
 locale: en-US
 layout: documentation
@@ -130,7 +130,7 @@ HelpMessage: ''
 ### -OAuthAccessToken
 
 A caller-supplied OAuth access token stored as a `SecureString`.
-Omit it to use the current JiraPS OAuth session.
+Omit it to use the current JiraPSVII OAuth session.
 
 ```yaml
 Type: SecureString
@@ -205,7 +205,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.OAuthResource
+### AtlassianPSVII.JiraPSVII.OAuthResource
 
 ## NOTES
 

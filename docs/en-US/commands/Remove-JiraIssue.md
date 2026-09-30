@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Remove-JiraIssue/
 locale: en-US
 layout: documentation
@@ -156,7 +156,7 @@ HelpMessage: ''
 
 ### -InputObject
 
-One or more issues to delete, specified as `AtlassianPS.JiraPS.Issue` objects (e.g.
+One or more issues to delete, specified as `AtlassianPSVII.JiraPSVII.Issue` objects (e.g.
 from `Get-JiraIssue`)
 
 ```yaml
@@ -237,7 +237,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### AtlassianPS.JiraPS.Issue / String
+### AtlassianPSVII.JiraPSVII.Issue / String
 
 
 ## OUTPUTS

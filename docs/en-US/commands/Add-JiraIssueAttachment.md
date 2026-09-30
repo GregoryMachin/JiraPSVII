@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraIssueAttachment/
 locale: en-US
 layout: documentation
@@ -115,7 +115,7 @@ HelpMessage: ''
 
 Issue to which to attach the file.
 
-Can be a `AtlassianPS.JiraPS.Issue` object, issue key, or internal issue ID.
+Can be a `AtlassianPSVII.JiraPSVII.Issue` object, issue key, or internal issue ID.
 
 ```yaml
 Type: Issue
@@ -194,7 +194,7 @@ Pipe one or more file paths to attach to the issue.
 
 ## OUTPUTS
 
-### JiraPS.Attachment
+### JiraPSVII.Attachment
 
 This function outputs the results of the attachment add.
 

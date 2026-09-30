@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Remove-JiraIssue" -Tag 'Unit' {
 
         BeforeAll {
@@ -196,7 +196,7 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
@@ -205,7 +205,7 @@ InModuleScope JiraPS {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
                 $raw = $TestIssueJSONs[$Key] | ConvertFrom-Json
 
-                $obj = [AtlassianPS.JiraPS.Issue]@{
+                $obj = [AtlassianPSVII.JiraPSVII.Issue]@{
                     ID      = $raw.id
                     Key     = $raw.key
                     RestUrl = $raw.self
@@ -217,12 +217,12 @@ InModuleScope JiraPS {
                 return $obj
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $URI -like "/rest/api/*/issue/TEST-1?*" -and $Method -eq "Delete" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $URI -like "/rest/api/*/issue/TEST-1?*" -and $Method -eq "Delete" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 return $null
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $URI -like "/rest/api/*/issue/TEST-2?deleteSubTasks=False" -and $Method -eq "Delete" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $URI -like "/rest/api/*/issue/TEST-2?deleteSubTasks=False" -and $Method -eq "Delete" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 $MockedResponse = @"
             {
@@ -244,13 +244,13 @@ InModuleScope JiraPS {
                 $PSCmdlet.WriteError($errorItem)
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $URI -like "/rest/api/*/issue/TEST-2?deleteSubTasks=True" -and $Method -eq "Delete" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $URI -like "/rest/api/*/issue/TEST-2?deleteSubTasks=True" -and $Method -eq "Delete" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 return $null
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -265,7 +265,7 @@ InModuleScope JiraPS {
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
                     @{ parameter = 'IssueId'; type = 'String[]' }
-                    @{ parameter = 'InputObject'; type = 'AtlassianPS.JiraPS.Issue' }
+                    @{ parameter = 'InputObject'; type = 'AtlassianPSVII.JiraPSVII.Issue' }
                     @{ parameter = 'IncludeSubTasks'; type = 'Switch' }
                     @{ parameter = 'Credential'; type = 'PSCredential' }
                     @{ parameter = 'Force'; type = 'Switch' }
@@ -295,7 +295,7 @@ InModuleScope JiraPS {
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
 
-                It "Accepts a AtlassianPS.JiraPS.Issue object over the pipeline" {
+                It "Accepts a AtlassianPSVII.JiraPSVII.Issue object over the pipeline" {
                     { Get-JiraIssue -Key TEST-1 | Remove-JiraIssue -Force } | Should -Not -Throw
                     Should -Invoke -CommandName Invoke-JiraMethod -Exactly -Times 1
                 }
@@ -323,7 +323,7 @@ InModuleScope JiraPS {
 
             Context "Negative cases" {
                 It "Validates pipeline input" {
-                    { @{id = 1 } | Remove-JiraIssue -ErrorAction Stop } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
+                    { @{id = 1 } | Remove-JiraIssue -ErrorAction Stop } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
                 }
             }
         }

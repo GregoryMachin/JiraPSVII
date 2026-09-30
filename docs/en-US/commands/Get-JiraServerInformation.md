@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraServerInformation/
 locale: en-US
 layout: documentation
@@ -26,10 +26,10 @@ The result is cached for 5 minutes to improve performance.
 Use the `-Force` parameter to bypass the cache and re-fetch from the server.
 You can also use `Clear-JiraCache -Type ServerInfo` to manually clear the cache.
 
-The returned object includes a `DeploymentType` property (`Cloud`, `DataCenter`, or `Server`) that JiraPS uses internally to adapt API calls for Jira Cloud vs.
+The returned object includes a `DeploymentType` property (`Cloud`, `DataCenter`, or `Server`) that JiraPSVII uses internally to adapt API calls for Jira Cloud vs.
 Data Center/Server.
-If explicit deployment metadata was supplied through `Set-JiraConfigServer`, JiraPS can use that metadata when `/serverInfo` is unavailable.
-If no explicit metadata exists and the API call fails, JiraPS raises an actionable error instead of assuming Server.
+If explicit deployment metadata was supplied through `Set-JiraConfigServer`, JiraPSVII can use that metadata when `/serverInfo` is unavailable.
+If no explicit metadata exists and the API call fails, JiraPSVII raises an actionable error instead of assuming Server.
 If the response lacks a `deploymentType` field, `DeploymentType` still defaults to `Server` for older Jira Server versions.
 
 ## EXAMPLES
@@ -116,7 +116,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.ServerInfo
+### AtlassianPSVII.JiraPSVII.ServerInfo
 
 ## NOTES
 
@@ -128,10 +128,10 @@ The result is cached for 5 minutes after the first successful call.
 Subsequent calls return the cached value without making an API request.
 Use `-Force` to manually refresh the cache, or `Clear-JiraCache -Type ServerInfo` to clear it.
 If the API call fails and no explicit deployment metadata was supplied,
-JiraPS raises an error that asks you to configure `DeploymentType` metadata or fix the Jira URL, network, or authentication failure.
+JiraPSVII raises an error that asks you to configure `DeploymentType` metadata or fix the Jira URL, network, or authentication failure.
 The error does not include server response bodies or credentials.
 
-JiraPS uses `DeploymentType` to determine whether to use Cloud-specific
+JiraPSVII uses `DeploymentType` to determine whether to use Cloud-specific
 API behavior (e.g., `accountId` instead of `username`, API v3 endpoints).
 Jira Cloud returns `"Cloud"`, while Data Center and older Server instances
 return `"Server"` or omit the field entirely (defaulting to `"Server"`).

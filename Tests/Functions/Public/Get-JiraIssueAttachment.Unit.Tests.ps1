@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueAttachment" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -64,10 +64,10 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue'
                 $typedAttachments = foreach ($attachment in (ConvertFrom-Json -InputObject $script:attachments)) {
-                    [AtlassianPS.JiraPS.Attachment]@{
+                    [AtlassianPSVII.JiraPSVII.Attachment]@{
                         ID       = $attachment.id
                         Self     = [uri]$attachment.self
                         FileName = $attachment.filename
@@ -77,27 +77,27 @@ InModuleScope JiraPS {
                         Content  = [uri]$attachment.content
                     }
                 }
-                $IssueObj = [AtlassianPS.JiraPS.Issue]@{
+                $IssueObj = [AtlassianPSVII.JiraPSVII.Issue]@{
                     ID         = $script:issueID
                     Key        = $script:issueKey
                     RestUrl    = "$($script:jiraServer)/rest/api/2/issue/$($script:issueID)"
-                    Attachment = [AtlassianPS.JiraPS.Attachment[]]@($typedAttachments)
+                    Attachment = [AtlassianPSVII.JiraPSVII.Attachment[]]@($typedAttachments)
                 }
                 $IssueObj
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock ConvertTo-JiraAttachment -ModuleName JiraPS {
+            Mock ConvertTo-JiraAttachment -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'ConvertTo-JiraAttachment'
                 $InputObject
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
@@ -109,10 +109,10 @@ InModuleScope JiraPS {
                 $script:issueObject = Get-JiraIssue -Key $issueKey
             }
 
-            It 'only accepts String or AtlassianPS.JiraPS.Issue as input' {
-                { Get-JiraIssueAttachment -Issue (Get-Date) } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
-                { Get-JiraIssueAttachment -Issue (Get-ChildItem) } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
-                { Get-JiraIssueAttachment -Issue @('foo', 'bar') } | Should -Throw -ExpectedMessage "*to AtlassianPS.JiraPS.Issue*"
+            It 'only accepts String or AtlassianPSVII.JiraPSVII.Issue as input' {
+                { Get-JiraIssueAttachment -Issue (Get-Date) } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
+                { Get-JiraIssueAttachment -Issue (Get-ChildItem) } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
+                { Get-JiraIssueAttachment -Issue @('foo', 'bar') } | Should -Throw -ExpectedMessage "*to AtlassianPSVII.JiraPSVII.Issue*"
                 { @('foo', 'bar') | Get-JiraIssueAttachment } | Should -Not -Throw
                 { Get-JiraIssueAttachment -Issue (Get-JiraIssue -Key "foo") } | Should -Not -Throw
             }

@@ -5,7 +5,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Set-JiraConfigServer" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -57,7 +57,7 @@ InModuleScope JiraPS {
                 Get-Content $script:serverConfig | Should -Be "$jiraServer/"
             }
 
-            It "accepts an AtlassianPS.Configuration-shaped server entry from the pipeline" {
+            It "accepts an AtlassianPSVII.Configuration-shaped server entry from the pipeline" {
                 [PSCustomObject]@{
                     Uri                = 'https://example.atlassian.net/'
                     Type               = 'Jira'

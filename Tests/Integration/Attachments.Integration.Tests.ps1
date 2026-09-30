@@ -13,7 +13,7 @@ BeforeDiscovery {
     }
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Attachments" -Tag 'Integration', 'Server', 'Cloud' -Skip:$Skip {
         BeforeAll {
             . "$PSScriptRoot/../Helpers/IntegrationTestTools.ps1"
@@ -46,7 +46,7 @@ InModuleScope JiraPS {
 
                     $attachments = Get-JiraIssueAttachment -Issue $fixtures.TestIssue
                     if ($attachments) {
-                        @($attachments)[0] | Should -BeOfType [AtlassianPS.JiraPS.Attachment]
+                        @($attachments)[0] | Should -BeOfType [AtlassianPSVII.JiraPSVII.Attachment]
                     }
                 }
 
@@ -58,7 +58,7 @@ InModuleScope JiraPS {
                     $attachments = Get-JiraIssueAttachment -Issue $fixtures.TestIssue
 
                     if ($attachments) {
-                        @($attachments)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Attachment'
+                        @($attachments)[0].PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Attachment'
                     }
                 }
 
@@ -87,11 +87,11 @@ InModuleScope JiraPS {
 
                     $tempDir = [System.IO.Path]::GetTempPath()
                     $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
-                    $script:testFilePath = Join-Path $tempDir "jiraps-test-$timestamp.txt"
+                    $script:testFilePath = Join-Path $tempDir "jirapsvii-test-$timestamp.txt"
                     "Test file content created at $(Get-Date)" | Set-Content -Path $testFilePath
 
-                    $script:testBinaryFilePath = Join-Path $tempDir "jiraps-résumé-$timestamp.bin"
-                    $script:downloadDir = Join-Path $tempDir "jiraps-download-$timestamp"
+                    $script:testBinaryFilePath = Join-Path $tempDir "jirapsvii-résumé-$timestamp.bin"
+                    $script:downloadDir = Join-Path $tempDir "jirapsvii-download-$timestamp"
                     $binaryContent = [byte[]](0..255) * 4
                     [System.IO.Directory]::CreateDirectory($downloadDir) | Out-Null
                     [System.IO.File]::WriteAllBytes($testBinaryFilePath, $binaryContent)
@@ -128,7 +128,7 @@ InModuleScope JiraPS {
                     }
                     $attachment = Add-JiraIssueAttachment -Issue $tempIssue.Key -FilePath $testFilePath -PassThru
 
-                    $attachment.PSObject.TypeNames[0] | Should -Be 'AtlassianPS.JiraPS.Attachment'
+                    $attachment.PSObject.TypeNames[0] | Should -Be 'AtlassianPSVII.JiraPSVII.Attachment'
                 }
 
                 It "the attachment appears when fetching issue attachments" {
@@ -197,7 +197,7 @@ InModuleScope JiraPS {
 
                     $tempDir = [System.IO.Path]::GetTempPath()
                     $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
-                    $script:deleteTestFile = Join-Path $tempDir "jiraps-delete-test-$timestamp.txt"
+                    $script:deleteTestFile = Join-Path $tempDir "jirapsvii-delete-test-$timestamp.txt"
                     "Delete test content" | Set-Content -Path $deleteTestFile
                 }
             }

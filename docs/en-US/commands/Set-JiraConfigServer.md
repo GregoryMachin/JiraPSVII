@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Set-JiraConfigServer/
 locale: en-US
 layout: documentation
@@ -20,10 +20,10 @@ Set-JiraConfigServer [-Server] <Object> [<CommonParameters>]
 
 ## DESCRIPTION
 
-This function defines the configured URL for the JIRA server that JiraPS should manipulate.
+This function defines the configured URL for the JIRA server that JiraPSVII should manipulate.
 The `-Server` parameter still accepts the legacy URI or string value.
-It also accepts an AtlassianPS.Configuration server entry from the pipeline or by property name.
-When the server entry includes `Product`, `DeploymentType`, `AuthenticationType`, or `CloudId`, JiraPS keeps that metadata in the current module session and uses it before probing `/serverInfo`.
+It also accepts an AtlassianPSVII.Configuration server entry from the pipeline or by property name.
+When the server entry includes `Product`, `DeploymentType`, `AuthenticationType`, or `CloudId`, JiraPSVII keeps that metadata in the current module session and uses it before probing `/serverInfo`.
 
 ## EXAMPLES
 
@@ -33,7 +33,7 @@ When the server entry includes `Product`, `DeploymentType`, `AuthenticationType`
 Set-JiraConfigServer 'https://jira.example.com:8080'
 ```
 
-This example defines the server URL of the JIRA server configured for the JiraPS module.
+This example defines the server URL of the JIRA server configured for the JiraPSVII module.
 
 ### EXAMPLE 2
 
@@ -41,8 +41,8 @@ This example defines the server URL of the JIRA server configured for the JiraPS
 Get-AtlassianServerConfiguration -Name "Jira Cloud" | Set-JiraConfigServer
 ```
 
-This example configures JiraPS from an AtlassianPS.Configuration server entry.
-If the entry contains `DeploymentType = "Cloud"` and OAuth metadata, JiraPS uses that explicit metadata instead of falling back to deployment auto-detection.
+This example configures JiraPSVII from an AtlassianPSVII.Configuration server entry.
+If the entry contains `DeploymentType = "Cloud"` and OAuth metadata, JiraPSVII uses that explicit metadata instead of falling back to deployment auto-detection.
 
 ## PARAMETERS
 
@@ -92,10 +92,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 Support for multiple configuration files is limited at this point in time,
 but enhancements are planned for the next major release.
-This can be tracked in [JiraPS#194](https://github.com/AtlassianPS/JiraPS/issues/194)
+This can be tracked in [JiraPSVII#194](https://github.com/AtlassianPS/JiraPS/issues/194)
 
 ## RELATED LINKS
 
-[about_JiraPS_Authentication](../../about/authentication.html)
+[about_JiraPSVII_Authentication](../../about/authentication.html)
 
 [Get-JiraConfigServer](../Get-JiraConfigServer/)

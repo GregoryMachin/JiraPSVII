@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Invoke-JiraIssueTransition" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -19,14 +19,14 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 $jiraServer
             }
 
-            Mock Get-JiraField -ModuleName JiraPS {
+            Mock Get-JiraField -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraField' 'Field', 'Credential'
                 # The cmdlet pre-fetches the full field catalogue (no -Field
                 # filter) and looks each requested key up in an in-memory
@@ -50,23 +50,23 @@ InModuleScope JiraPS {
                         Schema = [PSCustomObject]@{ type = 'string'; system = 'description' }
                     }
                 ).ForEach({
-                        $_.PSObject.TypeNames.Insert(0, 'JiraPS.Field')
+                        $_.PSObject.TypeNames.Insert(0, 'JiraPSVII.Field')
                         $_
                     })
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS {
+            Mock Get-JiraIssue -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
-                $t1 = [AtlassianPS.JiraPS.Transition]@{
+                $t1 = [AtlassianPSVII.JiraPSVII.Transition]@{
                     Name = 'Start Progress'
                     ID   = 11
                 }
-                $t2 = [AtlassianPS.JiraPS.Transition]@{
+                $t2 = [AtlassianPSVII.JiraPSVII.Transition]@{
                     Name = 'Resolve'
                     ID   = 81
                 }
 
-                $object = [AtlassianPS.JiraPS.Issue]@{
+                $object = [AtlassianPSVII.JiraPSVII.Issue]@{
                     ID         = $issueID
                     Key        = $issueKey
                     RestUrl    = "$jiraServer/rest/api/2/issue/$issueID"
@@ -75,12 +75,12 @@ InModuleScope JiraPS {
                 $object
             }
 
-            Mock Resolve-JiraIssueObject -ModuleName JiraPS {
+            Mock Resolve-JiraIssueObject -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Resolve-JiraIssueObject' 'InputObject'
                 Get-JiraIssue -Key $InputObject.Key
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Get' -and
                 $URI -like "*issue/$issueID/transitions*"
             } {
@@ -128,7 +128,7 @@ InModuleScope JiraPS {
                 }
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Post' -and
                 $URI -eq "$jiraServer/rest/api/2/issue/$issueID/transitions"
             } {
@@ -139,14 +139,14 @@ InModuleScope JiraPS {
             # Cloud equivalent: when Test-JiraCloudServer returns $true the
             # cmdlet hits the v3 endpoint (so the API accepts ADF). The
             # mocked response is the same — only the URI changes.
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                 $Method -eq 'Post' -and
                 $URI -eq "$jiraServer/rest/api/3/issue/$issueID/transitions"
             } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri', 'Body'
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod: $Method $URI"
             }
@@ -160,7 +160,7 @@ InModuleScope JiraPS {
 
             Context "Parameter Types" {
                 It "has a parameter '<parameter>' of type '<type>'" -TestCases @(
-                    @{ parameter = "Issue"; type = "AtlassianPS.JiraPS.Issue" }
+                    @{ parameter = "Issue"; type = "AtlassianPSVII.JiraPSVII.Issue" }
                     @{ parameter = "Transition"; type = "Object" }
                     @{ parameter = "Comment"; type = "String" }
                     @{ parameter = "TimeSpent"; type = "TimeSpan" }
@@ -213,8 +213,8 @@ InModuleScope JiraPS {
                 It "performs a transition when given an issue key and transition ID" {
                     { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 } | Should -Not -Throw
 
-                    Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly -Times 1
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 1
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
 
                 It "performs a transition when given an issue object and transition object" {
@@ -223,8 +223,8 @@ InModuleScope JiraPS {
                     { Invoke-JiraIssueTransition -Issue $issue -Transition $transition } | Should -Not -Throw
 
                     # Get-JiraIssue called once in test setup, once in Invoke-JiraIssueTransition
-                    Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly -Times 2
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 2
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
             }
 
@@ -242,12 +242,12 @@ InModuleScope JiraPS {
                         Invoke-JiraIssueTransition @parameter
                     } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $URI -like "*/rest/api/2/issue/$issueID/transitions" -and
                         $Body -like '*customfield_12345*set*foo*'
                     }
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $URI -like "*/rest/api/2/issue/$issueID/transitions" -and
                         $Body -like '*customfield_67890*set*bar*'
@@ -255,7 +255,7 @@ InModuleScope JiraPS {
                 }
 
                 It "updates assignee name if provided to the -Assignee parameter" {
-                    Mock Get-JiraUser -ModuleName JiraPS {
+                    Mock Get-JiraUser -ModuleName JiraPSVII {
                         Write-MockDebugInfo 'Get-JiraUser' 'UserName'
                         [PSCustomObject] @{
                             'Name'    = 'powershell-user'
@@ -264,7 +264,7 @@ InModuleScope JiraPS {
                     }
                     { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Assignee 'powershell-user' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $URI -like "*/rest/api/2/issue/$issueID/transitions" -and
                         $Body -like '*name*powershell-user*'
@@ -274,7 +274,7 @@ InModuleScope JiraPS {
                 It "unassigns an issue when -Unassign switch is used" {
                     { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Unassign } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $URI -like "*/rest/api/2/issue/$issueID/transitions" -and
                         $Body -match '"name":\s*null'
@@ -300,7 +300,7 @@ InModuleScope JiraPS {
                 It "adds a comment if provided to the -Comment parameter" {
                     { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Comment 'test comment' } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $URI -like "*/rest/api/2/issue/$issueID/transitions" -and
                         $Body -like '*body*test comment*'
@@ -310,7 +310,7 @@ InModuleScope JiraPS {
                 It "adds a worklog if provided to the -TimeSpent parameter" {
                     { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -TimeSpent ([TimeSpan]::FromMinutes(15)) } | Should -Not -Throw
 
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                         $Method -eq 'Post' -and
                         $URI -like "*/rest/api/2/issue/$issueID/transitions" -and
                         $Body -like '*worklog*timeSpentSeconds*900*' -and
@@ -325,7 +325,7 @@ InModuleScope JiraPS {
                     $result = Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Passthru
                     $result | Should -Not -BeNullOrEmpty
 
-                    Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly -Times 4
+                    Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 4
                 }
 
                 It "does not return a value when -Passthru is omitted" {
@@ -333,7 +333,7 @@ InModuleScope JiraPS {
                     $result = Invoke-JiraIssueTransition -Issue $issueKey -Transition 11
                     $result | Should -BeNullOrEmpty
 
-                    Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly -Times 2
+                    Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 2
                 }
             }
         }
@@ -343,8 +343,8 @@ InModuleScope JiraPS {
                 It "handles pipeline input from Get-JiraIssue" {
                     { Get-JiraIssue -Key $issueKey | Invoke-JiraIssueTransition -Transition 11 } | Should -Not -Throw
 
-                    Should -Invoke Get-JiraIssue -ModuleName JiraPS -Exactly -Times 2
-                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly -Times 1
+                    Should -Invoke Get-JiraIssue -ModuleName JiraPSVII -Exactly -Times 2
+                    Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly -Times 1
                 }
             }
         }
@@ -353,16 +353,16 @@ InModuleScope JiraPS {
             BeforeAll {
                 $script:testAccountId = '5b10a2844c20165700ede21a'
 
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
 
-                Mock Resolve-JiraUser -ModuleName JiraPS {
+                Mock Resolve-JiraUser -ModuleName JiraPSVII {
                     Write-MockDebugInfo 'Resolve-JiraUser' 'InputObject', 'Credential'
                     $object = [PSCustomObject] @{
                         'Name'      = $InputObject
                         'AccountId' = $testAccountId
                         'RestUrl'   = "$jiraServer/rest/api/2/user?username=$InputObject"
                     }
-                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPS.JiraPS.User')
+                    $object.PSObject.TypeNames.Insert(0, 'AtlassianPSVII.JiraPSVII.User')
                     $object
                 }
             }
@@ -370,7 +370,7 @@ InModuleScope JiraPS {
             It "Uses accountId for assignee in transition body" {
                 { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Assignee 'powershell-user' } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -like "*/rest/api/3/issue/$issueID/transitions" -and
                     $Body -like "*accountId*$testAccountId*"
@@ -380,7 +380,7 @@ InModuleScope JiraPS {
             It "Sends accountId:null when -Unassign on Cloud deployment" {
                 { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Unassign } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -like "*/rest/api/3/issue/$issueID/transitions" -and
                     $Body -match '"accountId":\s*null'
@@ -390,7 +390,7 @@ InModuleScope JiraPS {
             It "wraps -Comment into an ADF document on Cloud deployment" {
                 { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 -Comment 'transition note' } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -like "*/rest/api/3/issue/$issueID/transitions" -and
                     ($payload = $Body | ConvertFrom-Json) -and
@@ -404,7 +404,7 @@ InModuleScope JiraPS {
             It "uses the v3 issue endpoint on Cloud" {
                 { Invoke-JiraIssueTransition -Issue $issueKey -Transition 11 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Post' -and
                     $URI -eq "$jiraServer/rest/api/3/issue/$issueID/transitions"
                 }
@@ -421,7 +421,7 @@ InModuleScope JiraPS {
                     }
                 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     if ($Method -ne 'Post' -or $URI -notlike "*/rest/api/3/issue/$issueID/transitions") {
                         return $false
                     }
@@ -443,7 +443,7 @@ InModuleScope JiraPS {
                     }
                 } | Should -Not -Throw
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     if ($Method -ne 'Post' -or $URI -notlike "*/rest/api/3/issue/$issueID/transitions") {
                         return $false
                     }
@@ -462,16 +462,16 @@ InModuleScope JiraPS {
                 }
 
                 # Fields are in the transition metadata — global catalogue not needed
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 0
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 0
 
                 # Transition metadata GET was made exactly once
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Get' -and $URI -like "*issue/$issueID/transitions*"
                 }
             }
 
             It "falls back to Get-JiraField for fields not present in transition metadata" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -like "*issue/$issueID/transitions*"
                 } {
                     # Transition with an empty fields map — no scoped metadata
@@ -484,11 +484,11 @@ InModuleScope JiraPS {
                     customfield_12345 = 'foo'
                 }
 
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "fetches the global field list at most once when multiple unscoped keys are present" {
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $Method -eq 'Get' -and $URI -like "*issue/$issueID/transitions*"
                 } {
                     [PSCustomObject]@{
@@ -501,7 +501,7 @@ InModuleScope JiraPS {
                     customfield_67890 = 'bar'
                 }
 
-                Should -Invoke Get-JiraField -ModuleName JiraPS -Exactly -Times 1
+                Should -Invoke Get-JiraField -ModuleName JiraPSVII -Exactly -Times 1
             }
 
             It "fetches transition metadata once per call regardless of how many -Fields keys are supplied" {
@@ -510,7 +510,7 @@ InModuleScope JiraPS {
                     customfield_67890 = 'bar'
                 }
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Get' -and $URI -like "*issue/$issueID/transitions*"
                 }
             }
@@ -520,7 +520,7 @@ InModuleScope JiraPS {
                     customfield_12345 = 'foo'
                 }
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Times 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Times 1 -ParameterFilter {
                     $Method -eq 'Get' -and
                     $URI -like "*issue/$issueID/transitions*" -and
                     $GetParameter['expand'] -eq 'transitions.fields' -and

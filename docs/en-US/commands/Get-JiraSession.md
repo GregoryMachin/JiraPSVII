@@ -1,6 +1,6 @@
 ---
-external help file: JiraPS-help.xml
-Module Name: JiraPS
+external help file: JiraPSVII-help.xml
+Module Name: JiraPSVII
 online version: https://atlassianps.org/docs/JiraPS/commands/Get-JiraSession/
 locale: en-US
 layout: documentation
@@ -48,12 +48,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### AtlassianPS.JiraPS.Session
+### AtlassianPSVII.JiraPSVII.Session
 
 ## NOTES
 
 ## RELATED LINKS
 
-[about_JiraPS_Authentication](../../about/authentication.html)
+[about_JiraPSVII_Authentication](../../about/authentication.html)
 
 [New-JiraSession](../New-JiraSession/)

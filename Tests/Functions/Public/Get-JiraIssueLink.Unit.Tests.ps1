@@ -6,7 +6,7 @@ BeforeDiscovery {
     $script:moduleToTest = Initialize-TestEnvironment
 }
 
-InModuleScope JiraPS {
+InModuleScope JiraPSVII {
     Describe "Get-JiraIssueLink" -Tag 'Unit' {
         BeforeAll {
             . "$PSScriptRoot/../../Helpers/TestTools.ps1"
@@ -29,25 +29,25 @@ InModuleScope JiraPS {
             #endregion Definitions
 
             #region Mocks
-            Mock Test-JiraCloudServer -ModuleName JiraPS { $false }
+            Mock Test-JiraCloudServer -ModuleName JiraPSVII { $false }
 
-            Mock Get-JiraConfigServer -ModuleName JiraPS {
+            Mock Get-JiraConfigServer -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Get-JiraConfigServer'
                 Write-Output $jiraServer
             }
 
             # Generic catch-all. This will throw an exception if we forgot to mock something.
-            Mock Invoke-JiraMethod -ModuleName JiraPS {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 throw "Unidentified call to Invoke-JiraMethod"
             }
 
-            Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/issueLink/1234" } {
+            Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter { $Method -eq 'Get' -and $URI -eq "/rest/api/2/issueLink/1234" } {
                 Write-MockDebugInfo 'Invoke-JiraMethod' 'Method', 'Uri'
                 ConvertFrom-Json $resultsJson
             }
 
-            Mock Get-JiraIssue -ModuleName JiraPS -ParameterFilter { $Key -eq "TEST-01" } {
+            Mock Get-JiraIssue -ModuleName JiraPSVII -ParameterFilter { $Key -eq "TEST-01" } {
                 Write-MockDebugInfo 'Get-JiraIssue' 'Key'
                 # We don't care about the content of any field except for the id
                 $obj = [PSCustomObject]@{
@@ -55,7 +55,7 @@ InModuleScope JiraPS {
                     "type"        = "foo"
                     "inwardIssue" = "bar"
                 }
-                $obj.PSObject.TypeNames.Insert(0, 'JiraPS.IssueLink')
+                $obj.PSObject.TypeNames.Insert(0, 'JiraPSVII.IssueLink')
                 return [PSCustomObject]@{
                     issueLinks = @(
                         $obj
@@ -106,14 +106,14 @@ InModuleScope JiraPS {
             }
 
             It "uses v3 for Cloud" {
-                Mock Test-JiraCloudServer -ModuleName JiraPS { $true }
-                Mock Invoke-JiraMethod -ModuleName JiraPS -ParameterFilter {
+                Mock Test-JiraCloudServer -ModuleName JiraPSVII { $true }
+                Mock Invoke-JiraMethod -ModuleName JiraPSVII -ParameterFilter {
                     $URI -eq '/rest/api/3/issueLink/1234'
                 } { ConvertFrom-Json $resultsJson }
 
                 $null = Get-JiraIssueLink -Id $issueLinkId
 
-                Should -Invoke Invoke-JiraMethod -ModuleName JiraPS -Exactly 1 -ParameterFilter {
+                Should -Invoke Invoke-JiraMethod -ModuleName JiraPSVII -Exactly 1 -ParameterFilter {
                     $URI -eq '/rest/api/3/issueLink/1234'
                 }
             }
