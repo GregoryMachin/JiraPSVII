@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## v4.0.0 - 2026-10-01
+
+- **Breaking:** forked from `JiraPS` 3.1.1 and renamed to `JiraPSVII`: new module name and GUID (`Import-Module JiraPSVII`, `#Requires -Modules JiraPSVII`); .NET types moved to the `AtlassianPSVII.JiraPSVII` namespace (for example `[AtlassianPSVII.JiraPSVII.Issue]`), and `PSTypeName`s from `JiraPS.*` to `JiraPSVII.*`; the saved server configuration moved to `%APPDATA%/AtlassianPSVII/JiraPSVII/server_config`, so run `Set-JiraConfigServer` once. Command names (`*-Jira*`) are unchanged, so JiraPS and JiraPSVII can be loaded side by side (module-qualify calls, e.g. `JiraPSVII\Get-JiraIssue`).
+- Build now pins `AtlassianPSVII.Standards` 1.0.0.
+
 ## v3.1.1 - 2026-09-17
 
 - Bumped the `AtlassianPSVII.Standards` pin to a locally built `0.2.0`, resolved via a sibling `.local-modules/` directory rather than the real PowerShell Gallery (this fork's own local development has no relationship to the real, independently published `AtlassianPSVII.Standards` release line). `Tools/Publish-ApiCanaryResult.ps1` now calls that build's `ConvertTo-AtlassianPSVIIApiCanaryResult` directly instead of hand-building the result schema. See `docs/ApiCanaries.md`.
