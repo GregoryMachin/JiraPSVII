@@ -10,7 +10,7 @@ For detailed information about writing and debugging tests, see the **[Testing G
 
 Key highlights:
 
-- JiraPSVII uses **Pester v5.7+** for unit testing
+- JiraPSVII uses **Pester v6.2+** for unit testing
 - All tests follow a consistent structure with Context blocks
 - **Test organization**: Tests mirror the module structure
   - `Tests/Functions/Public/` - Public CRUD functions
