@@ -1,12 +1,13 @@
+
+> **Fork notice:** JiraPSVII is a fork of [JiraPS](https://github.com/AtlassianPS/JiraPS) by the [AtlassianPS](https://github.com/AtlassianPS) team (MIT License), renamed and maintained by Gregory Machin. "VII" is only part of the name: it supports Windows PowerShell 5.1 and PowerShell 7.4+, and can be loaded side by side with the upstream module.
 ---
 layout: module
 permalink: /module/JiraPSVII/
 ---
 # [JiraPSVII](https://atlassianps.org/module/JiraPS)
 
-[![GitHub release](https://img.shields.io/github/release/AtlassianPS/JiraPS.svg?style=for-the-badge)](https://github.com/AtlassianPS/JiraPS/releases/latest)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/AtlassianPS/JiraPS/ci.yml?style=for-the-badge)](https://github.com/AtlassianPS/JiraPS/actions/workflows/ci.yml)
-[![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/JiraPS.svg?style=for-the-badge)](https://www.powershellgallery.com/packages/JiraPS)
+[![GitHub release](https://img.shields.io/github/release/GregoryMachin/JiraPSVII.svg?style=for-the-badge)](https://github.com/GregoryMachin/JiraPSVII/releases/latest)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/GregoryMachin/JiraPSVII/ci.yml?style=for-the-badge)](https://github.com/GregoryMachin/JiraPSVII/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)
 
 JiraPSVII is a Windows PowerShell module to interact with Atlassian [JIRA] via a REST API, while maintaining a consistent PowerShell look and feel.
@@ -22,15 +23,15 @@ Join the conversation on [![SlackLogo][] AtlassianPSVII.Slack.com](https://atlas
 
 ### Installation
 
-Install JiraPSVII from the [PowerShell Gallery]! `Install-Module` requires PowerShellGet (included in PS v5, or download for v3/v4 via the gallery link)
+JiraPSVII is not published to the PowerShell Gallery; use it straight from its repository:
 
 ```powershell
-# One time only install:
-Install-Module JiraPSVII -Scope CurrentUser
-
-# Check for updates occasionally:
-Update-Module JiraPSVII
+git clone https://github.com/GregoryMachin/JiraPSVII.git
+Import-Module ./JiraPSVII/JiraPSVII/JiraPSVII.psd1
 ```
+
+For the built release copy (merged module and compiled help) run `./Tools/setup.ps1` and
+`Invoke-Build -Task Build` in the clone, then import `./Release/JiraPSVII/JiraPSVII.psd1`.
 
 ### Usage
 
@@ -83,10 +84,10 @@ And once installed, you will be prompted to "Reopen in Container".
 
 | Configuration | Status |
 | ------------- | ------ |
-| Windows PowerShell v5.1 | [CI workflow](https://github.com/AtlassianPS/JiraPS/actions/workflows/ci.yml) |
-| PowerShell 7 on Windows | [CI workflow](https://github.com/AtlassianPS/JiraPS/actions/workflows/ci.yml) |
-| PowerShell 7 on Ubuntu | [CI workflow](https://github.com/AtlassianPS/JiraPS/actions/workflows/ci.yml) |
-| PowerShell 7 on macOS | [CI workflow](https://github.com/AtlassianPS/JiraPS/actions/workflows/ci.yml) |
+| Windows PowerShell v5.1 | [CI workflow](https://github.com/GregoryMachin/JiraPSVII/actions/workflows/ci.yml) |
+| PowerShell 7 on Windows | [CI workflow](https://github.com/GregoryMachin/JiraPSVII/actions/workflows/ci.yml) |
+| PowerShell 7 on Ubuntu | [CI workflow](https://github.com/GregoryMachin/JiraPSVII/actions/workflows/ci.yml) |
+| PowerShell 7 on macOS | [CI workflow](https://github.com/GregoryMachin/JiraPSVII/actions/workflows/ci.yml) |
 
 ## Acknowledgements
 
@@ -99,7 +100,7 @@ And once installed, you will be prompted to "Reopen in Container".
 * [Latest Release]
 * [Submit an Issue]
 * [Contributing]
-* How you can help us: [List of Issues](https://github.com/AtlassianPS/JiraPS/issues?q=is%3Aissue+is%3Aopen+label%3Aup-for-grabs)
+* How you can help us: [List of Issues](https://github.com/GregoryMachin/JiraPSVII/issues?q=is%3Aissue+is%3Aopen+label%3Aup-for-grabs)
 
 ## Disclaimer
 
@@ -110,9 +111,9 @@ Hopefully this is obvious, but:
 <!-- reference-style links -->
   [JIRA]: https://www.atlassian.com/software/jira
   [PowerShell Gallery]: https://www.powershellgallery.com/
-  [Source Code]: https://github.com/AtlassianPS/JiraPS
-  [Latest Release]: https://github.com/AtlassianPS/JiraPS/releases/latest
-  [Submit an Issue]: https://github.com/AtlassianPS/JiraPS/issues/new
+  [Source Code]: https://github.com/GregoryMachin/JiraPSVII
+  [Latest Release]: https://github.com/GregoryMachin/JiraPSVII/releases/latest
+  [Submit an Issue]: https://github.com/GregoryMachin/JiraPSVII/issues/new
   [replicaJunction]: https://github.com/replicaJunction
-  [MIT license]: https://github.com/AtlassianPS/JiraPS/blob/master/LICENSE
+  [MIT license]: https://github.com/GregoryMachin/JiraPSVII/blob/master/LICENSE
   [Contributing]: https://atlassianps.org/docs/Contributing/

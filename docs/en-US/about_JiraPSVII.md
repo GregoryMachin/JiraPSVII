@@ -116,7 +116,7 @@ Find us on GitHub or Slack, and let us know what you think.
 
 # SEE ALSO
 
-[JiraPSVII on Github](https://github.com/AtlassianPS/JiraPS)
+[JiraPSVII on Github](https://github.com/GregoryMachin/JiraPSVII)
 
 [Jira's REST API documentation](https://developer.atlassian.com/cloud/jira/platform/rest/)
 

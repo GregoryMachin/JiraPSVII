@@ -126,7 +126,7 @@ InModuleScope JiraPSVII {
                     # Known module limitation: ConvertTo-AtlassianDocumentFormat does not
                     # properly convert markdown bullet lists - they are treated as plain paragraphs.
                     # TODO: Track as GitHub issue and link here when fixed.
-                    # See: https://github.com/AtlassianPS/JiraPS/issues/XXX
+                    # See: https://github.com/GregoryMachin/JiraPSVII/issues/XXX
                     $markdown = "- Item 1`n- Item 2"
 
                     $adf = ConvertTo-AtlassianDocumentFormat -Markdown $markdown

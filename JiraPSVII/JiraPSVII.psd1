@@ -19,7 +19,7 @@
     CompanyName          = 'AtlassianPS.org'
 
     # Copyright statement for this module
-    Copyright            = '(c) 2017 AtlassianPSVII. All rights reserved.'
+    Copyright            = '(c) 2017 AtlassianPS; (c) 2026 Gregory Machin. MIT License.'
 
     # Description of the functionality provided by this module
     Description          = 'Windows PowerShell module to interact with Atlassian JIRA'
@@ -185,7 +185,7 @@
             )
 
             # A URL to the license for this module.
-            LicenseUri = 'https://github.com/AtlassianPS/JiraPS/blob/master/LICENSE'
+            LicenseUri = 'https://github.com/GregoryMachin/JiraPSVII/blob/master/LICENSE'
 
             # A URL to the main website for this project.
             ProjectUri = 'https://AtlassianPS.org/module/JiraPS'

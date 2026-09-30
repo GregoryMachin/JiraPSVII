@@ -738,7 +738,7 @@ Get-ChildItem -Recurse -Filter *.ps1 |
 - [Get-JiraIssue](../commands/Get-JiraIssue/)
 - [Get-JiraGroupMember](../commands/Get-JiraGroupMember/)
 - [about_JiraPSVII_Classes](classes.html)
-- [CHANGELOG](https://github.com/AtlassianPS/JiraPS/blob/master/CHANGELOG.md)
+- [CHANGELOG](https://github.com/GregoryMachin/JiraPSVII/blob/master/CHANGELOG.md)
 
 # KEYWORDS
 
