@@ -30,7 +30,7 @@ jobs:
           RELEASE_SHA: ${{ steps.release_ref.outputs.release_sha }}
         shell: bash
         run: |
-          for attempt in $(seq 1 120); do
+          for _ in $(seq 1 120); do
             run="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --commit "$RELEASE_SHA" --event push --limit 1 --json status,conclusion --jq '.[0] // {}')"
             status="$(jq -r '.status // empty' <<< "$run")"
             conclusion="$(jq -r '.conclusion // empty' <<< "$run")"
