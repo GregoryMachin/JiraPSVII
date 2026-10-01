@@ -150,7 +150,9 @@ jobs:
     # a green CI Result. First-party PRs and pushes to master gate on the
     # smoke result, which in turn gates release.yml's artifact download
     # (workflow_conclusion: success).
-    if: needs.changes.outputs.run_ci == 'true' &&
+    # Also skipped until the repository has its live test instance configured (the Cloud URL
+    # variable below; set it with the matching secrets to enable smoke tests on the fork).
+    if: vars.JIRA_CLOUD_URL != '' && needs.changes.outputs.run_ci == 'true' &&
       (github.event_name != 'pull_request' ||
        (github.event.pull_request.head.repo.full_name == github.repository &&
         github.actor != 'dependabot[bot]'))
