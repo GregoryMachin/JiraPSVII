@@ -25,9 +25,9 @@ Normal text. Including blue, red and yellow.
 
 [link](https://github.com/atlassianps)
 
-![alt text](https://atlassianps.org/assets/img/AtlassianPS.png)
+![alt text](https://example.com/assets/img/logo.png)
 
-Mention: @Oliver Lipkau
+Mention: @Jane Doe
 
 | Table | with  | header |
 | ----- | ----- | ------ |

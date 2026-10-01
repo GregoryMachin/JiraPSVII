@@ -2,7 +2,7 @@
 
 Happy to see you are interested in helping.
 
-We have a comprehensive documentation on how to contribute here: **[Contributing to AtlassianPSVII](https://atlassianps.org/docs/Contributing/)**.
+Open an issue to discuss a change, or send a pull request against `master`. Before submitting, run `./Tools/setup.ps1` and `Invoke-Build -Task Lint, .` (lint, build and tests) and make sure they pass.
 
 ## Testing
 

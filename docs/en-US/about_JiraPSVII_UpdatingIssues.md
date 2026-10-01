@@ -1,9 +1,7 @@
 ---
 locale: en-US
-layout: documentation
-online version: https://atlassianps.org/docs/JiraPS/about/updating-issues.html
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_UpdatingIssues.md
 Module Name: JiraPSVII
-permalink: /docs/JiraPS/about/updating-issues.html
 ---
 # Updating Issues
 
@@ -43,7 +41,7 @@ $issue | Set-JiraIssue -Summary "New Summary" -AddComment "Changed summary for t
 > **Note**: On Jira Cloud, user fields like `-Assignee` require an `accountId` instead of a username due to GDPR requirements. Use `Get-JiraUser` to find account IDs.
 
 If the field you want to change does not have a named parameter, `Set-JiraIssue` also supports changing arbitrary fields using the `-Fields` parameter.
-For more information on this parameter, see the [custom_fields](https://atlassianps.org/docs/JiraPS/About/custom-fields.html) page.
+For more information on this parameter, see the [custom_fields](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_CustomFields.md) page.
 
 ### Labels
 

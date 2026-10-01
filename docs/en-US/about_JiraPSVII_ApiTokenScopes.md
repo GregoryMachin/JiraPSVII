@@ -1,10 +1,8 @@
 ---
 locale: en-US
-layout: documentation
 title: API Token Scopes
-online version: https://atlassianps.org/docs/JiraPS/about/api-token-scopes.html
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_ApiTokenScopes.md
 Module Name: JiraPSVII
-permalink: /docs/JiraPS/about/api-token-scopes.html
 ---
 # API Token Scopes
 

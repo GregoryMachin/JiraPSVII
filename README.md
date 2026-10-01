@@ -1,20 +1,13 @@
-
-> **Fork notice:** JiraPSVII is a fork of [JiraPS](https://github.com/AtlassianPS/JiraPS) by the [AtlassianPS](https://github.com/AtlassianPS) team (MIT License), renamed and maintained by Gregory Machin. "VII" is only part of the name: it supports Windows PowerShell 5.1 and PowerShell 7.4+, and can be loaded side by side with the upstream module.
----
-layout: module
-permalink: /module/JiraPSVII/
----
-# [JiraPSVII](https://atlassianps.org/module/JiraPS)
+# [JiraPSVII](https://github.com/GregoryMachin/JiraPSVII)
 
 [![GitHub release](https://img.shields.io/github/release/GregoryMachin/JiraPSVII.svg?style=for-the-badge)](https://github.com/GregoryMachin/JiraPSVII/releases/latest)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/GregoryMachin/JiraPSVII/ci.yml?style=for-the-badge)](https://github.com/GregoryMachin/JiraPSVII/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg?style=for-the-badge)
 
+> **Fork notice:** JiraPSVII is a fork of [JiraPS](https://github.com/AtlassianPS/JiraPS) by the [AtlassianPS](https://github.com/AtlassianPS) team (MIT License), renamed and maintained by Gregory Machin. "VII" is only part of the name: it supports Windows PowerShell 5.1 and PowerShell 7.4+, and can be loaded side by side with the upstream module.
+
 JiraPSVII is a Windows PowerShell module to interact with Atlassian [JIRA] via a REST API, while maintaining a consistent PowerShell look and feel.
 
-Join the conversation on [![SlackLogo][] AtlassianPSVII.Slack.com](https://atlassianps.org/slack)
-
-[SlackLogo]: https://atlassianps.org/assets/img/Slack_Mark_Web_28x28.png
 <!--more-->
 
 ---
@@ -42,7 +35,7 @@ Set-JiraConfigServer 'https://YourCloud.atlassian.net'
 New-JiraSession -Credential $cred
 ```
 
-You can find the full documentation on our [homepage](https://atlassianps.org/docs/JiraPS) and in the console.
+The full documentation is in the [docs folder](https://github.com/GregoryMachin/JiraPSVII/tree/master/docs/en-US) and in the console.
 
 ```powershell
 # Review the help at any time!
@@ -51,12 +44,12 @@ Get-Command -Module JiraPSVII
 Get-Help Get-JiraIssue -Full # or any other command
 ```
 
-For more information on how to use JiraPSVII, check out the [Documentation](https://atlassianps.org/docs/JiraPS/).
+For more information on how to use JiraPSVII, check out the [Documentation](https://github.com/GregoryMachin/JiraPSVII/tree/master/docs/en-US).
 
 ### Contribute
 
-Want to contribute to AtlassianPSVII? Great!
-We appreciate [everyone](https://atlassianps.org/#people) who invests their time to make our modules the best they can be.
+Want to contribute? Great!
+Contributions are welcome: open an issue or a pull request in this repository.
 
 Check out our guidelines on [Contributing] to our modules and documentation.
 
@@ -91,8 +84,7 @@ And once installed, you will be prompted to "Reopen in Container".
 
 ## Acknowledgements
 
-* Thanks to [replicaJunction] for getting this module on its feet
-* Thanks to everyone ([Our Contributors](https://atlassianps.org/#people)) that helped with this module
+* This module is a fork of [JiraPS](https://github.com/AtlassianPS/JiraPS); thanks to its original authors and contributors.
 
 ## Useful links
 
@@ -114,6 +106,5 @@ Hopefully this is obvious, but:
   [Source Code]: https://github.com/GregoryMachin/JiraPSVII
   [Latest Release]: https://github.com/GregoryMachin/JiraPSVII/releases/latest
   [Submit an Issue]: https://github.com/GregoryMachin/JiraPSVII/issues/new
-  [replicaJunction]: https://github.com/replicaJunction
   [MIT license]: https://github.com/GregoryMachin/JiraPSVII/blob/master/LICENSE
-  [Contributing]: https://atlassianps.org/docs/Contributing/
+  [Contributing]: CONTRIBUTING.md

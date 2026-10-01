@@ -1,10 +1,8 @@
 ---
 external help file: JiraPSVII-help.xml
 Module Name: JiraPSVII
-online version: https://atlassianps.org/docs/JiraPS/commands/Remove-JiraRemoteLink/
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/commands/Remove-JiraRemoteLink.md
 locale: en-US
-layout: documentation
-permalink: /docs/JiraPS/commands/Remove-JiraRemoteLink/
 ---
 # Remove-JiraRemoteLink
 

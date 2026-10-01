@@ -1,7 +1,3 @@
----
-layout: documentation
-permalink: /docs/JiraPS/commands/
----
 # JiraPSVII commands
 
 JiraPSVII exports these commands directly without an additional default command prefix.

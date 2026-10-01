@@ -105,16 +105,16 @@ Describe "Help tests" -Tag "Documentation", "Build" {
                 }
 
                 It "has a valid online version" {
-                    $pattern = [regex]::Escape("https://atlassianps.org/docs/JiraPS/commands/$($command.Name)/")
+                    $pattern = [regex]::Escape("https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/commands/$($command.Name).md")
 
                     $markdownFile | Should -FileContentMatch $pattern
                 }
 
-                It "defines the frontmatter for the homepage" {
+                It "has no atlassianps.org website front matter" {
                     $markdownFile | Should -Not -BeNullOrEmpty
                     $markdownFile | Should -FileContentMatch "Module Name: JiraPSVII"
-                    $markdownFile | Should -FileContentMatchExactly "layout: documentation"
-                    $markdownFile | Should -FileContentMatch "permalink: /docs/JiraPS/commands/$($command.Name)/"
+                    $markdownFile | Should -Not -FileContentMatch '^layout:'
+                    $markdownFile | Should -Not -FileContentMatch '^permalink:'
                 }
             }
 
@@ -149,14 +149,14 @@ Describe "Help tests" -Tag "Documentation", "Build" {
                     # PlatyPS 1.0 uses "Online Version" without colon, older versions used "Online Version:"
                     [Uri]$onlineLink = ($help.relatedLinks.navigationLink | Where-Object { $_.linkText -match "^Online Version:?$" }).Uri
 
-                    $onlineLink.Authority | Should -Be "atlassianps.org"
+                    $onlineLink.Authority | Should -Be "github.com"
                     $onlineLink.Scheme | Should -Be "https"
-                    $onlineLink.PathAndQuery | Should -Be "/docs/JiraPS/commands/$($command.Name)/"
+                    $onlineLink.PathAndQuery | Should -Be "/GregoryMachin/JiraPSVII/blob/master/docs/en-US/commands/$($command.Name).md"
                 }
 
                 It "has a valid HelpUri" -Skip { #TODO: Fix HelpUri generation
                     $command.HelpUri | Should -Not -BeNullOrEmpty
-                    $pattern = [regex]::Escape("https://atlassianps.org/docs/JiraPS/commands/$($command.Name)")
+                    $pattern = [regex]::Escape("https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/commands/$($command.Name).md")
 
                     $command.HelpUri | Should -Match $pattern
                 }
@@ -320,11 +320,11 @@ Describe "Help tests" -Tag "Documentation", "Build" {
                 $class.FullName | Should -Not -FileContentMatch '{{.*}}'
             }
 
-            It "defines the frontmatter for the homepage" {
+            It "has no atlassianps.org website front matter" {
                 $class.FullName | Should -Not -BeNullOrEmpty
                 $class.FullName | Should -FileContentMatch "Module Name: JiraPSVII"
-                $class.FullName | Should -FileContentMatchExactly "layout: documentation"
-                $class.FullName | Should -FileContentMatch "permalink: /docs/JiraPS/classes/$($class.BaseName)/"
+                $class.FullName | Should -Not -FileContentMatch '^layout:'
+                $class.FullName | Should -Not -FileContentMatch '^permalink:'
             }
         }
     }
@@ -353,11 +353,11 @@ Describe "Help tests" -Tag "Documentation", "Build" {
                 $enum.FullName | Should -Not -FileContentMatch '{{.*}}'
             }
 
-            It "defines the frontmatter for the homepage" {
+            It "has no atlassianps.org website front matter" {
                 $enum.FullName | Should -Not -BeNullOrEmpty
                 $enum.FullName | Should -FileContentMatch "Module Name: JiraPSVII"
-                $enum.FullName | Should -FileContentMatchExactly "layout: documentation"
-                $enum.FullName | Should -FileContentMatch "permalink: /docs/JiraPS/enumerations/$($enum.BaseName)/"
+                $enum.FullName | Should -Not -FileContentMatch '^layout:'
+                $enum.FullName | Should -Not -FileContentMatch '^permalink:'
             }
         }
     }

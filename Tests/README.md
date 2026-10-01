@@ -610,5 +610,5 @@ When the workflow runs, the `TestIntegration` task in `JiraPSVII.build.ps1` vali
 ## Resources
 
 - [Pester Documentation](https://pester.dev/docs/quick-start)
-- [JiraPSVII Documentation](https://atlassianps.org/docs/JiraPS/)
-- [AtlassianPSVII Contributing Guide](https://atlassianps.org/docs/Contributing/)
+- [JiraPSVII Documentation](https://github.com/GregoryMachin/JiraPSVII/tree/master/docs/en-US)
+- [Contributing to JiraPSVII](../CONTRIBUTING.md)

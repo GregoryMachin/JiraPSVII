@@ -48,8 +48,8 @@ One of the easiest ways to build a JQL query is to use the search functions in J
     # Issues created in the last week
     Get-JiraIssue -Query "created >= -7d"
 
-    # Issues created by replicaJunction in the last week
-    Get-JiraIssue -Query "created >= -7d AND reporter in (replicaJunction)"
+    # Issues created by jsmith in the last week
+    Get-JiraIssue -Query "created >= -7d AND reporter in (jsmith)"
 
 For more information on using JQL, see Atlassian's article on `JIRA Query Language`_.
 

@@ -1,9 +1,7 @@
 ---
 Module Name: JiraPSVII
-online version: https://atlassianps.org/docs/JiraPS/
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII.md
 locale: en-US
-layout: documentation
-permalink: /docs/JiraPS/
 hide: true
 ---
 # JiraPSVII
@@ -110,19 +108,15 @@ Get-JiraIssue -Query 'project = TV AND label = "ReadyForRelease' |
 
 # NOTE
 
-This project is run by the volunteer organization AtlassianPSVII.
+This project is a fork of JiraPS by the AtlassianPS volunteer organization, maintained by Gregory Machin.
 We are always interested in hearing from new users!
-Find us on GitHub or Slack, and let us know what you think.
+Open an issue on GitHub and let us know what you think.
 
 # SEE ALSO
 
 [JiraPSVII on Github](https://github.com/GregoryMachin/JiraPSVII)
 
 [Jira's REST API documentation](https://developer.atlassian.com/cloud/jira/platform/rest/)
-
-[AtlassianPSVII org](https://atlassianps.org)
-
-[AtlassianPSVII Slack team](https://atlassianps.org/slack)
 
 # KEYWORDS
 

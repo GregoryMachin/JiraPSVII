@@ -1,10 +1,8 @@
 ---
 external help file: JiraPSVII-help.xml
 Module Name: JiraPSVII
-online version: https://atlassianps.org/docs/JiraPS/commands/Clear-JiraCache/
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/commands/Clear-JiraCache.md
 locale: en-US
-layout: documentation
-permalink: /docs/JiraPS/commands/Clear-JiraCache/
 ---
 # Clear-JiraCache
 

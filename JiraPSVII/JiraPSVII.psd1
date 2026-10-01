@@ -13,10 +13,10 @@
     GUID                 = 'e21096dd-f759-43e9-80c7-8a386ce59625'
 
     # Author of this module
-    Author               = 'AtlassianPSVII'
+    Author               = 'Gregory Machin'
 
     # Company or vendor of this module
-    CompanyName          = 'AtlassianPS.org'
+    CompanyName          = 'AtlassianPSVII'
 
     # Copyright statement for this module
     Copyright            = '(c) 2017 AtlassianPS; (c) 2026 Gregory Machin. MIT License.'
@@ -188,10 +188,9 @@
             LicenseUri = 'https://github.com/GregoryMachin/JiraPSVII/blob/master/LICENSE'
 
             # A URL to the main website for this project.
-            ProjectUri = 'https://AtlassianPS.org/module/JiraPS'
+            ProjectUri = 'https://github.com/GregoryMachin/JiraPSVII'
 
             # A URL to an icon representing this module.
-            IconUri    = 'https://AtlassianPS.org/assets/img/JiraPS.png'
 
             # ReleaseNotes of this module
             # ReleaseNotes = ''

@@ -1,9 +1,7 @@
 ---
 locale: en-US
-layout: documentation
-online version: https://atlassianps.org/docs/JiraPS/about/migration-v3.html
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_MigrationV3.md
 Module Name: JiraPSVII
-permalink: /docs/JiraPS/about/migration-v3.html
 ---
 # JiraPSVII
 

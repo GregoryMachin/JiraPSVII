@@ -1,10 +1,8 @@
 ---
 locale: en-US
-layout: documentation
 title: Authentication
-online version: https://atlassianps.org/docs/JiraPS/about/authentication.html
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_Authentication.md
 Module Name: JiraPSVII
-permalink: /docs/JiraPS/about/authentication.html
 ---
 # Authentication
 

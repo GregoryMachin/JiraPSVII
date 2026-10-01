@@ -145,7 +145,7 @@ InModuleScope JiraPSVII {
   "content": [{
     "type": "paragraph",
     "content": [
-      { "type": "mention", "attrs": { "id": "abc", "text": "@Oliver Lipkau", "accessLevel": "" } },
+      { "type": "mention", "attrs": { "id": "abc", "text": "@Jane Doe", "accessLevel": "" } },
       { "type": "text", "text": " " },
       { "type": "emoji", "attrs": { "shortName": ":smiley:", "id": "1f603", "text": "\ud83d\ude03" } },
       { "type": "text", "text": " " },
@@ -406,7 +406,7 @@ InModuleScope JiraPSVII {
             BeforeAll { $script:spc = ConvertFrom-AtlassianDocumentFormat -InputObject $adfSpecialInline }
 
             It "renders mention using attrs.text" {
-                $spc | Should -Match '@Oliver Lipkau'
+                $spc | Should -Match '@Jane Doe'
             }
 
             It "renders emoji using attrs.text" {

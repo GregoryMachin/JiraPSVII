@@ -1,10 +1,8 @@
 ---
 external help file: JiraPSVII-help.xml
 Module Name: JiraPSVII
-online version: https://atlassianps.org/docs/JiraPS/commands/Add-JiraFilterPermission/
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/commands/Add-JiraFilterPermission.md
 locale: en-US
-layout: documentation
-permalink: /docs/JiraPS/commands/Add-JiraFilterPermission/
 ---
 # Add-JiraFilterPermission
 

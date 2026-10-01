@@ -28,7 +28,7 @@ This release completes the Jira Cloud REST API v3 migration project: every in-sc
 - New `Test-JiraJql` and `Get-JiraJqlApproximateCount` let automation validate JQL and estimate result size before running an expensive search.
 - Scoped Jira Cloud API tokens are now documented per command family, with safer 401/403 diagnostics that point at the missing scope without exposing tokens.
 
-See [`about_JiraPSVII_CloudV3`](https://atlassianps.org/docs/JiraPS/about/cloud-v3.html) for a full summary of the migrated surface, the new authentication options, and current Cloud/Data Center parity gaps.
+See [`about_JiraPSVII_CloudV3`](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_CloudV3.md) for a full summary of the migrated surface, the new authentication options, and current Cloud/Data Center parity gaps.
 
 ### Changed
 
@@ -88,7 +88,7 @@ This release focuses on Cloud and Data Center compatibility, safer typing, and b
 - Magic-string assignee behaviors were removed in favor of explicit switches such as `-Unassign` and `-UseDefaultAssignee`.
 - Several cmdlet parameters now bind to strongly typed JiraPSVII objects via transformation attributes, which may change edge-case binding behavior in scripts that relied on loose `[object]` input.
 
-For the migration playbook and concrete before/after script examples, see [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/migration-v3.html).
+For the migration playbook and concrete before/after script examples, see [`about_JiraPSVII_MigrationV3`](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_MigrationV3.md).
 
 ### Changed
 
@@ -125,7 +125,7 @@ For the migration playbook and concrete before/after script examples, see [`abou
 - **Jira Cloud**: Use `-ApiToken` with `-EmailAddress` — no more manually constructing Basic auth headers
 - **Jira Data Center**: Use `-PersonalAccessToken` (aliases: `-PAT`, `-BearerToken`) for Personal Access Tokens — the recommended method since DC 8.14
 
-Both accept `SecureString` and work seamlessly in automation. See the updated [authentication documentation](https://atlassianps.org/docs/JiraPS/about/authentication.html) for examples including environment variables and CI/CD patterns.
+Both accept `SecureString` and work seamlessly in automation. See the updated [authentication documentation](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_Authentication.md) for examples including environment variables and CI/CD patterns.
 
 > **Note**: OAuth 2.0 (3LO) helpers for Jira Cloud are tracked in [#101](https://github.com/AtlassianPS/JiraPS/issues/101) and will be addressed in a future release.
 
@@ -150,7 +150,7 @@ Both accept `SecureString` and work seamlessly in automation. See the updated [a
   No legacy alias is added — the rename is intentional and final.
   The leaf types promoted in this release also use the `AtlassianPSVII.JiraPSVII.*` namespace; prefer `$obj -is [AtlassianPSVII.JiraPSVII.<Type>]` over PSTypeName string checks for new code.
 
-See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/migration-v3.html) for migration examples.
+See [`about_JiraPSVII_MigrationV3`](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_MigrationV3.md) for migration examples.
 
 ### Added
 
@@ -204,9 +204,9 @@ See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/mi
   These are lossless tightenings — the converters were already producing values of the new slot types; the change just lets `Get-Member`, IntelliSense, and `[ValidateScript]` see them.
 - **BREAKING (soft)**: Tightened the boolean and numeric slot types on `Filter` and `Version`. `Filter.Favourite`, `Version.Archived`, `Version.Released`, and `Version.Overdue` are now `[bool]` (were `[object]`); `Version.Project` is now `[long?]` (was `[object]`).
   When the corresponding wire field is omitted from the payload, the boolean slots now surface as `$false` instead of `$null` (matching the Jira REST documentation, which describes a missing flag as "not set"). Scripts that distinguish "absent" from "false" via `if ($null -eq $f.Favourite)` need to switch to a different signal — the field is always `$true` or `$false` now.
-  See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/migration-v3.html) for migration examples.
+  See [`about_JiraPSVII_MigrationV3`](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_MigrationV3.md) for migration examples.
 - **BREAKING**: `Version.StartDate` and `Version.ReleaseDate` are now `[DateTime?]` (were `[object]`). The empty-string sentinel that the v2 converter emitted when a date was missing is gone — the slots are `$null` instead. Scripts that tested `if ($v.StartDate -eq '')` need to switch to `if ($null -eq $v.StartDate)` (or simply `if (-not $v.StartDate)`, which still works for both shapes).
-  See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/migration-v3.html).
+  See [`about_JiraPSVII_MigrationV3`](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_MigrationV3.md).
 - **BREAKING (soft)**: Issue-scoped cmdlets now declare `-Issue` (or `-InputObject`, where the historical name is kept) as `[AtlassianPSVII.JiraPSVII.Issue]` and use the new `[AtlassianPSVII.JiraPSVII.IssueTransformation()]` attribute to coerce the bound value at parameter binding time. Affected cmdlets: `Add-JiraIssueAttachment`, `Add-JiraIssueComment`, `Add-JiraIssueWatcher`, `Add-JiraIssueWorklog`, `Get-JiraIssue` (`-InputObject`), `Get-JiraIssueAttachment`, `Get-JiraIssueComment`, `Get-JiraIssueWatcher`, `Get-JiraIssueWorklog`, `Get-JiraRemoteLink`, `Invoke-JiraIssueTransition`, `Remove-JiraIssue` (`-InputObject`), `Remove-JiraIssueAttachment`, `Remove-JiraIssueWatcher`, `Remove-JiraRemoteLink`, `Set-JiraIssue`, `Set-JiraIssueLabel`.
   - The old `ValidateScript` block that accepted `[String]` or `[PSCustomObject]` with a `JiraPSVII.Issue` `PSTypeName` is gone. The transformer accepts: an existing `[AtlassianPSVII.JiraPSVII.Issue]`, a non-empty issue-key string (wrapped in a stub `Issue` whose `Key` is set), or a legacy `PSCustomObject` decorated with the `AtlassianPSVII.JiraPSVII.Issue` `PSTypeName` (mapped to a real `Issue` instance for backward compatibility with hand-rolled mocks). Anything else throws an `ArgumentTransformationMetadataException` at parameter binding time with an actionable error message instead of failing later inside the cmdlet body.
   - The historical "single Issue only" runtime guardrail (`if (@($Issue).Count -ne 1) { throw }`) was removed from cmdlets where pipeline iteration is the obviously-correct behaviour. Pipelines like `Get-JiraIssue -Query 'project = TEST' | Add-JiraIssueComment -Comment 'reviewed'` now run the cmdlet's `process` block once per piped issue, matching the rest of PowerShell. Passing an array to `-Issue` directly (e.g. `-Issue $array`) also iterates instead of throwing — this is a soft behaviour change for scripts that relied on the old guard to surface "you passed too many issues" mistakes.
@@ -355,7 +355,7 @@ See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/mi
   - The `retrieves a specific link type by ID` test passed `$firstType.Id` (a `[string]`) to `Get-JiraIssueLinkType -LinkType`, which only routes through `/rest/api/2/issueLinkType/{id}` when the argument is `[Int]`; strings fall into the by-name lookup and return `$null`. Coerced the argument to `[int]` so the test exercises the documented ID branch on both Cloud and Data Center.
 - Fixed `New-JiraIssue` rejecting valid create payloads when the project's createmeta marked a field as `required: true` while it also advertised `hasDefaultValue: true`. The Jira REST API guarantees the server populates such fields from their configured default when the caller omits them (this is what the Jira UI relies on for fields like Reporter -> acting user, Priority -> project default, etc.), so refusing to send the request was both wrong and made the cmdlet unusable on stricter project field configurations. The validator now only errors out for required fields that have no server-side default to fall back on, and the error message has been clarified to say so. Existing behavior for `Required = $true / HasDefaultValue = $false` is unchanged.
 - Fixed `New-JiraIssue`, `Set-JiraIssue`, and `Invoke-JiraIssueTransition` rejecting rich-text fields (e.g. `description`, `environment`, multi-line custom-field text-areas) supplied via `-Fields` on Jira Cloud. Cloud's v3 issue endpoints (which JiraPSVII now targets so ADF is accepted) reject raw strings for these fields with `"Operation value must be an Atlassian Document"`. The `-Fields` processing loop now consults the field's schema via the new `Test-JiraRichTextField` helper and routes string values for rich-text fields through `Resolve-JiraTextFieldPayload`, matching the behaviour of the explicit `-Description`, `-AddComment`, and `-Comment` parameters. Server / Data Center, and non-rich-text fields on Cloud, are unaffected. (#602)
-- **BREAKING (soft)**: Fixed `JiraPSVII.Issue.Status` only surfacing the bare status name string, so `$issue.Status.Name` always evaluated to `$null` and downstream code could not inspect the status category, icon, or REST URL. `ConvertTo-JiraIssue` now converts the field through `ConvertTo-JiraStatus`, returning a proper `JiraPSVII.Status` object that exposes `Id`, `Name`, `Description`, `IconUrl`, and `RestUrl`. The object's `ToString()` still renders the status name, so `"$($issue.Status)"`, `Write-Output $issue.Status`, and the default formatter continue to display the previous text. Equality comparisons against the bare status name (`$issue.Status -eq 'Open'`) need to be updated to `$issue.Status.Name -eq 'Open'`. See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/migration-v3.html) for migration examples. (#634)
+- **BREAKING (soft)**: Fixed `JiraPSVII.Issue.Status` only surfacing the bare status name string, so `$issue.Status.Name` always evaluated to `$null` and downstream code could not inspect the status category, icon, or REST URL. `ConvertTo-JiraIssue` now converts the field through `ConvertTo-JiraStatus`, returning a proper `JiraPSVII.Status` object that exposes `Id`, `Name`, `Description`, `IconUrl`, and `RestUrl`. The object's `ToString()` still renders the status name, so `"$($issue.Status)"`, `Write-Output $issue.Status`, and the default formatter continue to display the previous text. Equality comparisons against the bare status name (`$issue.Status -eq 'Open'`) need to be updated to `$issue.Status.Name -eq 'Open'`. See [`about_JiraPSVII_MigrationV3`](https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_MigrationV3.md) for migration examples. (#634)
 - Fixed `Get-JiraIssue` prompting for input when piping JiraPSVII.Issue objects (added `ValueFromPipelineByPropertyName` to `-Key` parameter)
 - Fixed long-standing typo in `Invoke-JiraIssueTransition` where the transition-cast error path constructed its `ErrorRecord` against an undefined `$errorTargetError` variable instead of `$errorTarget`.
 - Fixed `ConvertTo-GetParameter` returning `'?'` for an empty hashtable; it now returns `''` again, matching its prior contract and preventing accidental trailing `?` in URLs.
@@ -518,8 +518,6 @@ See [`about_JiraPSVII_MigrationV3`](https://atlassianps.org/docs/JiraPS/about/mi
 
 ## 2.8 - 2018-06-28
 
-More detailed description about the changes can be found on [Our Website](https://atlassianps.org/article/announcement/JiraPS-v2.8.html).
-
 ### Changed
 
 - Added support for paginated response from API server by means of `-Paging` (#291, [@lipkau[]])
@@ -542,8 +540,6 @@ More detailed description about the changes can be found on [Our Website](https:
 
 ## 2.7 - 2018-05-13
 
-More detailed description about the changes can be found on [Our Website](https://atlassianps.org/article/announcement/JiraPS-v2.7.html).
-
 ### Changed
 
 - Writing and throwing of errors show better context (#199, [@lipkau][])
@@ -560,8 +556,6 @@ More detailed description about the changes can be found on [Our Website](https:
 - Allow `Get-JiraUser` to return more than 1 result (#246, [@lipkau][])
 
 ## 2.6 - 2018-05-02
-
-More detailed description about the changes can be found on [Our Website](https://atlassianps.org/article/announcement/JiraPS-v2.6.html).
 
 ### Added
 
@@ -585,8 +579,6 @@ More detailed description about the changes can be found on [Our Website](https:
 - Fix adding of multiple labels at once with `Set-JiraIssueLabel -Add` (#244, [@lipkau][])
 
 ## 2.5 - 2018-03-23
-
-More detailed description about the changes can be found on [Our Website](https://atlassianps.org/article/announcement/JiraPS-v2.5.html).
 
 ### Changed
 

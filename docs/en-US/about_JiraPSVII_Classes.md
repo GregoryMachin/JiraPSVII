@@ -1,9 +1,7 @@
 ---
 locale: en-US
-layout: documentation
-online version: https://atlassianps.org/docs/JiraPS/about/classes.html
+online version: https://github.com/GregoryMachin/JiraPSVII/blob/master/docs/en-US/about_JiraPSVII_Classes.md
 Module Name: JiraPSVII
-permalink: /docs/JiraPS/about/classes.html
 ---
 # JiraPSVII
 
