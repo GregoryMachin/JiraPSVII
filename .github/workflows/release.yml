@@ -3,6 +3,7 @@ name: Create Release and Publish
 on:
   push:
     tags:
+
       - "v*"
 
 jobs:
@@ -21,6 +22,28 @@ jobs:
         id: release_ref
         uses: GregoryMachin/AtlassianPSVII.Standards/.github/actions/resolve-release-tag@c70eaec1e4d771fe56f9e0b378eda1e521db8a07 # v1.0.0
 
+      - name: Wait for CI on the tagged commit
+        # A tag is usually pushed together with its commit, so CI may still be running; wait for it
+        # (up to 60 minutes) rather than failing the artifact download below.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ steps.release_ref.outputs.release_sha }}
+        shell: bash
+        run: |
+          for attempt in $(seq 1 120); do
+            run="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --commit "$RELEASE_SHA" --event push --limit 1 --json status,conclusion --jq '.[0] // {}')"
+            status="$(jq -r '.status // empty' <<< "$run")"
+            conclusion="$(jq -r '.conclusion // empty' <<< "$run")"
+            if [ "$status" = "completed" ]; then
+              if [ "$conclusion" = "success" ]; then exit 0; fi
+              echo "::error::CI on $RELEASE_SHA finished with '$conclusion'."
+              exit 1
+            fi
+            sleep 30
+          done
+          echo "::error::Timed out waiting for CI on $RELEASE_SHA."
+          exit 1
+
       - name: Download artifact from commit that got tagged
         uses: dawidd6/action-download-artifact@v21
         with:
@@ -38,18 +61,38 @@ jobs:
         with:
           release-version: ${{ steps.release_ref.outputs.release_tag }}
 
+      - name: Check for PowerShell Gallery credentials
+        # The fork publishes to GitHub releases; the Gallery is optional (set PSGALLERY_API_KEY to enable).
+        id: gallery
+        env:
+          HAS_GALLERY_KEY: ${{ secrets.PSGALLERY_API_KEY != '' }}
+        shell: bash
+        run: echo "publish=$HAS_GALLERY_KEY" >> "$GITHUB_OUTPUT"
+
       - name: Publish module
+        if: steps.gallery.outputs.publish == 'true'
         run: |
           Invoke-Build -Task Publish `
             -VersionToPublish ${{ steps.release_ref.outputs.release_tag }} `
             -PSGalleryAPIKey ${{ secrets.PSGALLERY_API_KEY }}
         shell: pwsh
 
+      - name: Package release without publishing
+        if: steps.gallery.outputs.publish != 'true'
+        run: Invoke-Build -Task SetVersion, Package -VersionToPublish ${{ steps.release_ref.outputs.release_tag }}
+        shell: pwsh
+
+      - name: Write release checksums
+        shell: bash
+        run: cd Release && sha256sum JiraPSVII.zip > SHA256SUMS
+
       - name: Create Release and Upload Asset
         uses: softprops/action-gh-release@v3
         with:
           body_path: ${{ steps.release_notes.outputs.release_notes_path }}
-          files: ./Release/JiraPSVII.zip
+          files: |
+            ./Release/JiraPSVII.zip
+            ./Release/SHA256SUMS
           fail_on_unmatched_files: true
           draft: false
           tag_name: ${{ steps.release_ref.outputs.release_tag }}
