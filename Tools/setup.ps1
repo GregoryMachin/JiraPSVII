@@ -73,7 +73,8 @@ if ((Test-Path -LiteralPath $localModulesPath -PathType Container) -and ($env:PS
     }
 }
 
-$buildRequirements = Import-PowerShellDataFile -Path $buildRequirementsPath
+# Parse the array-style requirements file: Import-PowerShellDataFile returns only its first entry.
+$buildRequirements = @([System.Management.Automation.Language.Parser]::ParseFile($buildRequirementsPath, [ref]$null, [ref]$null).EndBlock.Statements[0].PipelineElements[0].Expression.SafeGetValue())
 $standardsRequirement = $buildRequirements |
     Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
     Select-Object -First 1

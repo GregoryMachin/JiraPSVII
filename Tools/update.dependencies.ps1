@@ -22,7 +22,8 @@ $projectRoot = (Resolve-Path -LiteralPath (Join-Path -Path $PSScriptRoot -ChildP
 $buildRequirementsPath = Join-Path -Path $projectRoot -ChildPath 'Tools/build.requirements.psd1'
 $manifestPath = Join-Path -Path $projectRoot -ChildPath 'JiraPSVII/JiraPSVII.psd1'
 
-$buildRequirements = Import-PowerShellDataFile -Path $buildRequirementsPath
+# Parse the array-style requirements file: Import-PowerShellDataFile returns only its first entry.
+$buildRequirements = @([System.Management.Automation.Language.Parser]::ParseFile($buildRequirementsPath, [ref]$null, [ref]$null).EndBlock.Statements[0].PipelineElements[0].Expression.SafeGetValue())
 $standardsRequirement = $buildRequirements |
     Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
     Select-Object -First 1

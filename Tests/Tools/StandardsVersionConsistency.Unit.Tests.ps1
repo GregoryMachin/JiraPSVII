@@ -26,7 +26,8 @@ Describe 'AtlassianPSVII.Standards version consistency' -Tag Unit {
         }
 
         $buildRequirementsPath = Join-Path -Path $projectRoot -ChildPath 'Tools/build.requirements.psd1'
-        $buildRequirements = Import-PowerShellDataFile -Path $buildRequirementsPath
+        # Parse the array-style requirements file: Import-PowerShellDataFile returns only its first entry.
+        $buildRequirements = @([System.Management.Automation.Language.Parser]::ParseFile($buildRequirementsPath, [ref]$null, [ref]$null).EndBlock.Statements[0].PipelineElements[0].Expression.SafeGetValue())
         $standardsRequirement = $buildRequirements |
             Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
             Select-Object -First 1
@@ -151,20 +152,20 @@ Describe 'AtlassianPSVII.Standards version consistency' -Tag Unit {
         $buildScriptContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'JiraPSVII.build.ps1') -Raw
         $testToolsContent = Get-Content -LiteralPath (Join-Path -Path $projectRoot -ChildPath 'Tests/Helpers/TestTools.ps1') -Raw
 
-        $setupScriptContent | Should -Match '\$buildRequirements\s*=\s*Import-PowerShellDataFile'
+        $setupScriptContent | Should -Match '\$buildRequirements\s*=\s*@\(\[System\.Management\.Automation\.Language\.Parser\]::ParseFile\('
         $setupScriptContent | Should -Not -Match '\$standardsVersion\s*=\s*'''
         $setupScriptContent | Should -Match '-RequiredVersion\s+\$standardsVersion'
 
-        $updateScriptContent | Should -Match '\$buildRequirements\s*=\s*Import-PowerShellDataFile'
+        $updateScriptContent | Should -Match '\$buildRequirements\s*=\s*@\(\[System\.Management\.Automation\.Language\.Parser\]::ParseFile\('
         $updateScriptContent | Should -Not -Match '\$standardsVersion\s*=\s*'''
         $updateScriptContent | Should -Match '-RequiredVersion\s+\$standardsVersion'
         $updateScriptContent | Should -Match '\$PSCmdlet\.ShouldProcess\('
 
-        $buildScriptContent | Should -Match '\$buildRequirements\s*=\s*Import-PowerShellDataFile'
+        $buildScriptContent | Should -Match '\$buildRequirements\s*=\s*@\(\[System\.Management\.Automation\.Language\.Parser\]::ParseFile\('
         $buildScriptContent | Should -Match '-RequiredVersion\s+\$standardsRequirement\.RequiredVersion'
         $buildScriptContent | Should -Not -Match "AtlassianPSVII\.Standards.*RequiredVersion\s+'[0-9]+\.[0-9]+\.[0-9]+'"
 
-        $testToolsContent | Should -Match '\$script:_BuildRequirements\s*=\s*Import-PowerShellDataFile'
+        $testToolsContent | Should -Match '\$script:_BuildRequirements\s*=\s*@\(\[System\.Management\.Automation\.Language\.Parser\]::ParseFile\('
         $testToolsContent | Should -Match '-RequiredVersion\s+\$script:_StandardsRequirement\.RequiredVersion'
         $testToolsContent | Should -Not -Match "AtlassianPSVII\.Standards.*RequiredVersion\s+'[0-9]+\.[0-9]+\.[0-9]+'"
     }

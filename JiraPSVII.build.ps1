@@ -36,7 +36,8 @@ function Import-JiraPSVIIStandard {
     [CmdletBinding()]
     param()
 
-    $buildRequirements = Import-PowerShellDataFile -Path (Join-Path -Path $PSScriptRoot -ChildPath 'Tools/build.requirements.psd1')
+    # Parse the array-style requirements file: Import-PowerShellDataFile returns only its first entry.
+    $buildRequirements = @([System.Management.Automation.Language.Parser]::ParseFile((Join-Path -Path $PSScriptRoot -ChildPath 'Tools/build.requirements.psd1'), [ref]$null, [ref]$null).EndBlock.Statements[0].PipelineElements[0].Expression.SafeGetValue())
     $standardsRequirement = $buildRequirements |
         Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
         Select-Object -First 1

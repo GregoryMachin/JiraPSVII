@@ -1,6 +1,7 @@
 ﻿$script:_TestToolsDir = $PSScriptRoot
 $script:_ProjectRoot = git -C $script:_TestToolsDir rev-parse --show-toplevel
-$script:_BuildRequirements = Import-PowerShellDataFile -Path (Join-Path -Path $script:_ProjectRoot -ChildPath 'Tools/build.requirements.psd1')
+# Parse the array-style requirements file: Import-PowerShellDataFile returns only its first entry.
+$script:_BuildRequirements = @([System.Management.Automation.Language.Parser]::ParseFile((Join-Path -Path $script:_ProjectRoot -ChildPath 'Tools/build.requirements.psd1'), [ref]$null, [ref]$null).EndBlock.Statements[0].PipelineElements[0].Expression.SafeGetValue())
 $script:_StandardsRequirement = $script:_BuildRequirements |
     Where-Object { $_.ModuleName -eq 'AtlassianPSVII.Standards' } |
     Select-Object -First 1
