@@ -45,7 +45,7 @@ jobs:
           exit 1
 
       - name: Download artifact from commit that got tagged
-        uses: dawidd6/action-download-artifact@v21
+        uses: dawidd6/action-download-artifact@v26
         with:
           workflow: ci.yml
           workflow_conclusion: success
