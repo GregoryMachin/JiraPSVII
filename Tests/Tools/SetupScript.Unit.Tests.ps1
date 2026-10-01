@@ -198,6 +198,12 @@ Export-ModuleMember -Function Install-AtlassianPSVIIDependencyRequirement
         Mock -CommandName Register-PSRepository -MockWith {}
         Mock -CommandName Get-PackageProvider -MockWith { [PSCustomObject]@{ Name = 'NuGet'; Version = [Version] '2.8.5.100' } }
         Mock -CommandName Install-Module -MockWith {}
+        # The mock Standards module is on PSModulePath (so the post-install import works); make
+        # setup.ps1's "already installed?" check see it as missing, and pass other calls through
+        # (Pester 6 fails a call that matches no -ParameterFilter).
+        $realGetModule = Get-Command -Name Get-Module -CommandType Cmdlet
+        Mock -CommandName Get-Module -MockWith { & $realGetModule @PesterBoundParameters }
+        Mock -CommandName Get-Module -ParameterFilter { $ListAvailable -and $Name -eq 'AtlassianPSVII.Standards' } -MockWith {}
 
         $installPackageProviderCapturePath = Join-Path -Path $TestDrive -ChildPath 'setup.installpackageprovider.called'
         $setPSRepositoryCapturePath = Join-Path -Path $TestDrive -ChildPath 'setup.setpsrepository.called'

@@ -200,7 +200,8 @@ Describe "Help tests" -Tag "Documentation", "Build" {
             }
 
             Context "Parameter for <_.CommandName>" -Skip:(-not $isRunningInReleaseFolder) {
-                Context "Parameter: <_>" -ForEach $parameters {
+                # A command may have no parameters of its own; that is not an error (Pester 6 fails empty -ForEach).
+                Context "Parameter: <_>" -ForEach $parameters -AllowNullOrEmptyForEach {
                     BeforeAll {
                         $script:parameterName = $_
                         $script:parameterCode = $command.Parameters[$parameterName]
