@@ -11,6 +11,6 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: GregoryMachin/AtlassianPSVII.Standards/.github/actions/setup-powershell@c70eaec1e4d771fe56f9e0b378eda1e521db8a07 # v1.0.0
